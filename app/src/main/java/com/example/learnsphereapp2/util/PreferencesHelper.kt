@@ -35,4 +35,12 @@ class PreferencesHelper(context: Context) {
     fun clear() {
         sharedPreferences.edit().clear().apply()
     }
+
+    fun saveKelasId(kelasId: Int) {
+        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
+    }
+
+    fun getKelasId(): Int {
+        return sharedPreferences.getInt("kelasId", -1) // -1 sebagai default jika tidak ada
+    }
 }

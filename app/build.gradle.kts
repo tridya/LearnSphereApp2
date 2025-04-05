@@ -74,4 +74,8 @@ dependencies {
     // Debug
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
+
+    implementation(libs.compose.material3)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.navigation.compose)
 }
