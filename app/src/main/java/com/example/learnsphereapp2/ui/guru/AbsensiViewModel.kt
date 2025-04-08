@@ -13,6 +13,7 @@ import com.example.learnsphereapp2.util.PreferencesHelper
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 class AbsensiViewModel(
     private val preferencesHelper: PreferencesHelper
@@ -33,74 +34,61 @@ class AbsensiViewModel(
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
+            statusMap.clear() // Reset statusMap untuk data baru
+            Log.d("AbsensiViewModel", "Fetching data for kelasId: $kelasId, tanggal: $tanggal")
+
+            val token = preferencesHelper.getToken() ?: run {
+                errorMessage.value = "Token tidak ditemukan. Silakan login kembali."
+                isLoading.value = false
+                Log.e("AbsensiViewModel", "Token not found")
+                return@launch
+            }
+
+            // Ambil daftar siswa
             try {
-                val token = preferencesHelper.getToken() ?: run {
-                    errorMessage.value = "Token tidak ditemukan. Silakan login kembali."
-                    isLoading.value = false
-                    return@launch
-                }
-                Log.d("AbsensiViewModel", "Token: $token")
-
-                // Ambil daftar siswa
-                try {
-                    Log.d("AbsensiViewModel", "Mengambil daftar siswa untuk kelasId: $kelasId")
-                    val siswaResponse = RetrofitClient.apiService.getStudentsByClass(
-                        authorization = "Bearer $token",
-                        kelasId = kelasId
-                    )
-                    if (siswaResponse.isSuccessful) {
-                        siswaList.value = siswaResponse.body() ?: emptyList()
-                        siswaList.value.forEach { siswa ->
-                            if (!statusMap.containsKey(siswa.siswaId)) {
-                                statusMap[siswa.siswaId] = "Hadir"
-                            }
-                        }
-                        Log.d("AbsensiViewModel", "Berhasil mengambil ${siswaList.value.size} siswa: ${siswaList.value}")
-                    } else {
-                        errorMessage.value = when (siswaResponse.code()) {
-                            404 -> "Siswa tidak ditemukan untuk kelas ini."
-                            403 -> "Anda tidak memiliki akses ke kelas ini."
-                            else -> "Gagal mengambil daftar siswa: ${siswaResponse.message()}"
-                        }
-                        Log.e("AbsensiViewModel", "Gagal mengambil siswa: ${siswaResponse.code()} - ${siswaResponse.message()}")
-                    }
-                } catch (e: Exception) {
-                    errorMessage.value = "Error saat mengambil daftar siswa: ${e.message}"
-                    Log.e("AbsensiViewModel", "Error mengambil siswa: ${e.message}", e)
-                }
-
-                // Ambil absensi untuk tanggal yang dipilih
-                try {
-                    val tanggalApi = tanggal.format(formatterApi)
-                    Log.d("AbsensiViewModel", "Mengambil absensi untuk kelasId: $kelasId, tanggal: $tanggalApi")
-                    val absensiResponse = RetrofitClient.apiService.getAbsensiByClassAndDate(
-                        authorization = "Bearer $token",
-                        kelasId = kelasId,
-                        tanggal = tanggalApi
-                    )
-                    if (absensiResponse.isSuccessful) {
-                        absensiList.value = absensiResponse.body() ?: emptyList()
-                        absensiList.value.forEach { absensi ->
-                            statusMap[absensi.siswaId] = absensi.status
-                        }
-                        updateStatistics()
-                        Log.d("AbsensiViewModel", "Berhasil mengambil ${absensiList.value.size} data absensi: ${absensiList.value}")
-                    } else {
-                        errorMessage.value = when (absensiResponse.code()) {
-                            404 -> "Absensi tidak ditemukan untuk tanggal ini."
-                            403 -> "Anda tidak memiliki akses ke kelas ini."
-                            else -> "Gagal mengambil absensi: ${absensiResponse.message()}"
-                        }
-                        Log.e("AbsensiViewModel", "Gagal mengambil absensi: ${absensiResponse.code()} - ${absensiResponse.message()}")
-                    }
-                } catch (e: Exception) {
-                    errorMessage.value = "Error saat mengambil absensi: ${e.message}"
-                    Log.e("AbsensiViewModel", "Error mengambil absensi: ${e.message}", e)
+                Log.d("AbsensiViewModel", "Fetching siswa for kelasId: $kelasId")
+                val siswaResponse = RetrofitClient.apiService.getStudentsByClass(
+                    authorization = "Bearer $token",
+                    kelasId = kelasId
+                )
+                if (siswaResponse.isSuccessful) {
+                    siswaList.value = siswaResponse.body() ?: emptyList()
+                    siswaList.value.forEach { statusMap.putIfAbsent(it.siswaId, "Hadir") }
+                    Log.d("AbsensiViewModel", "Siswa fetched: ${siswaList.value.size} for kelasId: $kelasId")
+                } else {
+                    val errorBody = siswaResponse.errorBody()?.string()
+                    errorMessage.value = "Gagal mengambil data siswa: ${siswaResponse.code()} - $errorBody"
+                    Log.e("AbsensiViewModel", "Siswa fetch failed for kelasId: $kelasId: ${siswaResponse.code()} - $errorBody")
                 }
             } catch (e: Exception) {
-                errorMessage.value = "Error saat mengambil data: ${e.message}"
-                Log.e("AbsensiViewModel", "Error umum: ${e.message}", e)
+                errorMessage.value = "Error saat mengambil data siswa: ${e.message}"
+                Log.e("AbsensiViewModel", "Siswa fetch error for kelasId: $kelasId", e)
+            }
+
+            // Ambil absensi
+            try {
+                val tanggalApi = tanggal.format(formatterApi)
+                Log.d("AbsensiViewModel", "Fetching absensi for kelasId: $kelasId, tanggal: $tanggalApi")
+                val absensiResponse = RetrofitClient.apiService.getAbsensiByClassAndDate(
+                    authorization = "Bearer $token",
+                    kelasId = kelasId,
+                    tanggal = tanggalApi
+                )
+                if (absensiResponse.isSuccessful) {
+                    absensiList.value = absensiResponse.body() ?: emptyList()
+                    absensiList.value.forEach { statusMap[it.siswaId] = it.status }
+                    updateStatistics()
+                    Log.d("AbsensiViewModel", "Absensi fetched: ${absensiList.value.size} for kelasId: $kelasId")
+                } else {
+                    val errorBody = absensiResponse.errorBody()?.string()
+                    errorMessage.value = "Gagal mengambil data absensi: ${absensiResponse.code()} - $errorBody"
+                    Log.e("AbsensiViewModel", "Absensi fetch failed for kelasId: $kelasId: ${absensiResponse.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                errorMessage.value = "Error saat mengambil data absensi: ${e.message}"
+                Log.e("AbsensiViewModel", "Absensi fetch error for kelasId: $kelasId", e)
             } finally {
+                updateStatistics() // Pastikan statistik selalu diperbarui
                 isLoading.value = false
             }
         }
@@ -108,44 +96,47 @@ class AbsensiViewModel(
 
     fun updateAbsensi(siswaId: Int, tanggal: String, newStatus: String) {
         viewModelScope.launch {
+            val token = preferencesHelper.getToken() ?: run {
+                errorMessage.value = "Token tidak ditemukan. Silakan login kembali."
+                Log.e("AbsensiViewModel", "Token not found during update")
+                return@launch
+            }
+
+            // Validasi format tanggal
+            val validatedTanggal = try {
+                LocalDate.parse(tanggal, formatterApi)
+                tanggal
+            } catch (e: DateTimeParseException) {
+                errorMessage.value = "Format tanggal tidak valid: $tanggal. Harus yyyy-MM-dd."
+                Log.e("AbsensiViewModel", "Invalid date format: $tanggal", e)
+                return@launch
+            }
+
             try {
-                val token = preferencesHelper.getToken() ?: run {
-                    errorMessage.value = "Token tidak ditemukan. Silakan login kembali."
-                    return@launch
-                }
-                val absensi = AbsensiCreate(
-                    siswaId = siswaId,
-                    tanggal = tanggal,
-                    status = newStatus
-                )
-                Log.d("AbsensiViewModel", "Mengupdate absensi untuk siswaId: $siswaId, tanggal: $tanggal, status: $newStatus")
-                val response = RetrofitClient.apiService.createAbsensi(
-                    authorization = "Bearer $token",
-                    absensi = absensi
-                )
+                Log.d("AbsensiViewModel", "Updating absensi for siswaId: $siswaId, tanggal: $validatedTanggal, status: $newStatus")
+                val absensi = AbsensiCreate(siswaId = siswaId, tanggal = validatedTanggal, status = newStatus)
+                val response = RetrofitClient.apiService.createAbsensi("Bearer $token", absensi)
                 if (response.isSuccessful) {
-                    val updatedAbsensi = absensiList.value.toMutableList()
-                    val existingAbsensiIndex = updatedAbsensi.indexOfFirst { it.siswaId == siswaId }
-                    if (existingAbsensiIndex != -1) {
-                        updatedAbsensi[existingAbsensiIndex] = response.body()!!
+                    val updatedAbsensi = response.body()!!
+                    val currentList = absensiList.value.toMutableList()
+                    val index = currentList.indexOfFirst { it.siswaId == siswaId }
+                    if (index != -1) {
+                        currentList[index] = updatedAbsensi
                     } else {
-                        updatedAbsensi.add(response.body()!!)
+                        currentList.add(updatedAbsensi)
                     }
-                    absensiList.value = updatedAbsensi
+                    absensiList.value = currentList
                     statusMap[siswaId] = newStatus
                     updateStatistics()
-                    Log.d("AbsensiViewModel", "Berhasil mengupdate absensi untuk siswaId: $siswaId")
+                    Log.d("AbsensiViewModel", "Absensi updated successfully for siswaId: $siswaId")
                 } else {
-                    errorMessage.value = when (response.code()) {
-                        404 -> "Siswa tidak ditemukan."
-                        403 -> "Anda tidak memiliki akses untuk mengubah absensi."
-                        else -> "Gagal mengupdate absensi: ${response.message()}"
-                    }
-                    Log.e("AbsensiViewModel", "Gagal mengupdate absensi: ${response.code()} - ${response.message()}")
+                    val errorBody = response.errorBody()?.string()
+                    errorMessage.value = "Gagal update absensi: ${response.code()} - $errorBody"
+                    Log.e("AbsensiViewModel", "Update failed for siswaId: $siswaId: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
-                errorMessage.value = "Error saat mengupdate absensi: ${e.message}"
-                Log.e("AbsensiViewModel", "Error mengupdate absensi: ${e.message}", e)
+                errorMessage.value = "Error saat update absensi: ${e.message}"
+                Log.e("AbsensiViewModel", "Update error for siswaId: $siswaId", e)
             }
         }
     }
@@ -155,5 +146,6 @@ class AbsensiViewModel(
         absenCount.value = absensiList.value.count { it.status == "Alpa" }
         izinCount.value = absensiList.value.count { it.status == "Izin" }
         sakitCount.value = absensiList.value.count { it.status == "Sakit" }
+        Log.d("AbsensiViewModel", "Statistics updated: Hadir=${hadirCount.value}, Alpa=${absenCount.value}, Izin=${izinCount.value}, Sakit=${sakitCount.value}")
     }
 }

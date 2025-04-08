@@ -1,4 +1,3 @@
-// ui/NavGraph.kt
 package com.example.learnsphereapp2.ui
 
 import android.util.Log
@@ -6,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.learnsphereapp2.ui.guru.HomeScreenGuru
 import com.example.learnsphereapp2.ui.guru.AbsensiDetailScreenGuru
 import com.example.learnsphereapp2.ui.guru.AbsensiScreenGuru
+import com.example.learnsphereapp2.ui.guru.HomeScreenGuru
 import com.example.learnsphereapp2.ui.login.LoginScreen
 import com.example.learnsphereapp2.ui.orangtua.HomeScreenOrangTua
 import com.example.learnsphereapp2.util.PreferencesHelper
@@ -26,6 +25,21 @@ fun AppNavGraph(
     navController: NavHostController,
     preferencesHelper: PreferencesHelper
 ) {
+    // Daftar kelasId yang valid (mapping hardcode berdasarkan kelas)
+    val validKelasIds = setOf(1, 2, 3, 4)
+
+    // Fungsi untuk memvalidasi kelasId
+    fun validateKelasId(kelasId: Int?): Int {
+        if (kelasId == null || kelasId !in validKelasIds) {
+            Log.e("AppNavGraph", "Invalid or no kelasId found: $kelasId. Redirecting to LOGIN")
+            navController.navigate(Destinations.LOGIN) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+            return 0 // Nilai default, tetapi seharusnya tidak digunakan karena redirect
+        }
+        return kelasId
+    }
+
     NavHost(navController = navController, startDestination = Destinations.LOGIN) {
         composable(Destinations.LOGIN) {
             LoginScreen(
@@ -44,36 +58,40 @@ fun AppNavGraph(
             )
         }
         composable(Destinations.HOME_GURU) {
-            HomeScreenGuru(navController = navController)
+            // Ambil kelasId dari PreferencesHelper
+            val kelasId = preferencesHelper.getKelasId()
+            val validatedKelasId = validateKelasId(kelasId)
+            if (validatedKelasId == 0) return@composable // Redirect sudah dilakukan di validateKelasId
+
+            HomeScreenGuru(
+                navController = navController
+            )
         }
         composable(Destinations.ABSENSI_GURU) { backStackEntry ->
-            val kelasIdString = backStackEntry.arguments?.getString("kelasId")
-            Log.d("NavGraph", "kelasId received: $kelasIdString")
-            val kelasId = try {
-                kelasIdString?.toInt() ?: 1
-            } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId: $kelasIdString, using default value 1")
-                1
-            }
+            // Ambil kelasId dari PreferencesHelper
+            val kelasId = preferencesHelper.getKelasId()
+            val validatedKelasId = validateKelasId(kelasId)
+            if (validatedKelasId == 0) return@composable // Redirect sudah dilakukan di validateKelasId
+
+            Log.d("AppNavGraph", "Navigating to AbsensiScreenGuru with kelasId: $validatedKelasId")
             AbsensiScreenGuru(
                 navController = navController,
-                kelasId = kelasId,
+                kelasId = validatedKelasId,
                 preferencesHelper = preferencesHelper
             )
         }
         composable(Destinations.ABSENSI_DETAIL_GURU) { backStackEntry ->
-            val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+            // Ambil kelasId dari PreferencesHelper
+            val kelasId = preferencesHelper.getKelasId()
+            val validatedKelasId = validateKelasId(kelasId)
+            if (validatedKelasId == 0) return@composable // Redirect sudah dilakukan di validateKelasId
+
             val tanggal = backStackEntry.arguments?.getString("tanggal") ?: ""
-            Log.d("NavGraph", "kelasId received: $kelasIdString, tanggal: $tanggal")
-            val kelasId = try {
-                kelasIdString?.toInt() ?: 1
-            } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId: $kelasIdString, using default value 1")
-                1
-            }
+
+            Log.d("AppNavGraph", "Navigating to AbsensiDetailScreenGuru with kelasId: $validatedKelasId")
             AbsensiDetailScreenGuru(
                 navController = navController,
-                kelasId = kelasId,
+                kelasId = validatedKelasId,
                 tanggal = tanggal,
                 preferencesHelper = preferencesHelper
             )

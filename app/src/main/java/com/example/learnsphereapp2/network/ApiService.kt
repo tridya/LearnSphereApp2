@@ -5,6 +5,7 @@ import com.example.learnsphereapp2.data.model.UserResponse
 import com.example.learnsphereapp2.data.model.AbsensiCreate
 import com.example.learnsphereapp2.data.model.AbsensiResponse
 import com.example.learnsphereapp2.data.model.KelasResponse
+import com.example.learnsphereapp2.data.model.SiswaDetailResponse
 import com.example.learnsphereapp2.data.model.SiswaResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -49,8 +50,19 @@ interface ApiService {
         @Query("tanggal") tanggal: String
     ): Response<List<AbsensiResponse>>
 
-    @GET("api/kelas/guru")
-    suspend fun getKelasByGuru(
-        @Header("Authorization") authorization: String
+    @GET("api/kelas/")
+    suspend fun getKelasForGuru(
+        @Header("Authorization") token: String
     ): Response<List<KelasResponse>>
+
+    @GET("api/siswa/by-kode/{kode_siswa}")
+    suspend fun getSiswaByKode(
+        @Header("Authorization") authorization: String,
+        @Path("kode_siswa") kodeSiswa: String
+    ): Response<SiswaDetailResponse>
+
+    @GET("api/siswa/orang-tua")
+    suspend fun getSiswaByOrangTua(
+        @Header("Authorization") authorization: String
+    ): Response<List<SiswaResponse>>
 }

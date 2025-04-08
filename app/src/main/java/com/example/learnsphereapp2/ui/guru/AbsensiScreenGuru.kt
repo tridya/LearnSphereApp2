@@ -1,5 +1,6 @@
 package com.example.learnsphereapp2.ui.guru
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,11 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.ui.Destinations
@@ -25,21 +26,29 @@ import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import androidx.lifecycle.ViewModel
+import java.util.Locale
 
 @Composable
 fun AbsensiScreenGuru(
     navController: NavController,
-    kelasId: Int,
+    kelasId: Int, // Parameter ini akan divalidasi dengan PreferencesHelper
     preferencesHelper: PreferencesHelper
 ) {
-    val viewModel: AbsensiViewModel = viewModel(factory = AbsensiViewModelFactory<Any>(preferencesHelper))
+    val viewModel: AbsensiViewModel = viewModel(factory = AbsensiViewModelFactory(preferencesHelper))
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale("id", "ID"))
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
     val selectedDate = remember { mutableStateOf(LocalDate.now()) }
 
+    // Validasi kelasId dengan PreferencesHelper
+    val context = LocalContext.current
+    val validatedKelasId = preferencesHelper.getKelasId() ?: kelasId
+    if (validatedKelasId != kelasId) {
+        Log.w("AbsensiScreenGuru", "kelasId from navigation ($kelasId) does not match PreferencesHelper ($validatedKelasId). Using PreferencesHelper value.")
+    }
+    Log.d("AbsensiScreenGuru", "Using kelasId: $validatedKelasId")
+
     LaunchedEffect(selectedDate.value) {
-        viewModel.fetchData(kelasId = kelasId, tanggal = selectedDate.value)
+        viewModel.fetchData(kelasId = validatedKelasId, tanggal = selectedDate.value)
     }
 
     Column(
@@ -82,7 +91,7 @@ fun AbsensiScreenGuru(
                     .clickable { currentMonth = currentMonth.minusMonths(1) }
             )
             Text(
-                text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale("id", "ID"))),
+                text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale("id", "ID"))),
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
             )
             Icon(
@@ -99,7 +108,7 @@ fun AbsensiScreenGuru(
             yearMonth = currentMonth,
             onDateSelected = { date ->
                 selectedDate.value = date
-                navController.navigate("absensi_detail_guru/$kelasId/${date.format(formatter)}")
+                navController.navigate("absensi_detail_guru/$validatedKelasId/${date.format(formatter)}")
             }
         )
 
@@ -125,7 +134,6 @@ fun AbsensiScreenGuru(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
-                // Tetap tampilkan daftar siswa jika ada
                 if (viewModel.siswaList.value.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
@@ -195,7 +203,7 @@ fun AbsensiScreenGuru(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BottomNavigationGuru(navController)
+        BottomNavigationGuru(navController, validatedKelasId)
     }
 }
 
@@ -295,15 +303,5 @@ fun SiswaItem(nama: String, status: String) {
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-    }
-}
-
-class AbsensiViewModelFactory<ViewModel>(private val preferencesHelper: PreferencesHelper) : ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AbsensiViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AbsensiViewModel(preferencesHelper) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

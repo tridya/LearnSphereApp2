@@ -1,5 +1,6 @@
 package com.example.learnsphereapp2.ui.guru
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,10 @@ fun HomeScreenGuru(
     val context = LocalContext.current
     val preferencesHelper = PreferencesHelper(context)
     val username = preferencesHelper.getUsername() ?: "Unknown"
+    val kelasId = preferencesHelper.getKelasId()
+    val namaKelas = preferencesHelper.getNamaKelas() ?: "Tidak ada kelas"
+
+    Log.d("HomeScreenGuru", "Loaded kelasId: $kelasId, namaKelas: $namaKelas, username: $username")
 
     Column(
         modifier = Modifier
@@ -47,13 +52,13 @@ fun HomeScreenGuru(
                     )
                 )
                 Text(
-                    text = "Here some of the ways you can find help to grow in your studies",
+                    text = "Kelas: $namaKelas (ID: $kelasId)",
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     color = Color.Gray
                 )
             }
             Icon(
-                painter = painterResource(id = R.drawable.profile_placeholder), // Ganti dengan ikon notifikasi kalau ada
+                painter = painterResource(id = R.drawable.profile_placeholder),
                 contentDescription = "Notifications",
                 modifier = Modifier.size(24.dp)
             )
@@ -61,35 +66,45 @@ fun HomeScreenGuru(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { navController.navigate(Destinations.ABSENSI_GURU) },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA))
-        ) {
-            Row(
+        if (kelasId == -1) {
+            Text(
+                text = "Anda belum memiliki kelas yang dikelola. Silakan hubungi admin.",
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .clickable {
+                        Log.d("HomeScreenGuru", "Navigating to ABSENSI_GURU with kelasId: $kelasId")
+                        navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString()))
+                    },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA))
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_absensi), // Pastikan ikon ini ada
-                    contentDescription = "Absensi",
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Absen\nTrack student attendance",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_absensi),
+                        contentDescription = "Absensi",
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "Absen\nTrack student attendance",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Card Nilai
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,7 +119,7 @@ fun HomeScreenGuru(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_nilai), // Tambahkan ikon nilai di drawable
+                    painter = painterResource(id = R.drawable.ic_nilai),
                     contentDescription = "Nilai",
                     modifier = Modifier.size(40.dp)
                 )
@@ -118,7 +133,6 @@ fun HomeScreenGuru(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Card Jadwal
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,7 +147,7 @@ fun HomeScreenGuru(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_jadwal), // Pastikan ikon ini ada
+                    painter = painterResource(id = R.drawable.ic_jadwal),
                     contentDescription = "Jadwal",
                     modifier = Modifier.size(40.dp)
                 )
@@ -147,7 +161,6 @@ fun HomeScreenGuru(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Bottom Navigation dengan 4 ikon
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,7 +169,7 @@ fun HomeScreenGuru(
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_home), // Pastikan ikon ini ada
+                painter = painterResource(id = R.drawable.ic_home),
                 contentDescription = "Home",
                 modifier = Modifier
                     .size(24.dp)
@@ -164,21 +177,25 @@ fun HomeScreenGuru(
                 tint = MaterialTheme.colorScheme.primary
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_absensi), // Pastikan ikon ini ada
+                painter = painterResource(id = R.drawable.ic_absensi),
                 contentDescription = "Absen",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.navigate(Destinations.ABSENSI_GURU) }
+                    .clickable {
+                        if (kelasId != -1) {
+                            navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString()))
+                        }
+                    }
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_nilai), // Tambahkan ikon nilai di drawable
+                painter = painterResource(id = R.drawable.ic_nilai),
                 contentDescription = "Nilai",
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { /* Nanti tambahkan navigasi ke Nilai */ }
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_jadwal), // Pastikan ikon ini ada
+                painter = painterResource(id = R.drawable.ic_jadwal),
                 contentDescription = "Jadwal",
                 modifier = Modifier
                     .size(24.dp)

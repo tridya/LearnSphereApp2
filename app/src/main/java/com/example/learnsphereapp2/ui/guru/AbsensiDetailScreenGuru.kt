@@ -1,5 +1,6 @@
 package com.example.learnsphereapp2.ui.guru
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,7 +27,7 @@ import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.ui.res.painterResource
+import java.util.Locale
 
 @Composable
 fun AbsensiDetailScreenGuru(
@@ -33,20 +36,32 @@ fun AbsensiDetailScreenGuru(
     tanggal: String,
     preferencesHelper: PreferencesHelper
 ) {
-    val viewModel: AbsensiViewModel = viewModel(factory = AbsensiViewModelFactory<Any>(preferencesHelper))
-
-    val formatterInput = DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale("id", "ID"))
+    val viewModel: AbsensiViewModel = viewModel(factory = AbsensiViewModelFactory(preferencesHelper))
+    val formatterInput = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
     val formatterOutput = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val tanggalApi = try {
-        val date = LocalDate.parse(tanggal, formatterInput)
-        date.format(formatterOutput)
-    } catch (e: Exception) {
-        LocalDate.now().format(formatterOutput)
-    }
 
-    LaunchedEffect(Unit) {
-        val date = LocalDate.parse(tanggal, formatterInput)
-        viewModel.fetchData(kelasId = kelasId, tanggal = date)
+    // Validasi kelasId dengan PreferencesHelper
+    val context = LocalContext.current
+    val validatedKelasId = preferencesHelper.getKelasId() ?: kelasId
+    if (validatedKelasId != kelasId) {
+        Log.w("AbsensiDetailScreenGuru", "kelasId from navigation ($kelasId) does not match PreferencesHelper ($validatedKelasId). Using PreferencesHelper value.")
+    }
+    Log.d("AbsensiDetailScreenGuru", "Using kelasId: $validatedKelasId")
+
+    // Parsing tanggal
+    val parsedTanggal = try {
+        LocalDate.parse(tanggal, formatterInput)
+    } catch (e: Exception) {
+        Log.e("AbsensiDetailScreenGuru", "Failed to parse tanggal: $tanggal", e)
+        LocalDate.now()
+    }
+    val tanggalApi = parsedTanggal.format(formatterOutput)
+
+    // State untuk pencarian siswa
+    var searchQuery by remember { mutableStateOf("") }
+
+    LaunchedEffect(parsedTanggal) {
+        viewModel.fetchData(kelasId = validatedKelasId, tanggal = parsedTanggal)
     }
 
     Column(
@@ -64,7 +79,9 @@ fun AbsensiDetailScreenGuru(
                 contentDescription = "Kembali",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())) }
+                    .clickable {
+                        navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", validatedKelasId.toString()))
+                    }
             )
             Text(
                 text = tanggal,
@@ -91,8 +108,8 @@ fun AbsensiDetailScreenGuru(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Cari Nama Siswa") },
             singleLine = true
@@ -133,16 +150,32 @@ fun AbsensiDetailScreenGuru(
                 }
             }
             else -> {
-                LazyColumn {
-                    itemsIndexed(viewModel.siswaList.value) { index, siswa ->
-                        SiswaStatusItem(
-                            index = index,
-                            siswa = siswa,
-                            status = viewModel.statusMap[siswa.siswaId] ?: "Hadir",
-                            onStatusChange = { newStatus ->
-                                viewModel.updateAbsensi(siswa.siswaId, tanggalApi, newStatus)
-                            }
+                val filteredSiswaList = viewModel.siswaList.value.filter {
+                    it.nama.lowercase().contains(searchQuery.lowercase())
+                }
+
+                if (filteredSiswaList.isEmpty() && searchQuery.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Tidak ada siswa yang cocok dengan pencarian",
+                            style = MaterialTheme.typography.bodyLarge
                         )
+                    }
+                } else {
+                    LazyColumn {
+                        itemsIndexed(filteredSiswaList) { index, siswa ->
+                            SiswaStatusItem(
+                                index = index,
+                                siswa = siswa,
+                                status = viewModel.statusMap[siswa.siswaId] ?: "Hadir",
+                                onStatusChange = { newStatus ->
+                                    viewModel.updateAbsensi(siswa.siswaId, tanggalApi, newStatus)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -150,7 +183,7 @@ fun AbsensiDetailScreenGuru(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BottomNavigationGuru(navController)
+        BottomNavigationGuru(navController, validatedKelasId)
     }
 }
 
@@ -227,6 +260,52 @@ fun StatusIcon(
             modifier = Modifier
                 .size(24.dp)
                 .clickable { onStatusChange("Sakit") }
+        )
+    }
+}
+
+@Composable
+fun BottomNavigationGuru(navController: NavController, kelasId: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_home),
+            contentDescription = "Beranda",
+            modifier = Modifier
+                .size(24.dp)
+                .clickable { navController.navigate(Destinations.HOME_GURU) },
+            tint = Color.Gray
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_absensi),
+            contentDescription = "Absen",
+            modifier = Modifier
+                .size(24.dp)
+                .clickable {
+                    navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString()))
+                },
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_nilai),
+            contentDescription = "Nilai",
+            modifier = Modifier
+                .size(24.dp)
+                .clickable { /* Nanti tambahkan navigasi ke Nilai */ },
+            tint = Color.Gray
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_jadwal),
+            contentDescription = "Jadwal",
+            modifier = Modifier
+                .size(24.dp)
+                .clickable { /* Nanti tambahkan navigasi ke Jadwal */ },
+            tint = Color.Gray
         )
     }
 }
