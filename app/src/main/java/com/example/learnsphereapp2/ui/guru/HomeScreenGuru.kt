@@ -182,8 +182,7 @@ fun HomeScreenGuru(
                 contentDescription = "Jadwal",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { /* Nanti tambahkan navigasi ke Jadwal */ }
-            )
+                    .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) }            )
         }
     }
 }

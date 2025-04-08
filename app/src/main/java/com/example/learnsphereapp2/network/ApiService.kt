@@ -4,10 +4,13 @@ import com.example.learnsphereapp2.data.model.Token
 import com.example.learnsphereapp2.data.model.UserResponse
 import com.example.learnsphereapp2.data.model.AbsensiCreate
 import com.example.learnsphereapp2.data.model.AbsensiResponse
+import com.example.learnsphereapp2.data.model.JadwalCreate
+import com.example.learnsphereapp2.data.model.JadwalResponse
 import com.example.learnsphereapp2.data.model.KelasResponse
 import com.example.learnsphereapp2.data.model.SiswaResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -53,4 +56,28 @@ interface ApiService {
     suspend fun getKelasByGuru(
         @Header("Authorization") authorization: String
     ): Response<List<KelasResponse>>
+
+    @POST("api/jadwal")
+    suspend fun createJadwal(
+        @Header("Authorization") authorization: String,
+        @Body jadwal: JadwalCreate
+    ): Response<JadwalResponse>
+
+    @DELETE("api/jadwal/{jadwal_id}")
+    suspend fun deleteJadwal(
+        @Header("Authorization") authorization: String,
+        @Path("jadwal_id") jadwalId: Int
+    ): Response<Map<String, String>> // Response sesuai dengan backend: {"message": "Jadwal successfully deleted"}
+
+    @GET("api/jadwal/kelas/{kelas_id}/current")
+    suspend fun getCurrentJadwalByKelas(
+        @Header("Authorization") authorization: String,
+        @Path("kelas_id") kelasId: Int
+    ): Response<List<JadwalResponse>>
+
+    @GET("api/jadwal/kelas/{kelas_id}")
+    suspend fun getAllJadwalByKelas(
+        @Header("Authorization") authorization: String,
+        @Path("kelas_id") kelasId: Int
+    ): Response<List<JadwalResponse>>
 }
