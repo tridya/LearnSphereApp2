@@ -141,10 +141,10 @@ fun AbsensiScreenGuru(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50), "Hadir")
-                                StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336), "Alpa")
-                                StatCard("Siswa Izin", viewModel.izinCount.value, Color(0xFF2196F3), "Izin")
-                                StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800), "Sakit")
+                                StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50))
+                                StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336))
+                                StatCard("Siswa Izin", viewModel.izinCount.value, Color(0xFF2196F3))
+                                StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800))
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
@@ -167,10 +167,10 @@ fun AbsensiScreenGuru(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50), "Hadir")
-                            StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336), "Alpa")
-                            StatCard("Siswa Izin", viewModel.izinCount.value, Color(0xFF2196F3), "Izin")
-                            StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800), "Sakit")
+                            StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50))
+                            StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336))
+                            StatCard("Siswa\nIzin", viewModel.izinCount.value, Color(0xFF2196F3))
+                            StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800))
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -269,6 +269,43 @@ fun CalendarView(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun StatCard(
+    title: String,
+    count: Int,
+    color: Color
+) {
+    Card(
+        modifier = Modifier
+            .width(80.dp)
+            .padding(4.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                color = color
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "$count Siswa",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = color
+            )
         }
     }
 }

@@ -81,7 +81,7 @@ fun HomeScreenGuru(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "Absen\nTrack student attendance",
+                    text = "Absen\nMonitoring Kehadiran Siswa",
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
                 )
             }
@@ -110,7 +110,7 @@ fun HomeScreenGuru(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "Nilai\nManage student grades",
+                    text = "Nilai\nMonitoring Nilai Siswa",
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
                 )
             }
@@ -139,7 +139,7 @@ fun HomeScreenGuru(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "Jadwal\nManage your schedule",
+                    text = "Jadwal\nMonitoring Jadwal Siswa",
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
                 )
             }
