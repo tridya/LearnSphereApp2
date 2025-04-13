@@ -1,6 +1,5 @@
 package com.example.learnsphereapp2.ui
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,7 +15,7 @@ object Destinations {
     const val ABSENSI_GURU = "absensi_guru/{kelasId}"
     const val ABSENSI_DETAIL_GURU = "absensi_detail_guru/{kelasId}/{tanggal}"
     const val HOME_ORANGTUA = "home_orangtua"
-    const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId?}/{hari?}/{jamMulai?}/{jamSelesai?}/{mataPelajaranId?}"
+    const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId}?"
     const val DAFTAR_JADWAL = "daftar_jadwal/{kelasId}"
     const val JADWAL_KEGIATAN = "jadwal_kegiatan"
 }
@@ -48,11 +47,9 @@ fun AppNavGraph(
         }
         composable(Destinations.ABSENSI_GURU) { backStackEntry ->
             val kelasIdString = backStackEntry.arguments?.getString("kelasId")
-            Log.d("NavGraph", "kelasId received: $kelasIdString")
             val kelasId = try {
                 kelasIdString?.toInt() ?: 1
             } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId: $kelasIdString, using default value 1")
                 1
             }
             AbsensiScreenGuru(
@@ -64,11 +61,9 @@ fun AppNavGraph(
         composable(Destinations.ABSENSI_DETAIL_GURU) { backStackEntry ->
             val kelasIdString = backStackEntry.arguments?.getString("kelasId")
             val tanggal = backStackEntry.arguments?.getString("tanggal") ?: ""
-            Log.d("NavGraph", "kelasId received: $kelasIdString, tanggal: $tanggal")
             val kelasId = try {
                 kelasIdString?.toInt() ?: 1
             } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId: $kelasIdString, using default value 1")
                 1
             }
             AbsensiDetailScreenGuru(
@@ -84,15 +79,9 @@ fun AppNavGraph(
         composable(Destinations.TAMBAH_JADWAL) { backStackEntry ->
             val kelasIdString = backStackEntry.arguments?.getString("kelasId")
             val jadwalIdString = backStackEntry.arguments?.getString("jadwalId")
-            val hari = backStackEntry.arguments?.getString("hari")
-            val jamMulai = backStackEntry.arguments?.getString("jamMulai")
-            val jamSelesai = backStackEntry.arguments?.getString("jamSelesai")
-            val mataPelajaranIdString = backStackEntry.arguments?.getString("mataPelajaranId")
-
             val kelasId = try {
                 kelasIdString?.toInt() ?: 1
             } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId for TambahJadwal: $kelasIdString, using default value 1")
                 1
             }
             val jadwalId = try {
@@ -100,30 +89,18 @@ fun AppNavGraph(
             } catch (e: NumberFormatException) {
                 null
             }
-            val mataPelajaranId = try {
-                mataPelajaranIdString?.toInt()
-            } catch (e: NumberFormatException) {
-                null
-            }
-
             TambahJadwalScreen(
                 navController = navController,
                 preferencesHelper = preferencesHelper,
                 kelasId = kelasId,
-                jadwalId = jadwalId,
-                hari = hari,
-                jamMulai = jamMulai,
-                jamSelesai = jamSelesai,
-                mataPelajaranId = mataPelajaranId
+                jadwalId = jadwalId
             )
         }
         composable(Destinations.DAFTAR_JADWAL) { backStackEntry ->
             val kelasIdString = backStackEntry.arguments?.getString("kelasId")
-            Log.d("NavGraph", "kelasId received for DaftarJadwal: $kelasIdString")
             val kelasId = try {
                 kelasIdString?.toInt() ?: 1
             } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId for DaftarJadwal: $kelasIdString, using default value 1")
                 1
             }
             DaftarJadwalScreen(

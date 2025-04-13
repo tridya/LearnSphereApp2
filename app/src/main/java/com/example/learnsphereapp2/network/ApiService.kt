@@ -16,6 +16,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -67,7 +68,14 @@ interface ApiService {
     suspend fun deleteJadwal(
         @Header("Authorization") authorization: String,
         @Path("jadwal_id") jadwalId: Int
-    ): Response<Map<String, String>> // Response sesuai dengan backend: {"message": "Jadwal successfully deleted"}
+    ): Response<Map<String, String>>
+
+    @PUT("api/jadwal/{jadwal_id}")
+    suspend fun updateJadwal(
+        @Header("Authorization") authorization: String,
+        @Path("jadwal_id") jadwalId: Int,
+        @Body jadwal: JadwalCreate
+    ): Response<JadwalResponse>
 
     @GET("api/jadwal/kelas/{kelas_id}/current")
     suspend fun getCurrentJadwalByKelas(
