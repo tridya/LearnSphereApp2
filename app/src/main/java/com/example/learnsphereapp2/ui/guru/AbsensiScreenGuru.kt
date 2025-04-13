@@ -44,7 +44,7 @@ fun AbsensiScreenGuru(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp) // Sama dengan AbsensiDetailScreenGuru
+            .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

@@ -53,7 +53,7 @@ fun HomeScreenGuru(
                 )
             }
             Icon(
-                painter = painterResource(id = R.drawable.profile_placeholder), // Ganti dengan ikon notifikasi kalau ada
+                painter = painterResource(id = R.drawable.profile_placeholder),
                 contentDescription = "Notifications",
                 modifier = Modifier.size(24.dp)
             )
@@ -75,7 +75,7 @@ fun HomeScreenGuru(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_absensi), // Pastikan ikon ini ada
+                    painter = painterResource(id = R.drawable.ic_absensi),
                     contentDescription = "Absensi",
                     modifier = Modifier.size(40.dp)
                 )
@@ -147,7 +147,6 @@ fun HomeScreenGuru(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Bottom Navigation dengan 4 ikon
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,7 +155,7 @@ fun HomeScreenGuru(
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_home), // Pastikan ikon ini ada
+                painter = painterResource(id = R.drawable.ic_home),
                 contentDescription = "Home",
                 modifier = Modifier
                     .size(24.dp)
@@ -164,21 +163,21 @@ fun HomeScreenGuru(
                 tint = MaterialTheme.colorScheme.primary
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_absensi), // Pastikan ikon ini ada
+                painter = painterResource(id = R.drawable.ic_absensi),
                 contentDescription = "Absen",
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { navController.navigate(Destinations.ABSENSI_GURU) }
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_nilai), // Tambahkan ikon nilai di drawable
+                painter = painterResource(id = R.drawable.ic_nilai),
                 contentDescription = "Nilai",
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { /* Nanti tambahkan navigasi ke Nilai */ }
             )
             Icon(
-                painter = painterResource(id = R.drawable.ic_jadwal), // Pastikan ikon ini ada
+                painter = painterResource(id = R.drawable.ic_jadwal),
                 contentDescription = "Jadwal",
                 modifier = Modifier
                     .size(24.dp)
