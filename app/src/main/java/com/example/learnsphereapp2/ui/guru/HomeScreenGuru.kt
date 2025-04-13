@@ -40,14 +40,14 @@ fun HomeScreenGuru(
         ) {
             Column {
                 Text(
-                    text = "Good day $username",
+                    text = "Selamat Datang $username!",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
                 )
                 Text(
-                    text = "Here some of the ways you can find help to grow in your studies",
+                    text = "Mari kita buat hari ini produktif! Wujudkan pembelajaran yang luar biasa untuk siswa Anda!",
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     color = Color.Gray
                 )

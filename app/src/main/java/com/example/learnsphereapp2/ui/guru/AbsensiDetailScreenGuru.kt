@@ -49,6 +49,9 @@ fun AbsensiDetailScreenGuru(
         viewModel.fetchData(kelasId = kelasId, tanggal = date)
     }
 
+    // State untuk query pencarian
+    var searchQuery by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -90,12 +93,19 @@ fun AbsensiDetailScreenGuru(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Kolom pencarian dengan warna biru #006FFD
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Cari Nama Siswa") },
-            singleLine = true
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF1976D2),
+                unfocusedBorderColor = Color(0xFF1976D2),
+                focusedLabelColor = Color(0xFF1976D2),
+                unfocusedLabelColor = Color(0xFF1976D2)
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -133,22 +143,63 @@ fun AbsensiDetailScreenGuru(
                 }
             }
             else -> {
-                LazyColumn {
-                    itemsIndexed(viewModel.siswaList.value) { index, siswa ->
-                        SiswaStatusItem(
-                            index = index,
-                            siswa = siswa,
-                            status = viewModel.statusMap[siswa.siswaId] ?: "Hadir",
-                            onStatusChange = { newStatus ->
-                                viewModel.updateAbsensi(siswa.siswaId, tanggalApi, newStatus)
-                            }
+                // Urutkan dan filter daftar siswa
+                val sortedSiswaList = viewModel.siswaList.value
+                    .sortedBy { it.nama } // Urutkan dari A-Z
+                    .filter { it.nama.contains(searchQuery, ignoreCase = true) } // Filter berdasarkan query pencarian
+
+                if (sortedSiswaList.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Tidak ada siswa yang cocok dengan pencarian",
+                            style = MaterialTheme.typography.bodyLarge
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f) // Pastikan LazyColumn mengambil ruang yang tersedia
+                    ) {
+                        itemsIndexed(sortedSiswaList) { index, siswa ->
+                            SiswaStatusItem(
+                                index = index,
+                                siswa = siswa,
+                                status = viewModel.statusMap[siswa.siswaId] ?: "Hadir",
+                                onStatusChange = { newStatus ->
+                                    viewModel.updateAbsensi(siswa.siswaId, tanggalApi, newStatus)
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Tombol Simpan Perubahan
+        Button(
+            onClick = {
+                // Langsung navigasi ke halaman absensi
+                navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString()))
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD)) // Warna biru #006FFD
+        ) {
+            Text(
+                text = "Simpan Perubahan",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         BottomNavigationGuru(navController)
     }

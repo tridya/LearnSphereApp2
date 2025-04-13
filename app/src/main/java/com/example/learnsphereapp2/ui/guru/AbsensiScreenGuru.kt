@@ -25,7 +25,6 @@ import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import androidx.lifecycle.ViewModel
 
 @Composable
 fun AbsensiScreenGuru(
@@ -42,92 +41,128 @@ fun AbsensiScreenGuru(
         viewModel.fetchData(kelasId = kelasId, tanggal = selectedDate.value)
     }
 
-    Scaffold(
-        bottomBar = {
-            BottomNavigationGuru(navController)
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .padding(paddingValues) // Pastikan konten tidak tertutup oleh bottom bar
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp) // Sama dengan AbsensiDetailScreenGuru
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Absen Harian Siswa",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+            Text(
+                text = "Absen Harian Siswa",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
                 )
-
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Bulan Sebelumnya",
-                    modifier = Modifier
-                        .clickable { currentMonth = currentMonth.minusMonths(1) }
-                )
-                Text(
-                    text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale("id", "ID"))),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Bulan Berikutnya",
-                    modifier = Modifier
-                        .clickable { currentMonth = currentMonth.plusMonths(1) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            CalendarView(
-                yearMonth = currentMonth,
-                onDateSelected = { date ->
-                    selectedDate.value = date
-                    navController.navigate("absensi_detail_guru/$kelasId/${date.format(formatter)}")
-                }
             )
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // LazyColumn untuk scroll semua konten
+        LazyColumn(
+            modifier = Modifier.weight(1f) // Mengambil ruang tersedia, seperti LazyColumn di AbsensiDetailScreenGuru
+        ) {
+            // Kontrol bulan
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Bulan Sebelumnya",
+                        modifier = Modifier
+                            .clickable { currentMonth = currentMonth.minusMonths(1) }
+                    )
+                    Text(
+                        text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale("id", "ID"))),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "Bulan Berikutnya",
+                        modifier = Modifier
+                            .clickable { currentMonth = currentMonth.plusMonths(1) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Kalender
+            item {
+                CalendarView(
+                    yearMonth = currentMonth,
+                    onDateSelected = { date ->
+                        selectedDate.value = date
+                        navController.navigate("absensi_detail_guru/$kelasId/${date.format(formatter)}")
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Konten utama (loading, error, atau data)
             when {
                 viewModel.isLoading.value -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
                 viewModel.errorMessage.value != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = viewModel.errorMessage.value ?: "Terjadi kesalahan",
-                            color = Color.Red,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = viewModel.errorMessage.value ?: "Terjadi kesalahan",
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
-                    // Tetap tampilkan daftar siswa jika ada
                     if (viewModel.siswaList.value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(16.dp))
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50), "Hadir")
+                                StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336), "Alpa")
+                                StatCard("Siswa Izin", viewModel.izinCount.value, Color(0xFF2196F3), "Izin")
+                                StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800), "Sakit")
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Daftar Siswa",
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        val sortedSiswaList = viewModel.siswaList.value.sortedBy { it.nama }
+                        items(sortedSiswaList.size) { index ->
+                            val siswa = sortedSiswaList[index]
+                            val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
+                            SiswaItem(siswa.nama, absensi?.status ?: "Belum Diisi")
+                        }
+                    }
+                }
+                else -> {
+                    item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -143,60 +178,34 @@ fun AbsensiScreenGuru(
                             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        LazyColumn(
-                            modifier = Modifier.fillMaxHeight() // Batasi tinggi LazyColumn
-                        ) {
-                            items(viewModel.siswaList.value.size) { index ->
-                                val siswa = viewModel.siswaList.value[index]
-                                val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
-                                SiswaItem(siswa.nama, absensi?.status ?: "Belum Diisi")
-                            }
-                        }
                     }
-                }
-                else -> {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50), "Hadir")
-                        StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336), "Alpa")
-                        StatCard("Siswa Izin", viewModel.izinCount.value, Color(0xFF2196F3), "Izin")
-                        StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800), "Sakit")
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Daftar Siswa",
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     if (viewModel.siswaList.value.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Tidak ada siswa ditemukan",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Tidak ada siswa ditemukan",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxHeight() // Batasi tinggi LazyColumn
-                        ) {
-                            items(viewModel.siswaList.value.size) { index ->
-                                val siswa = viewModel.siswaList.value[index]
-                                val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
-                                SiswaItem(siswa.nama, absensi?.status ?: "Belum Diisi")
-                            }
+                        val sortedSiswaList = viewModel.siswaList.value.sortedBy { it.nama }
+                        items(sortedSiswaList.size) { index ->
+                            val siswa = sortedSiswaList[index]
+                            val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
+                            SiswaItem(siswa.nama, absensi?.status ?: "Belum Diisi")
                         }
                     }
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        BottomNavigationGuru(navController) // Sama persis dengan AbsensiDetailScreenGuru
     }
 }
 
