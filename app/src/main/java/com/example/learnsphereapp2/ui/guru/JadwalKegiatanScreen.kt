@@ -43,181 +43,186 @@ fun JadwalKegiatanScreen(
             .background(BackgroundWhite)
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        // Header: Tombol kembali di kiri, judul di tengah, dan ikon lonceng/profil di kanan
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.weight(1f) // Berikan weight agar navbar tidak menutupi konten
         ) {
-            // Tombol kembali di kiri
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Kembali",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .clickable { navController.navigate(Destinations.HOME_GURU) },
-                tint = Color.Black
-            )
-
-            // Judul "Jadwal Kegiatan" di tengah
-            Text(
-                text = "Jadwal Kegiatan",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(2f)
-            )
-
-            // Ikon lonceng dan profil di kanan
+            // Header: Tombol kembali di kiri, judul di tengah, dan ikon lonceng/profil di kanan
             Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Tombol kembali di kiri
                 Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Kembali",
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .clickable { /* TODO: Aksi notifikasi */ },
+                        .clickable { navController.navigate(Destinations.HOME_GURU) },
                     tint = Color.Black
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
+
+                // Judul "Jadwal Kegiatan" di tengah
+                Text(
+                    text = "Jadwal Kegiatan",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(2f)
+                )
+
+                // Ikon lonceng dan profil di kanan
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifikasi",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .clickable { /* TODO: Aksi notifikasi */ },
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profil",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD1D5DB))
+                            .clickable { /* TODO: Aksi profil */ },
+                        tint = Color.Black
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Salam: "Good Morning, $username" dan "We wish you have a good day"
+            Column {
+                Text(
+                    text = "Good Morning, $username",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.Black
+                )
+                Text(
+                    text = "We wish you have a good day",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GrayText
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Card Data Jadwal Course
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clickable { navController.navigate(Destinations.TAMBAH_JADWAL) },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = BlueCard),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFD1D5DB))
-                        .clickable { /* TODO: Aksi profil */ },
-                    tint = Color.Black
-                )
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Data Jadwal\nCourse",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { navController.navigate(Destinations.TAMBAH_JADWAL) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = BlueCard
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = "TAMBAH",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_jadwal_daftar),
+                        contentDescription = "Ilustrasi Jadwal Course",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Card Daftar Jadwal Music
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clickable { navController.navigate(Destinations.DAFTAR_JADWAL) },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = YellowCard),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Daftar Jadwal\nMusic",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { navController.navigate(Destinations.DAFTAR_JADWAL) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = YellowCard
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = "LIHAT",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_jadwal_tambah),
+                        contentDescription = "Ilustrasi Jadwal Music",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Salam: "Good Morning, $username" dan "We wish you have a good day"
-        Column {
-            Text(
-                text = "Good Morning, $username",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.Black
-            )
-            Text(
-                text = "We wish you have a good day",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrayText
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Card Data Jadwal Course
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-                .clickable { navController.navigate(Destinations.TAMBAH_JADWAL) },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = BlueCard),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Data Jadwal\nCourse",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { navController.navigate(Destinations.TAMBAH_JADWAL) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = BlueCard
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text(
-                            text = "TAMBAH",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_jadwal_daftar),
-                    contentDescription = "Ilustrasi Jadwal Course",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.CenterVertically)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Card Daftar Jadwal Music
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-                .clickable { navController.navigate(Destinations.DAFTAR_JADWAL) },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = YellowCard),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Daftar Jadwal\nMusic",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { navController.navigate(Destinations.DAFTAR_JADWAL) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = YellowCard
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text(
-                            text = "LIHAT",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_jadwal_tambah),
-                    contentDescription = "Ilustrasi Jadwal Music",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.CenterVertically)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
+        BottomNavigationGuru(navController, selectedScreen = "Jadwal")
     }
 }

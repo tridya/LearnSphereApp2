@@ -81,299 +81,304 @@ fun TambahJadwalScreen(
             .background(BackgroundWhite)
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.weight(1f) // Berikan weight agar navbar tidak menutupi konten
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Kembali",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
-                tint = Color.Black
-            )
-            Text(
-                text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(2f)
-            )
             Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Kembali",
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .clickable { },
+                        .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
                     tint = Color.Black
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
+                Text(
+                    text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(2f)
+                )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifikasi",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .clickable { },
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profil",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD1D5DB))
+                            .clickable { },
+                        tint = Color.Black
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
+                style = MaterialTheme.typography.headlineLarge,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, GrayText, RoundedCornerShape(8.dp)),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFD1D5DB))
-                        .clickable { },
-                    tint = Color.Black
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Pilih Hari",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box {
+                        OutlinedTextField(
+                            value = selectedHari,
+                            onValueChange = {},
+                            modifier = Modifier.fillMaxWidth(),
+                            readOnly = true,
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            placeholder = { Text("Pilih Hari", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BlueCard,
+                                unfocusedBorderColor = GrayText
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHari)
+                            }
+                        )
+                        DropdownMenu(
+                            expanded = expandedHari,
+                            onDismissRequest = { expandedHari = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            hariList.forEach { hari ->
+                                DropdownMenuItem(
+                                    text = { Text(hari, style = MaterialTheme.typography.bodyLarge) },
+                                    onClick = {
+                                        selectedHari = hari
+                                        expandedHari = false
+                                    }
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { expandedHari = true }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Pilih Jam",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        OutlinedTextField(
+                            value = jamMulaiInput,
+                            onValueChange = { jamMulaiInput = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("08:00", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BlueCard,
+                                unfocusedBorderColor = GrayText
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "-",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedTextField(
+                            value = jamSelesaiInput,
+                            onValueChange = { jamSelesaiInput = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("10:00", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BlueCard,
+                                unfocusedBorderColor = GrayText
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Mata Pelajaran",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box {
+                        OutlinedTextField(
+                            value = mataPelajaranList.find { it.first == selectedMataPelajaranId }?.second
+                                ?: "Pilih Mata Pelajaran",
+                            onValueChange = {},
+                            modifier = Modifier.fillMaxWidth(),
+                            readOnly = true,
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            placeholder = { Text("Matematika", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BlueCard,
+                                unfocusedBorderColor = GrayText
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMataPelajaran)
+                            }
+                        )
+                        DropdownMenu(
+                            expanded = expandedMataPelajaran,
+                            onDismissRequest = { expandedMataPelajaran = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            mataPelajaranList.forEach { (id, nama) ->
+                                DropdownMenuItem(
+                                    text = { Text(nama, style = MaterialTheme.typography.bodyLarge) },
+                                    onClick = {
+                                        selectedMataPelajaranId = id
+                                        expandedMataPelajaran = false
+                                    }
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clickable { expandedMataPelajaran = true }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            errorMessage?.let {
+                Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            successMessage?.let {
+                Text(text = it, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Button(
+                onClick = {
+                    if (jamMulaiInput.isBlank() || jamSelesaiInput.isBlank()) {
+                        errorMessage = "Jam mulai dan jam selesai tidak boleh kosong."
+                        return@Button
+                    }
+                    val timeFormatRegex = Regex("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")
+                    if (!jamMulaiInput.matches(timeFormatRegex) || !jamSelesaiInput.matches(timeFormatRegex)) {
+                        errorMessage = "Format waktu harus HH:MM (contoh: 07:00)."
+                        return@Button
+                    }
+
+                    if (isEditMode && jadwalId != null) {
+                        viewModel.updateJadwal(
+                            jadwalId = jadwalId,
+                            kelasId = kelasId,
+                            hari = selectedHari,
+                            jamMulai = jamMulaiInput,
+                            jamSelesai = jamSelesaiInput,
+                            mataPelajaranId = selectedMataPelajaranId,
+                            onSuccess = {
+                                successMessage = "Jadwal berhasil diperbarui!"
+                                errorMessage = null
+                                kotlinx.coroutines.MainScope().launch {
+                                    kotlinx.coroutines.delay(2000)
+                                    navController.popBackStack()
+                                }
+                            },
+                            onError = { error -> errorMessage = error; successMessage = null }
+                        )
+                    } else {
+                        viewModel.createJadwal(
+                            kelasId = kelasId,
+                            hari = selectedHari,
+                            jamMulai = jamMulaiInput,
+                            jamSelesai = jamSelesaiInput,
+                            mataPelajaranId = selectedMataPelajaranId,
+                            onSuccess = {
+                                successMessage = "Jadwal berhasil ditambahkan!"
+                                errorMessage = null
+                                selectedHari = "Senin"
+                                jamMulaiInput = ""
+                                jamSelesaiInput = ""
+                                selectedMataPelajaranId = 1
+                                kotlinx.coroutines.MainScope().launch {
+                                    kotlinx.coroutines.delay(2000)
+                                    navController.popBackStack()
+                                }
+                            },
+                            onError = { error -> errorMessage = error; successMessage = null }
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BlueCard,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = if (isEditMode) "Simpan Perubahan" else "Tambah",
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
-            style = MaterialTheme.typography.headlineLarge,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, GrayText, RoundedCornerShape(8.dp)),
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Pilih Hari",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Box {
-                    OutlinedTextField(
-                        value = selectedHari,
-                        onValueChange = {},
-                        modifier = Modifier.fillMaxWidth(),
-                        readOnly = true,
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        placeholder = { Text("Pilih Hari", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BlueCard,
-                            unfocusedBorderColor = GrayText
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedHari)
-                        }
-                    )
-                    DropdownMenu(
-                        expanded = expandedHari,
-                        onDismissRequest = { expandedHari = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        hariList.forEach { hari ->
-                            DropdownMenuItem(
-                                text = { Text(hari, style = MaterialTheme.typography.bodyLarge) },
-                                onClick = {
-                                    selectedHari = hari
-                                    expandedHari = false
-                                }
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { expandedHari = true }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Pilih Jam",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    OutlinedTextField(
-                        value = jamMulaiInput,
-                        onValueChange = { jamMulaiInput = it },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("08:00", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BlueCard,
-                            unfocusedBorderColor = GrayText
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "-",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    OutlinedTextField(
-                        value = jamSelesaiInput,
-                        onValueChange = { jamSelesaiInput = it },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("10:00", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BlueCard,
-                            unfocusedBorderColor = GrayText
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Mata Pelajaran",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Box {
-                    OutlinedTextField(
-                        value = mataPelajaranList.find { it.first == selectedMataPelajaranId }?.second
-                            ?: "Pilih Mata Pelajaran",
-                        onValueChange = {},
-                        modifier = Modifier.fillMaxWidth(),
-                        readOnly = true,
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                        placeholder = { Text("Matematika", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BlueCard,
-                            unfocusedBorderColor = GrayText
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMataPelajaran)
-                        }
-                    )
-                    DropdownMenu(
-                        expanded = expandedMataPelajaran,
-                        onDismissRequest = { expandedMataPelajaran = false },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        mataPelajaranList.forEach { (id, nama) ->
-                            DropdownMenuItem(
-                                text = { Text(nama, style = MaterialTheme.typography.bodyLarge) },
-                                onClick = {
-                                    selectedMataPelajaranId = id
-                                    expandedMataPelajaran = false
-                                }
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { expandedMataPelajaran = true }
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        errorMessage?.let {
-            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        successMessage?.let {
-            Text(text = it, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        Button(
-            onClick = {
-                if (jamMulaiInput.isBlank() || jamSelesaiInput.isBlank()) {
-                    errorMessage = "Jam mulai dan jam selesai tidak boleh kosong."
-                    return@Button
-                }
-                val timeFormatRegex = Regex("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")
-                if (!jamMulaiInput.matches(timeFormatRegex) || !jamSelesaiInput.matches(timeFormatRegex)) {
-                    errorMessage = "Format waktu harus HH:MM (contoh: 07:00)."
-                    return@Button
-                }
-
-                if (isEditMode && jadwalId != null) {
-                    viewModel.updateJadwal(
-                        jadwalId = jadwalId,
-                        kelasId = kelasId,
-                        hari = selectedHari,
-                        jamMulai = jamMulaiInput,
-                        jamSelesai = jamSelesaiInput,
-                        mataPelajaranId = selectedMataPelajaranId,
-                        onSuccess = {
-                            successMessage = "Jadwal berhasil diperbarui!"
-                            errorMessage = null
-                            kotlinx.coroutines.MainScope().launch {
-                                kotlinx.coroutines.delay(2000)
-                                navController.popBackStack()
-                            }
-                        },
-                        onError = { error -> errorMessage = error; successMessage = null }
-                    )
-                } else {
-                    viewModel.createJadwal(
-                        kelasId = kelasId,
-                        hari = selectedHari,
-                        jamMulai = jamMulaiInput,
-                        jamSelesai = jamSelesaiInput,
-                        mataPelajaranId = selectedMataPelajaranId,
-                        onSuccess = {
-                            successMessage = "Jadwal berhasil ditambahkan!"
-                            errorMessage = null
-                            selectedHari = "Senin"
-                            jamMulaiInput = ""
-                            jamSelesaiInput = ""
-                            selectedMataPelajaranId = 1
-                            kotlinx.coroutines.MainScope().launch {
-                                kotlinx.coroutines.delay(2000)
-                                navController.popBackStack()
-                            }
-                        },
-                        onError = { error -> errorMessage = error; successMessage = null }
-                    )
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BlueCard,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                text = if (isEditMode) "Simpan Perubahan" else "Tambah",
-                style = MaterialTheme.typography.labelLarge
-            )
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
+        BottomNavigationGuru(navController, selectedScreen = "Jadwal")
     }
 }

@@ -57,123 +57,132 @@ fun DaftarJadwalScreen(
             .background(BackgroundWhite)
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        // Konten utama diberi weight agar navbar tidak menutupi
+        Column(
+            modifier = Modifier.weight(1f)
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Kembali",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
-                tint = Color.Black
-            )
-            Text(
-                text = "Daftar Jadwal",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(2f)
-            )
             Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Kembali",
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .clickable { },
+                        .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
                     tint = Color.Black
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFD1D5DB))
-                        .clickable { },
-                    tint = Color.Black
+                Text(
+                    text = "Daftar Jadwal",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(2f)
+                )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifikasi",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .clickable { },
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Profil",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD1D5DB))
+                            .clickable { },
+                        tint = Color.Black
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column {
+                Text(
+                    text = formattedDate,
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.Black
+                )
+                Text(
+                    text = "Hari Ini",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GrayText
+                )
+                Text(
+                    text = "Waktu Saat Ini: $formattedTime",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GrayText
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        Column {
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.Black
-            )
-            Text(
-                text = "Hari Ini",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrayText
-            )
-            Text(
-                text = "Waktu Saat Ini: $formattedTime",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrayText
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        TabRow(selectedTabIndex = selectedTabIndex) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-                    selected = selectedTabIndex == index,
-                    onClick = {
-                        selectedTabIndex = index
-                        when (index) {
-                            0 -> viewModel.fetchCurrentJadwal()
-                            1 -> viewModel.fetchAllJadwal()
+            TabRow(selectedTabIndex = selectedTabIndex) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title, style = MaterialTheme.typography.bodyLarge) },
+                        selected = selectedTabIndex == index,
+                        onClick = {
+                            selectedTabIndex = index
+                            when (index) {
+                                0 -> viewModel.fetchCurrentJadwal()
+                                1 -> viewModel.fetchAllJadwal()
+                            }
                         }
-                    }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when (selectedTabIndex) {
+                0 -> JadwalContent(
+                    viewModel = viewModel,
+                    kelasId = kelasId,
+                    isCurrent = true
                 )
+                1 -> JadwalContent(
+                    viewModel = viewModel,
+                    kelasId = kelasId,
+                    isCurrent = false,
+                    navController = navController
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { navController.navigate("tambahJadwal/$kelasId") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BlueCard,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Tambah Jadwal", style = MaterialTheme.typography.labelLarge)
             }
         }
 
+        // Tambahkan navbar di bagian bawah
         Spacer(modifier = Modifier.height(16.dp))
-
-        when (selectedTabIndex) {
-            0 -> JadwalContent(
-                viewModel = viewModel,
-                kelasId = kelasId,
-                isCurrent = true
-            )
-            1 -> JadwalContent(
-                viewModel = viewModel,
-                kelasId = kelasId,
-                isCurrent = false,
-                navController = navController
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { navController.navigate("tambahJadwal/$kelasId") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BlueCard,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Tambah Jadwal", style = MaterialTheme.typography.labelLarge)
-        }
+        BottomNavigationGuru(navController, selectedScreen = "Jadwal")
     }
 }
 
