@@ -6,5 +6,7 @@ data class KelasResponse(
     @SerializedName("kelas_id")
     val kelasId: Int,
     @SerializedName("nama_kelas")
-    val namaKelas: String
+    val namaKelas: String,
+    @SerializedName("wali_kelas_id")
+    val waliKelasId: Int
 )

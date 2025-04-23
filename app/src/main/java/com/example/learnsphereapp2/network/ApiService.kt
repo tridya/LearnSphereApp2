@@ -58,6 +58,11 @@ interface ApiService {
         @Header("Authorization") authorization: String
     ): Response<List<KelasResponse>>
 
+    @GET("api/jadwal/guru/kelas")
+    suspend fun getKelasByTeacher(
+        @Header("Authorization") authorization: String
+    ): Response<List<KelasResponse>>
+
     @POST("api/jadwal")
     suspend fun createJadwal(
         @Header("Authorization") authorization: String,

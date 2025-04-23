@@ -6,27 +6,73 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.learnsphereapp2.data.model.JadwalCreate
 import com.example.learnsphereapp2.data.model.JadwalResponse
+import com.example.learnsphereapp2.data.model.KelasResponse
 import com.example.learnsphereapp2.network.RetrofitClient
 import com.example.learnsphereapp2.util.PreferencesHelper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class JadwalViewModel(
     private val preferencesHelper: PreferencesHelper,
-    private val kelasId: Int
+    private var kelasId: Int
 ) : ViewModel() {
     val currentJadwalList = mutableStateListOf<JadwalResponse>()
     val allJadwalList = mutableStateListOf<JadwalResponse>()
     val isLoading = mutableStateOf(false)
     val errorMessage = mutableStateOf<String?>(null)
+    private val _kelasList = MutableStateFlow<List<KelasResponse>>(emptyList())
+    val kelasList: StateFlow<List<KelasResponse>> = _kelasList
 
     private val token: String?
         get() = preferencesHelper.getToken()
 
     init {
-        fetchCurrentJadwal()
+        if (kelasId != -1) {
+            fetchCurrentJadwal()
+        }
+    }
+
+    fun setKelasId(newKelasId: Int) {
+        kelasId = newKelasId
+    }
+
+    fun fetchKelasByTeacher() {
+        viewModelScope.launch {
+            isLoading.value = true
+            errorMessage.value = null
+            try {
+                val token = preferencesHelper.getToken() ?: run {
+                    errorMessage.value = "Token tidak ditemukan. Silakan login kembali."
+                    isLoading.value = false
+                    return@launch
+                }
+                val kelasResponse = RetrofitClient.apiService.getKelasByTeacher(
+                    authorization = "Bearer $token"
+                )
+                if (kelasResponse.isSuccessful) {
+                    _kelasList.value = kelasResponse.body() ?: emptyList()
+                    if (kelasId == -1 && _kelasList.value.isNotEmpty()) {
+                        kelasId = _kelasList.value.first().kelasId
+                        fetchCurrentJadwal()
+                    }
+                } else {
+                    errorMessage.value = when (kelasResponse.code()) {
+                        403 -> "Anda tidak memiliki akses untuk melihat kelas."
+                        404 -> "Tidak ada kelas yang ditemukan."
+                        else -> "Gagal mengambil daftar kelas."
+                    }
+                }
+            } catch (e: Exception) {
+                errorMessage.value = "Error saat mengambil daftar kelas."
+            } finally {
+                isLoading.value = false
+            }
+        }
     }
 
     fun fetchCurrentJadwal() {
+        if (kelasId == -1) return
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
@@ -61,6 +107,7 @@ class JadwalViewModel(
     }
 
     fun fetchAllJadwal() {
+        if (kelasId == -1) return
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
