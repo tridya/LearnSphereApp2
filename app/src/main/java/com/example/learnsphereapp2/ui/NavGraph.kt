@@ -1,14 +1,10 @@
-// ui/NavGraph.kt
 package com.example.learnsphereapp2.ui
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.learnsphereapp2.ui.guru.HomeScreenGuru
-import com.example.learnsphereapp2.ui.guru.AbsensiDetailScreenGuru
-import com.example.learnsphereapp2.ui.guru.AbsensiScreenGuru
+import com.example.learnsphereapp2.ui.guru.*
 import com.example.learnsphereapp2.ui.login.LoginScreen
 import com.example.learnsphereapp2.ui.orangtua.HomeScreenOrangTua
 import com.example.learnsphereapp2.util.PreferencesHelper
@@ -19,6 +15,9 @@ object Destinations {
     const val ABSENSI_GURU = "absensi_guru/{kelasId}"
     const val ABSENSI_DETAIL_GURU = "absensi_detail_guru/{kelasId}/{tanggal}"
     const val HOME_ORANGTUA = "home_orangtua"
+    const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId}?"
+    const val DAFTAR_JADWAL = "daftar_jadwal/{kelasId}"
+    const val JADWAL_KEGIATAN = "jadwal_kegiatan"
 }
 
 @Composable
@@ -48,11 +47,9 @@ fun AppNavGraph(
         }
         composable(Destinations.ABSENSI_GURU) { backStackEntry ->
             val kelasIdString = backStackEntry.arguments?.getString("kelasId")
-            Log.d("NavGraph", "kelasId received: $kelasIdString")
             val kelasId = try {
                 kelasIdString?.toInt() ?: 1
             } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId: $kelasIdString, using default value 1")
                 1
             }
             AbsensiScreenGuru(
@@ -64,11 +61,9 @@ fun AppNavGraph(
         composable(Destinations.ABSENSI_DETAIL_GURU) { backStackEntry ->
             val kelasIdString = backStackEntry.arguments?.getString("kelasId")
             val tanggal = backStackEntry.arguments?.getString("tanggal") ?: ""
-            Log.d("NavGraph", "kelasId received: $kelasIdString, tanggal: $tanggal")
             val kelasId = try {
                 kelasIdString?.toInt() ?: 1
             } catch (e: NumberFormatException) {
-                Log.e("NavGraph", "Invalid kelasId: $kelasIdString, using default value 1")
                 1
             }
             AbsensiDetailScreenGuru(
@@ -80,6 +75,45 @@ fun AppNavGraph(
         }
         composable(Destinations.HOME_ORANGTUA) {
             HomeScreenOrangTua(navController = navController)
+        }
+        composable(Destinations.TAMBAH_JADWAL) { backStackEntry ->
+            val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+            val jadwalIdString = backStackEntry.arguments?.getString("jadwalId")
+            val kelasId = try {
+                kelasIdString?.toInt() ?: 1
+            } catch (e: NumberFormatException) {
+                1
+            }
+            val jadwalId = try {
+                jadwalIdString?.toInt()
+            } catch (e: NumberFormatException) {
+                null
+            }
+            TambahJadwalScreen(
+                navController = navController,
+                preferencesHelper = preferencesHelper,
+                kelasId = kelasId,
+                jadwalId = jadwalId
+            )
+        }
+        composable(Destinations.DAFTAR_JADWAL) { backStackEntry ->
+            val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+            val kelasId = try {
+                kelasIdString?.toInt() ?: 1
+            } catch (e: NumberFormatException) {
+                1
+            }
+            DaftarJadwalScreen(
+                navController = navController,
+                kelasId = kelasId,
+                preferencesHelper = preferencesHelper
+            )
+        }
+        composable(Destinations.JADWAL_KEGIATAN) {
+            JadwalKegiatanScreen(
+                navController = navController,
+                preferencesHelper = preferencesHelper
+            )
         }
     }
 }

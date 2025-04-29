@@ -122,7 +122,7 @@ fun HomeScreenGuru(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Nanti tambahkan navigasi ke Jadwal */ },
+                .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color(0xFFE6FFE6))
         ) {
@@ -181,8 +181,7 @@ fun HomeScreenGuru(
                 contentDescription = "Jadwal",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { /* Nanti tambahkan navigasi ke Jadwal */ }
-            )
+                    .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) }            )
         }
     }
 }
