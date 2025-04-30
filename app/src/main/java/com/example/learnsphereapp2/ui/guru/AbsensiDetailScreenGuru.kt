@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,7 +25,6 @@ import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import androidx.compose.ui.res.painterResource
 
 @Composable
 fun AbsensiDetailScreenGuru(
@@ -49,7 +49,6 @@ fun AbsensiDetailScreenGuru(
         viewModel.fetchData(kelasId = kelasId, tanggal = date)
     }
 
-    // State untuk query pencarian
     var searchQuery by remember { mutableStateOf("") }
 
     Column(
@@ -93,7 +92,6 @@ fun AbsensiDetailScreenGuru(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Kolom pencarian dengan warna biru #006FFD
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -143,10 +141,9 @@ fun AbsensiDetailScreenGuru(
                 }
             }
             else -> {
-                // Urutkan dan filter daftar siswa
                 val sortedSiswaList = viewModel.siswaList.value
-                    .sortedBy { it.nama } // Urutkan dari A-Z
-                    .filter { it.nama.contains(searchQuery, ignoreCase = true) } // Filter berdasarkan query pencarian
+                    .sortedBy { it.nama }
+                    .filter { it.nama.contains(searchQuery, ignoreCase = true) }
 
                 if (sortedSiswaList.isEmpty()) {
                     Box(
@@ -160,7 +157,7 @@ fun AbsensiDetailScreenGuru(
                     }
                 } else {
                     LazyColumn(
-                        modifier = Modifier.weight(1f) // Pastikan LazyColumn mengambil ruang yang tersedia
+                        modifier = Modifier.weight(1f)
                     ) {
                         itemsIndexed(sortedSiswaList) { index, siswa ->
                             SiswaStatusItem(
@@ -179,17 +176,15 @@ fun AbsensiDetailScreenGuru(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tombol Simpan Perubahan
         Button(
             onClick = {
-                // Langsung navigasi ke halaman absensi
                 navController.navigate(Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString()))
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD)) // Warna biru #006FFD
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD))
         ) {
             Text(
                 text = "Simpan Perubahan",
@@ -198,10 +193,6 @@ fun AbsensiDetailScreenGuru(
                 fontWeight = FontWeight.Bold
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        BottomNavigationGuru(navController)
     }
 }
 

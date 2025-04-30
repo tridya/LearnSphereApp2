@@ -246,9 +246,6 @@ fun DaftarJadwalScreen(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        BottomNavigationGuru(navController, selectedScreen = "Jadwal")
     }
 }
 

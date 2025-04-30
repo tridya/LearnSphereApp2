@@ -82,7 +82,7 @@ fun TambahJadwalScreen(
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Column(
-            modifier = Modifier.weight(1f) // Berikan weight agar navbar tidak menutupi konten
+            modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -377,8 +377,5 @@ fun TambahJadwalScreen(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        BottomNavigationGuru(navController, selectedScreen = "Jadwal")
     }
 }
