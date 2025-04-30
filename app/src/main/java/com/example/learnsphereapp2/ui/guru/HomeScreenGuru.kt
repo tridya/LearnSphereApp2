@@ -4,20 +4,28 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.theme.DarkText
+import com.example.learnsphereapp2.ui.theme.GrayText
+import com.example.learnsphereapp2.ui.theme.VibrantBlue
+import com.example.learnsphereapp2.ui.theme.VibrantOrange
+import com.example.learnsphereapp2.ui.theme.VibrantPurple
+import com.example.learnsphereapp2.ui.theme.NotificationBackground
 import com.example.learnsphereapp2.util.PreferencesHelper
 
 @Composable
@@ -31,7 +39,7 @@ fun HomeScreenGuru(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -40,49 +48,66 @@ fun HomeScreenGuru(
         ) {
             Column {
                 Text(
-                    text = "Selamat Datang $username!",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    text = "Good day $username,",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = DarkText
                 )
                 Text(
-                    text = "Mari kita buat hari ini produktif! Wujudkan pembelajaran yang luar biasa untuk siswa Anda!",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                    color = Color.Gray
+                    text = "Here some of the ways you can find help to grow in your studies",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GrayText
                 )
             }
-            Icon(
-                painter = painterResource(id = R.drawable.profile_placeholder),
-                contentDescription = "Notifications",
-                modifier = Modifier.size(24.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(NotificationBackground),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "T",
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // Card Absensi
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { navController.navigate(Destinations.ABSENSI_GURU) },
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA))
+            colors = CardDefaults.cardColors(containerColor = VibrantPurple)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Column {
+                    Text(
+                        text = "Absensi",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = DarkText
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Monitoring kehadiran siswa",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GrayText
+                    )
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_absensi),
-                    contentDescription = "Absensi",
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Absen\nMonitoring Kehadiran Siswa",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+                    painter = painterResource(id = R.drawable.ic_absensi_ilustration),
+                    contentDescription = "Ilustrasi Absensi",
+                    modifier = Modifier.size(80.dp)
                 )
             }
         }
@@ -95,23 +120,32 @@ fun HomeScreenGuru(
                 .fillMaxWidth()
                 .clickable { /* Nanti tambahkan navigasi ke Nilai */ },
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))
+            colors = CardDefaults.cardColors(containerColor = VibrantOrange)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Column {
+                    Text(
+                        text = "Nilai",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = DarkText
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Monitoring nilai siswa",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GrayText
+                    )
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_nilai), // Tambahkan ikon nilai di drawable
-                    contentDescription = "Nilai",
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Nilai\nMonitoring Nilai Siswa",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+                    painter = painterResource(id = R.drawable.ic_nilai_ilustration),
+                    contentDescription = "Ilustrasi Nilai",
+                    modifier = Modifier.size(80.dp)
                 )
             }
         }
@@ -124,64 +158,34 @@ fun HomeScreenGuru(
                 .fillMaxWidth()
                 .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE6FFE6))
+            colors = CardDefaults.cardColors(containerColor = VibrantBlue)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Column {
+                    Text(
+                        text = "Jadwal",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = DarkText
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Daftar jadwal mata pelajaran siswa",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GrayText
+                    )
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_jadwal), // Pastikan ikon ini ada
-                    contentDescription = "Jadwal",
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Jadwal\nMonitoring Jadwal Siswa",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+                    painter = painterResource(id = R.drawable.ic_jadwal_ilustration),
+                    contentDescription = "Ilustrasi Jadwal",
+                    modifier = Modifier.size(80.dp)
                 )
             }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_home),
-                contentDescription = "Home",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { /* Sudah di Home */ },
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_absensi),
-                contentDescription = "Absen",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { navController.navigate(Destinations.ABSENSI_GURU) }
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_nilai),
-                contentDescription = "Nilai",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { /* Nanti tambahkan navigasi ke Nilai */ }
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_jadwal),
-                contentDescription = "Jadwal",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) }            )
         }
     }
 }

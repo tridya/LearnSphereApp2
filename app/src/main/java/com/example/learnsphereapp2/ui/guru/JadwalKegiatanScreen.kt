@@ -44,7 +44,7 @@ fun JadwalKegiatanScreen(
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Column(
-            modifier = Modifier.weight(1f) // Berikan weight agar navbar tidak menutupi konten
+            modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
             // Header: Tombol kembali di kiri, judul di tengah, dan ikon lonceng/profil di kanan
             Row(
@@ -221,8 +221,5 @@ fun JadwalKegiatanScreen(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        BottomNavigationGuru(navController, selectedScreen = "Jadwal")
     }
 }

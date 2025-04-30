@@ -64,7 +64,7 @@ fun AbsensiScreenGuru(
 
         // LazyColumn untuk scroll semua konten
         LazyColumn(
-            modifier = Modifier.weight(1f) // Mengambil ruang tersedia, seperti LazyColumn di AbsensiDetailScreenGuru
+            modifier = Modifier.weight(1f) // Mengambil ruang tersedia
         ) {
             // Kontrol bulan
             item {
@@ -202,10 +202,6 @@ fun AbsensiScreenGuru(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        BottomNavigationGuru(navController) // Sama persis dengan AbsensiDetailScreenGuru
     }
 }
 
