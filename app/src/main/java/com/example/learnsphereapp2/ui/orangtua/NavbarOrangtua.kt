@@ -1,63 +1,27 @@
-package com.example.learnsphereapp2.ui.guru
+package com.example.learnsphereapp2.ui.orangtua
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
-import androidx.compose.ui.res.painterResource
 import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.BlueCard
 import com.example.learnsphereapp2.ui.theme.GrayText
 import com.example.learnsphereapp2.ui.theme.OffWhite
-import androidx.compose.foundation.shape.CircleShape
 
 @Composable
-fun StatCard(title: String, count: Int, color: Color, status: String) {
-    Card(
-        modifier = Modifier
-            .width(80.dp)
-            .padding(4.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                color = color
-            )
-            Text(
-                text = "$count Siswa",
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
-                color = color
-            )
-            Text(
-                text = status,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                color = color
-            )
-        }
-    }
-}
-
-
-@Composable
-fun BottomNavigationGuru(navController: NavController, currentRoute: String?) {
+fun BottomNavigationOrangTua(navController: NavController, currentRoute: String?) {
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth(),
@@ -66,24 +30,14 @@ fun BottomNavigationGuru(navController: NavController, currentRoute: String?) {
     ) {
         val items = listOf(
             NavItem(
-                iconRes = R.drawable.ic_home,
+                iconRes = R.drawable.ic_home, // Ganti dengan resource ikon yang sesuai
                 label = "Home",
-                route = Destinations.HOME_GURU
+                route = Destinations.HOME_ORANGTUA
             ),
             NavItem(
-                iconRes = R.drawable.ic_absensi,
-                label = "Absensi",
-                route = Destinations.ABSENSI_GURU.replace("{kelasId}", "1")
-            ),
-            NavItem(
-                iconRes = R.drawable.ic_nilai,
-                label = "Nilai",
-                route = Destinations.NILAI_GURU
-            ),
-            NavItem(
-                iconRes = R.drawable.ic_jadwal,
+                iconRes = R.drawable.ic_jadwal, // Ganti dengan resource ikon yang sesuai
                 label = "Jadwal",
-                route = Destinations.JADWAL_KEGIATAN
+                route = Destinations.JADWAL_ORANGTUA.replace("{siswaId}", "1") // Default siswaId
             )
         )
 

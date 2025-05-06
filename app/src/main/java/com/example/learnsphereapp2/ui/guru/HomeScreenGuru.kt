@@ -105,7 +105,7 @@ fun HomeScreenGuru(
                     )
                 }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_absensi_ilustration),
+                    painter = painterResource(id = R.drawable.ic_absen_ilustration),
                     contentDescription = "Ilustrasi Absensi",
                     modifier = Modifier.size(80.dp)
                 )

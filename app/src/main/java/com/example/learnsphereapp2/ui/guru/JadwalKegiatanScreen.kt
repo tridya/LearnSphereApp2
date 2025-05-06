@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -18,15 +17,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.ui.theme.BackgroundWhite
-import com.example.learnsphereapp2.ui.theme.BlueCard
 import com.example.learnsphereapp2.ui.theme.GrayText
-import com.example.learnsphereapp2.ui.theme.YellowCard
+import com.example.learnsphereapp2.ui.theme.VibrantBlue
+import com.example.learnsphereapp2.ui.theme.VibrantOrange
 import com.example.learnsphereapp2.util.PreferencesHelper
 
 @Composable
@@ -46,36 +47,24 @@ fun JadwalKegiatanScreen(
         Column(
             modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
-            // Header: Tombol kembali di kiri, judul di tengah, dan ikon lonceng/profil di kanan
+            // Header: Judul di tengah, ikon lonceng/profil di kanan (tanpa tombol kembali)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Tombol kembali di kiri
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Kembali",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .clickable { navController.navigate(Destinations.HOME_GURU) },
-                    tint = Color.Black
-                )
-
-                // Judul "Jadwal Kegiatan" di tengah
+                Spacer(modifier = Modifier.size(24.dp)) // Placeholder untuk simetri
                 Text(
                     text = "Jadwal Kegiatan",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
                     color = Color.Black,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(1f)
                 )
-
-                // Ikon lonceng dan profil di kanan
                 Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -87,14 +76,12 @@ fun JadwalKegiatanScreen(
                             .clickable { /* TODO: Aksi notifikasi */ },
                         tint = Color.Black
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profil",
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFD1D5DB))
                             .clickable { /* TODO: Aksi profil */ },
                         tint = Color.Black
                     )
@@ -103,15 +90,15 @@ fun JadwalKegiatanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Salam: "Good Morning, $username" dan "We wish you have a good day"
+            // Salam: "Selamat Datang, $username" dan pesan penyemangat akademik
             Column {
                 Text(
-                    text = "Good Morning, $username",
+                    text = "Selamat Datang, $username",
                     style = MaterialTheme.typography.headlineLarge,
                     color = Color.Black
                 )
                 Text(
-                    text = "We wish you have a good day",
+                    text = "Semoga sukses dalam mengelola jadwal hari ini!",
                     style = MaterialTheme.typography.bodyMedium,
                     color = GrayText
                 )
@@ -119,14 +106,14 @@ fun JadwalKegiatanScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Card Data Jadwal Course
+            // Card Tambahkan Jadwal Pelajaran
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
                     .clickable { navController.navigate(Destinations.TAMBAH_JADWAL) },
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = BlueCard),
+                colors = CardDefaults.cardColors(containerColor = VibrantOrange),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Row(
@@ -139,16 +126,21 @@ fun JadwalKegiatanScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Data Jadwal\nCourse",
+                            text = "Tambah Jadwal",
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "Buat jadwal baru",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { navController.navigate(Destinations.TAMBAH_JADWAL) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.White,
-                                contentColor = BlueCard
+                                contentColor = VibrantOrange
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(36.dp)
@@ -160,8 +152,8 @@ fun JadwalKegiatanScreen(
                         }
                     }
                     Image(
-                        painter = painterResource(id = R.drawable.ic_jadwal_daftar),
-                        contentDescription = "Ilustrasi Jadwal Course",
+                        painter = painterResource(id = R.drawable.ic_absen_ilustration),
+                        contentDescription = "Ilustrasi Tambahkan Jadwal Pelajaran",
                         modifier = Modifier
                             .size(100.dp)
                             .align(Alignment.CenterVertically)
@@ -171,14 +163,14 @@ fun JadwalKegiatanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Card Daftar Jadwal Music
+            // Card Lihat Daftar Pelajaran
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
                     .clickable { navController.navigate(Destinations.DAFTAR_JADWAL) },
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = YellowCard),
+                colors = CardDefaults.cardColors(containerColor = VibrantBlue),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Row(
@@ -191,16 +183,21 @@ fun JadwalKegiatanScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Daftar Jadwal\nMusic",
+                            text = "Lihat Daftar",
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "Lihat dan kelola jadwal",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { navController.navigate(Destinations.DAFTAR_JADWAL) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.White,
-                                contentColor = YellowCard
+                                contentColor = VibrantBlue
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(36.dp)
@@ -212,8 +209,8 @@ fun JadwalKegiatanScreen(
                         }
                     }
                     Image(
-                        painter = painterResource(id = R.drawable.ic_jadwal_tambah),
-                        contentDescription = "Ilustrasi Jadwal Music",
+                        painter = painterResource(id = R.drawable.ic_jadwal_ilustration),
+                        contentDescription = "Ilustrasi Lihat Daftar Pelajaran",
                         modifier = Modifier
                             .size(100.dp)
                             .align(Alignment.CenterVertically)
