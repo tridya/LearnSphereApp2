@@ -22,3 +22,11 @@ val VibrantOrange = Color(0xFFFDBA74) // Oranye pekat untuk card Kelas
 val VibrantBlue = Color(0xFF93C5FD) // Biru pekat untuk card Tugas
 val DarkText = Color(0xFF1F2A44) // Warna teks utama yang lebih gelap dan kontras
 val NotificationBackground = Color(0xFFFBBF24) // Warna kuning untuk background ikon notifikasi
+
+// Warna baru untuk background navbar
+val OffWhite = Color(0xFFF7F7F7) // Putih dengan sedikit abu-abu
+
+// Warna untuk tombol filter
+val FilterGreen = Color(0xFF6EE7B7) // Hijau muda untuk "Baik"
+val FilterOrange = Color(0xFFF97316) // Oranye untuk "Cukup"
+val FilterRed = Color(0xFFEF4444) // Merah untuk "Kurang"

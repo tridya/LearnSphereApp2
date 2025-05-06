@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -25,6 +27,7 @@ import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 @Composable
 fun AbsensiScreenGuru(
@@ -32,173 +35,119 @@ fun AbsensiScreenGuru(
     kelasId: Int,
     preferencesHelper: PreferencesHelper
 ) {
-    val viewModel: AbsensiViewModel = viewModel(factory = AbsensiViewModelFactory<Any>(preferencesHelper))
+    val viewModel: AbsensiViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
+                return AbsensiViewModel(preferencesHelper) as T
+            }
+        }
+    )
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale("id", "ID"))
-    val selectedDate = remember { mutableStateOf(LocalDate.now()) }
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    val formatter = remember { DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID")) }
 
-    LaunchedEffect(selectedDate.value) {
-        viewModel.fetchData(kelasId = kelasId, tanggal = selectedDate.value)
+    LaunchedEffect(selectedDate) {
+        viewModel.fetchData(kelasId = kelasId, tanggal = selectedDate)
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Absen Harian Siswa",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+        item {
+            // Header dengan tombol back dan judul
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Kembali",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { navController.popBackStack() }
                 )
+                Text(
+                    text = "Absen Harian Siswa",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                )
+                Spacer(modifier = Modifier.width(24.dp))
+            }
+        }
+
+        item {
+            // Kontrol bulan dan kalender
+            MonthSelector(
+                currentMonth = currentMonth,
+                onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
+                onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            CalendarView(
+                yearMonth = currentMonth,
+                selectedDate = selectedDate,
+                onDateSelected = { date -> selectedDate = date }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        item {
+            // Statistik absensi
+            AttendanceStats(
+                hadir = viewModel.hadirCount.value,
+                absen = viewModel.absenCount.value,
+                izin = viewModel.izinCount.value,
+                sakit = viewModel.sakitCount.value,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            SectionTitle("Daftar Siswa")
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
-        // LazyColumn untuk scroll semua konten
-        LazyColumn(
-            modifier = Modifier.weight(1f) // Mengambil ruang tersedia
-        ) {
-            // Kontrol bulan
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Bulan Sebelumnya",
-                        modifier = Modifier
-                            .clickable { currentMonth = currentMonth.minusMonths(1) }
-                    )
-                    Text(
-                        text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale("id", "ID"))),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Bulan Berikutnya",
-                        modifier = Modifier
-                            .clickable { currentMonth = currentMonth.plusMonths(1) }
-                    )
+        when {
+            viewModel.isLoading.value -> {
+                item {
+                    LoadingIndicator()
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
-
-            // Kalender
-            item {
-                CalendarView(
-                    yearMonth = currentMonth,
-                    onDateSelected = { date ->
-                        selectedDate.value = date
-                        navController.navigate("absensi_detail_guru/$kelasId/${date.format(formatter)}")
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // Konten utama (loading, error, atau data)
-            when {
-                viewModel.isLoading.value -> {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+            viewModel.errorMessage.value != null -> {
+                item {
+                    ErrorMessage(viewModel.errorMessage.value ?: "Terjadi kesalahan")
                 }
-                viewModel.errorMessage.value != null -> {
-                    item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = viewModel.errorMessage.value ?: "Terjadi kesalahan",
-                                color = Color.Red,
-                                style = MaterialTheme.typography.bodyLarge
+            }
+            viewModel.siswaList.value.isEmpty() -> {
+                item {
+                    EmptyState("Tidak ada siswa ditemukan")
+                }
+            }
+            else -> {
+                items(viewModel.siswaList.value.sortedBy { it.nama }) { siswa ->
+                    val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
+                    StudentItem(
+                        name = siswa.nama,
+                        status = absensi?.status ?: "Belum Diisi",
+                        onClick = {
+                            navController.navigate(
+                                Destinations.ABSENSI_DETAIL_GURU
+                                    .replace("{kelasId}", kelasId.toString())
+                                    .replace("{tanggal}", selectedDate.format(formatter))
                             )
                         }
-                    }
-                    if (viewModel.siswaList.value.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50))
-                                StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336))
-                                StatCard("Siswa Izin", viewModel.izinCount.value, Color(0xFF2196F3))
-                                StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800))
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "Daftar Siswa",
-                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                        val sortedSiswaList = viewModel.siswaList.value.sortedBy { it.nama }
-                        items(sortedSiswaList.size) { index ->
-                            val siswa = sortedSiswaList[index]
-                            val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
-                            SiswaItem(siswa.nama, absensi?.status ?: "Belum Diisi")
-                        }
-                    }
-                }
-                else -> {
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            StatCard("Siswa Hadir", viewModel.hadirCount.value, Color(0xFF4CAF50))
-                            StatCard("Siswa Absen", viewModel.absenCount.value, Color(0xFFF44336))
-                            StatCard("Siswa\nIzin", viewModel.izinCount.value, Color(0xFF2196F3))
-                            StatCard("Siswa Sakit", viewModel.sakitCount.value, Color(0xFFFF9800))
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Daftar Siswa",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    if (viewModel.siswaList.value.isEmpty()) {
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Tidak ada siswa ditemukan",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        }
-                    } else {
-                        val sortedSiswaList = viewModel.siswaList.value.sortedBy { it.nama }
-                        items(sortedSiswaList.size) { index ->
-                            val siswa = sortedSiswaList[index]
-                            val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
-                            SiswaItem(siswa.nama, absensi?.status ?: "Belum Diisi")
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -206,31 +155,71 @@ fun AbsensiScreenGuru(
 }
 
 @Composable
-fun CalendarView(
+private fun MonthSelector(
+    currentMonth: YearMonth,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(onClick = onPreviousMonth) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Bulan Sebelumnya")
+        }
+        Text(
+            text = currentMonth.format(
+                DateTimeFormatter.ofPattern("MMMM yyyy", Locale("id", "ID"))
+            ),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        )
+        IconButton(onClick = onNextMonth) {
+            Icon(Icons.Default.ArrowForward, contentDescription = "Bulan Berikutnya")
+        }
+    }
+}
+
+@Composable
+private fun CalendarView(
     yearMonth: YearMonth,
+    selectedDate: LocalDate?,
     onDateSelected: (LocalDate) -> Unit
 ) {
     val daysInMonth = yearMonth.lengthOfMonth()
-    val firstDayOfMonth = yearMonth.atDay(1).dayOfWeek.value % 7
-    val daysOfWeek = listOf("Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min")
+    val firstDayOfMonth = yearMonth.atDay(1).dayOfWeek.value % 7 // Minggu = 0, Senin = 1, ..., Sabtu = 6
+    val daysOfWeek = listOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
 
     Column {
+        // Hari dalam minggu
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             daysOfWeek.forEach { day ->
                 Text(
                     text = day,
-                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
             }
         }
 
+        // Tanggal-tanggal
         var day = 1
         val totalSlots = (daysInMonth + firstDayOfMonth - 1) / 7 + 1
+
         for (week in 0 until totalSlots) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -238,19 +227,23 @@ fun CalendarView(
             ) {
                 for (i in 0 until 7) {
                     if (week == 0 && i < firstDayOfMonth || day > daysInMonth) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .weight(1f)
-                        )
+                        Box(modifier = Modifier.size(40.dp).weight(1f))
                     } else {
                         val date = yearMonth.atDay(day)
+                        val isToday = date == LocalDate.now()
+                        val isSelected = date == selectedDate
+
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .weight(1f)
                                 .background(
-                                    if (date == LocalDate.now()) Color(0xFF6200EE) else Color.Transparent,
+                                    color = when {
+                                        isToday && isSelected -> Color(0xFF6200EE)
+                                        isToday -> Color(0xFF6200EE).copy(alpha = 0.7f)
+                                        isSelected -> Color(0xFF03DAC5)
+                                        else -> Color.Transparent
+                                    },
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .clickable { onDateSelected(date) },
@@ -258,7 +251,11 @@ fun CalendarView(
                         ) {
                             Text(
                                 text = day.toString(),
-                                color = if (date == LocalDate.now()) Color.White else Color.Black
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = when {
+                                    isToday || isSelected -> Color.White
+                                    else -> MaterialTheme.colorScheme.onSurface
+                                }
                             )
                         }
                         day++
@@ -270,7 +267,26 @@ fun CalendarView(
 }
 
 @Composable
-fun StatCard(
+private fun AttendanceStats(
+    hadir: Int,
+    absen: Int,
+    izin: Int,
+    sakit: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        StatCard("Hadir", hadir, Color(0xFF4CAF50))
+        StatCard("Alpa", absen, Color(0xFFF44336))
+        StatCard("Izin", izin, Color(0xFF2196F3))
+        StatCard("Sakit", sakit, Color(0xFFFFEB3B))
+    }
+}
+
+@Composable
+private fun StatCard(
     title: String,
     count: Int,
     color: Color
@@ -278,75 +294,139 @@ fun StatCard(
     Card(
         modifier = Modifier
             .width(80.dp)
-            .padding(4.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
+            .height(80.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.1f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(8.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                color = color
+                style = MaterialTheme.typography.bodySmall,
+                color = color,
+                textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "$count Siswa",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
+                text = count.toString(),
+                style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                color = color
+                color = color,
+                textAlign = TextAlign.Center
             )
         }
     }
 }
 
 @Composable
-fun SiswaItem(nama: String, status: String) {
+private fun StudentItem(
+    name: String,
+    status: String,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA))
+            .padding(vertical = 4.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = nama,
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+                text = name,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = status,
                 color = when (status) {
                     "Hadir" -> Color(0xFF4CAF50)
                     "Alpa" -> Color(0xFFF44336)
                     "Izin" -> Color(0xFF2196F3)
-                    "Sakit" -> Color(0xFFFF9800)
-                    else -> Color.Gray
+                    "Sakit" -> Color(0xFFFFEB3B)
+                    "Belum Diisi" -> MaterialTheme.colorScheme.onSurfaceVariant
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
     }
 }
 
-class AbsensiViewModelFactory<ViewModel>(private val preferencesHelper: PreferencesHelper) : ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AbsensiViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AbsensiViewModel(preferencesHelper) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+@Composable
+private fun LoadingIndicator() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
     }
+}
+
+@Composable
+private fun ErrorMessage(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = message,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Composable
+private fun EmptyState(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        ),
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
 }

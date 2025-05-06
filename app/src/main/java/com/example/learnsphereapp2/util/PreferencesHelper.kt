@@ -43,4 +43,46 @@ class PreferencesHelper(context: Context) {
     fun getKelasId(): Int {
         return sharedPreferences.getInt("kelasId", -1) // -1 sebagai default jika tidak ada
     }
+
+    fun saveSiswaId(siswaId: Int) {
+        sharedPreferences.edit().putInt("siswaId", siswaId).apply()
+    }
+
+    fun getSiswaId(): Int {
+        return sharedPreferences.getInt("siswaId", -1) // -1 sebagai default jika tidak ada
+    }
+    fun saveNama(nama: String) {
+        sharedPreferences.edit().putString("nama", nama).apply()
+    }
+
+    fun getNama(): String? {
+        return sharedPreferences.getString("nama", null)
+    }
+
+    fun saveUserData(
+        userId: String,
+        username: String,
+        nama: String,
+        role: String,
+        kelasId: Int?
+    ) {
+        with(sharedPreferences.edit()) {
+            putString("user_id", userId)
+            putString("username", username)
+            putString("nama", nama)
+            putString("role", role)
+            kelasId?.let { putInt("kelasId", it) }
+            apply()
+        }
+    }
+
+    fun getUserId(): String? = sharedPreferences.getString("user_id", null)
+
+    fun setOnboardingShown(shown: Boolean) {
+        sharedPreferences.edit().putBoolean("onboarding_shown", shown).apply()
+    }
+
+    fun isOnboardingShown(): Boolean {
+        return sharedPreferences.getBoolean("onboarding_shown", false)
+    }
 }

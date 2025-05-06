@@ -29,7 +29,11 @@ class AbsensiViewModel(
 
     private val formatterApi = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    fun fetchData(kelasId: Int, tanggal: LocalDate) {
+    fun fetchData(kelasId: Int, tanggal: LocalDate?) {
+        if (tanggal == null) {
+            errorMessage.value = "Tanggal tidak valid."
+            return
+        }
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
@@ -52,17 +56,17 @@ class AbsensiViewModel(
                         siswaList.value = siswaResponse.body() ?: emptyList()
                         siswaList.value.forEach { siswa ->
                             if (!statusMap.containsKey(siswa.siswaId)) {
-                                statusMap[siswa.siswaId] = "Hadir"
+                                statusMap[siswa.siswaId] = "Belum Diisi"
                             }
                         }
-                        Log.d("AbsensiViewModel", "Berhasil mengambil ${siswaList.value.size} siswa: ${siswaList.value}")
+                        Log.d("AbsensiViewModel", "Berhasil mengambil ${siswaList.value.size} siswa")
                     } else {
                         errorMessage.value = when (siswaResponse.code()) {
                             404 -> "Siswa tidak ditemukan untuk kelas ini."
                             403 -> "Anda tidak memiliki akses ke kelas ini."
                             else -> "Gagal mengambil daftar siswa: ${siswaResponse.message()}"
                         }
-                        Log.e("AbsensiViewModel", "Gagal mengambil siswa: ${siswaResponse.code()} - ${siswaResponse.message()}")
+                        Log.e("AbsensiViewModel", "Gagal mengambil siswa: ${siswaResponse.code()}")
                     }
                 } catch (e: Exception) {
                     errorMessage.value = "Error saat mengambil daftar siswa: ${e.message}"
@@ -84,14 +88,14 @@ class AbsensiViewModel(
                             statusMap[absensi.siswaId] = absensi.status
                         }
                         updateStatistics()
-                        Log.d("AbsensiViewModel", "Berhasil mengambil ${absensiList.value.size} data absensi: ${absensiList.value}")
+                        Log.d("AbsensiViewModel", "Berhasil mengambil ${absensiList.value.size} data absensi")
                     } else {
                         errorMessage.value = when (absensiResponse.code()) {
                             404 -> "Absensi tidak ditemukan untuk tanggal ini."
                             403 -> "Anda tidak memiliki akses ke kelas ini."
                             else -> "Gagal mengambil absensi: ${absensiResponse.message()}"
                         }
-                        Log.e("AbsensiViewModel", "Gagal mengambil absensi: ${absensiResponse.code()} - ${absensiResponse.message()}")
+                        Log.e("AbsensiViewModel", "Gagal mengambil absensi: ${absensiResponse.code()}")
                     }
                 } catch (e: Exception) {
                     errorMessage.value = "Error saat mengambil absensi: ${e.message}"
@@ -127,9 +131,9 @@ class AbsensiViewModel(
                     val updatedAbsensi = absensiList.value.toMutableList()
                     val existingAbsensiIndex = updatedAbsensi.indexOfFirst { it.siswaId == siswaId }
                     if (existingAbsensiIndex != -1) {
-                        updatedAbsensi[existingAbsensiIndex] = response.body()!!
+                        response.body()?.let { updatedAbsensi[existingAbsensiIndex] = it }
                     } else {
-                        updatedAbsensi.add(response.body()!!)
+                        response.body()?.let { updatedAbsensi.add(it) }
                     }
                     absensiList.value = updatedAbsensi
                     statusMap[siswaId] = newStatus
@@ -141,7 +145,7 @@ class AbsensiViewModel(
                         403 -> "Anda tidak memiliki akses untuk mengubah absensi."
                         else -> "Gagal mengupdate absensi: ${response.message()}"
                     }
-                    Log.e("AbsensiViewModel", "Gagal mengupdate absensi: ${response.code()} - ${response.message()}")
+                    Log.e("AbsensiViewModel", "Gagal mengupdate absensi: ${response.code()}")
                 }
             } catch (e: Exception) {
                 errorMessage.value = "Error saat mengupdate absensi: ${e.message}"
