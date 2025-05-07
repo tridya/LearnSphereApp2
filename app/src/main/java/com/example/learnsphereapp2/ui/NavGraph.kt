@@ -25,6 +25,7 @@ object Destinations {
     const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId}?"
     const val DAFTAR_JADWAL = "daftar_jadwal/{kelasId}"
     const val JADWAL_KEGIATAN = "jadwal_kegiatan"
+
     const val ABSENSI_ORANGTUA = "absensi_orangtua"
     const val NILAI_ORANGTUA = "nilai_orangtua"
     const val JADWAL_ORANGTUA = "jadwal_orangtua"

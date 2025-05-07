@@ -10,36 +10,39 @@ import com.example.learnsphereapp2.util.PreferencesHelper
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class AbsensiOrangTuaViewModel(
     private val preferencesHelper: PreferencesHelper
 ) : ViewModel() {
     val absensiList = mutableStateOf<List<AbsensiResponse>>(emptyList())
+    val hadirCount = mutableStateOf(0)
+    val absenCount = mutableStateOf(0)
+    val izinCount = mutableStateOf(0)
+    val sakitCount = mutableStateOf(0)
     val isLoading = mutableStateOf(false)
     val errorMessage = mutableStateOf<String?>(null)
 
-    private val formatterApi = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val formatterApi = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale("id", "ID"))
 
-    fun fetchAbsensiByStudent(date: LocalDate) {
+    fun fetchAbsensiByStudent(date: LocalDate, siswaId: Int) {
         viewModelScope.launch {
             isLoading.value = true
             errorMessage.value = null
             try {
-                val siswaId = preferencesHelper.getSiswaId() ?: run {
-                    errorMessage.value = "ID siswa tidak ditemukan. Silakan login kembali."
-                    isLoading.value = false
-                    Log.e("AbsensiOrangTuaViewModel", "siswaId tidak ditemukan di PreferencesHelper")
-                    return@launch
-                }
+                Log.d("AbsensiOrangTuaVM", "Menggunakan siswa_id: $siswaId")
+
                 val token = preferencesHelper.getToken() ?: run {
                     errorMessage.value = "Token tidak ditemukan. Silakan login kembali."
                     isLoading.value = false
-                    Log.e("AbsensiOrangTuaViewModel", "Token tidak ditemukan")
+                    Log.e("AbsensiOrangTuaVM", "Token tidak ditemukan di PreferencesHelper")
                     return@launch
                 }
+                Log.d("AbsensiOrangTuaVM", "Token: $token")
+
                 val startDate = date.withDayOfMonth(1).format(formatterApi)
                 val endDate = date.withDayOfMonth(date.lengthOfMonth()).format(formatterApi)
-                Log.d("AbsensiOrangTuaViewModel", "Mengambil absensi: siswaId=$siswaId, startDate=$startDate, endDate=$endDate, token=$token")
+                Log.d("AbsensiOrangTuaVM", "Parameter: siswa_id=$siswaId, start_date=$startDate, end_date=$endDate")
 
                 val response = RetrofitClient.apiService.getAbsensiByStudent(
                     authorization = "Bearer $token",
@@ -47,32 +50,41 @@ class AbsensiOrangTuaViewModel(
                     startDate = startDate,
                     endDate = endDate
                 )
-                Log.d("AbsensiOrangTuaViewModel", "Response kode: ${response.code()}, body: ${response.body()}")
+                Log.d("AbsensiOrangTuaVM", "Respon kode: ${response.code()}")
+                val rawBody = response.errorBody()?.string() ?: response.body()?.toString() ?: "null"
+                Log.d("AbsensiOrangTuaVM", "Respon body mentah: $rawBody")
+
                 if (response.isSuccessful) {
-                    val data = response.body() ?: emptyList()
-                    absensiList.value = data
-                    if (data.isEmpty()) {
-                        errorMessage.value = "Tidak ada data absensi untuk bulan ini. Pastikan guru telah mengisi absensi atau coba refresh."
-                        Log.w("AbsensiOrangTuaViewModel", "AbsensiList kosong untuk siswaId=$siswaId")
-                    } else {
-                        Log.d("AbsensiOrangTuaViewModel", "Berhasil mengambil ${data.size} data absensi: ${data.map { "${it.tanggal}: ${it.status}" }}")
-                    }
+                    val body = response.body() ?: emptyList()
+                    absensiList.value = body
+                    updateStatistics()
+                    Log.d("AbsensiOrangTuaVM", "Berhasil mengambil ${absensiList.value.size} data absensi: ${absensiList.value.map { "${it.tanggal}: ${it.status}" }}")
                 } else {
+                    val errorBody = response.errorBody()?.string() ?: "Tidak ada detail error"
                     errorMessage.value = when (response.code()) {
-                        404 -> "Absensi tidak ditemukan untuk siswa ini. Pastikan ID siswa benar."
-                        403 -> "Akses ditolak. Silakan login kembali atau hubungi administrator."
+                        404 -> "Absensi tidak ditemukan untuk periode ini."
+                        403 -> "Anda tidak memiliki akses."
                         else -> "Gagal mengambil absensi: ${response.message()}"
                     }
-                    Log.e("AbsensiOrangTuaViewModel", "Gagal mengambil absensi: ${response.code()} - ${response.message()}")
+                    Log.e("AbsensiOrangTuaVM", "Gagal mengambil absensi: ${response.code()}, Error: $errorBody")
                     absensiList.value = emptyList()
                 }
             } catch (e: Exception) {
-                errorMessage.value = "Error saat mengambil absensi: ${e.message}. Coba lagi nanti."
-                Log.e("AbsensiOrangTuaViewModel", "Error mengambil absensi: ${e.message}", e)
+                errorMessage.value = "Error saat mengambil absensi: ${e.message}"
+                Log.e("AbsensiOrangTuaVM", "Error mengambil absensi: ${e.message}", e)
                 absensiList.value = emptyList()
             } finally {
                 isLoading.value = false
+                Log.d("AbsensiOrangTuaVM", "Fetch selesai, isLoading: ${isLoading.value}")
             }
         }
+    }
+
+    private fun updateStatistics() {
+        hadirCount.value = absensiList.value.count { it.status.lowercase() == "hadir" }
+        absenCount.value = absensiList.value.count { it.status.lowercase() == "alpa" }
+        izinCount.value = absensiList.value.count { it.status.lowercase() == "izin" }
+        sakitCount.value = absensiList.value.count { it.status.lowercase() == "sakit" }
+        Log.d("AbsensiOrangTuaVM", "Statistik diperbarui: Hadir=${hadirCount.value}, Alpa=${absenCount.value}, Izin=${izinCount.value}, Sakit=${sakitCount.value}")
     }
 }
