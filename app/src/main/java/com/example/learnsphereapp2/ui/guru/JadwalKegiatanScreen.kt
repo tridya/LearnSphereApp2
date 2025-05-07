@@ -45,9 +45,8 @@ fun JadwalKegiatanScreen(
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Column(
-            modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
+            modifier = Modifier.weight(1f)
         ) {
-            // Header: Judul di tengah, ikon lonceng/profil di kanan (tanpa tombol kembali)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,7 +54,7 @@ fun JadwalKegiatanScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(modifier = Modifier.size(24.dp)) // Placeholder untuk simetri
+                Spacer(modifier = Modifier.size(24.dp))
                 Text(
                     text = "Jadwal Kegiatan",
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
@@ -73,7 +72,9 @@ fun JadwalKegiatanScreen(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .clickable { /* TODO: Aksi notifikasi */ },
+                            .clickable {
+                                navController.navigate(Destinations.NOTIFIKASI_GURU) // Mengarah ke rute guru
+                            },
                         tint = Color.Black
                     )
                     Icon(
@@ -90,7 +91,6 @@ fun JadwalKegiatanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Salam: "Selamat Datang, $username" dan pesan penyemangat akademik
             Column {
                 Text(
                     text = "Selamat Datang, $username",
@@ -106,7 +106,6 @@ fun JadwalKegiatanScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Card Tambahkan Jadwal Pelajaran
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -163,7 +162,6 @@ fun JadwalKegiatanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Card Lihat Daftar Pelajaran
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

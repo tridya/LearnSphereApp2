@@ -60,9 +60,13 @@ dependencies {
 
     // Retrofit & Network
     implementation(libs.bundles.retrofit)
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Coroutines
     implementation(libs.coroutines.android)
+    implementation(libs.androidx.runtime.livedata)
+
 
     // Testing
     testImplementation(libs.junit)
@@ -78,4 +82,5 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(platform(libs.compose.bom))
     implementation(libs.navigation.compose)
+
 }

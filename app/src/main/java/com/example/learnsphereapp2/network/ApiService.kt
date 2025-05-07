@@ -31,8 +31,8 @@ interface ApiService {
     @GET("api/users/me")
     suspend fun getUser(@Header("Authorization") authorization: String): Response<UserResponse>
 
-    @GET("/")
-    suspend fun checkHealth(): Map<String, String>
+    @GET("health") // Ganti placeholder dengan endpoint kesehatan yang valid, misalnya "/health"
+    suspend fun checkHealth(): Response<Map<String, String>>
 
     @GET("api/siswa/kelas/{kelas_id}")
     suspend fun getStudentsByClass(

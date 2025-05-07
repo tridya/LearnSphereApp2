@@ -30,11 +30,13 @@ object Destinations {
     const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId}?"
     const val DAFTAR_JADWAL = "daftar_jadwal/{kelasId}"
     const val JADWAL_KEGIATAN = "jadwal_kegiatan"
+    const val NOTIFIKASI_GURU = "notifikasi_guru"
 
     const val HOME_ORANGTUA = "home_orangtua"
     const val ABSENSI_ORANGTUA = "absensi_orangtua/{siswaId}"
     const val NILAI_ORANGTUA = "nilai_orangtua/{siswaId}"
     const val JADWAL_ORANGTUA = "jadwal_orangtua/{siswaId}"
+    const val NOTIFIKASI_ORANGTUA = "notifikasi_orangtua"
 }
 
 @Composable
@@ -44,9 +46,8 @@ fun AppNavGraph(
 ) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val userRole = preferencesHelper.getRole() // Mengambil role dari PreferencesHelper
+    val userRole = preferencesHelper.getRole()
 
-    // Halaman yang tidak memerlukan navbar (hanya LOGIN)
     val hideNavBarRoutes = listOf(Destinations.LOGIN)
 
     Scaffold(
@@ -59,13 +60,15 @@ fun AppNavGraph(
                             currentRoute?.startsWith("nilai_guru") == true ||
                             currentRoute?.startsWith("daftar_jadwal") == true ||
                             currentRoute?.startsWith("tambahJadwal") == true ||
-                            currentRoute == Destinations.JADWAL_KEGIATAN) {
+                            currentRoute == Destinations.JADWAL_KEGIATAN ||
+                            currentRoute == Destinations.NOTIFIKASI_GURU) { // Tambahkan NOTIFIKASI_GURU
                             BottomNavigationGuru(navController = navController, currentRoute = currentRoute)
                         }
                     }
                     "orang_tua" -> {
                         if (currentRoute == Destinations.HOME_ORANGTUA ||
-                            currentRoute?.startsWith("jadwal_orangtua") == true) {
+                            currentRoute?.startsWith("jadwal_orangtua") == true ||
+                            currentRoute == Destinations.NOTIFIKASI_ORANGTUA) {
                             BottomNavigationOrangTua(navController = navController, currentRoute = currentRoute)
                         }
                     }
@@ -81,7 +84,7 @@ fun AppNavGraph(
             composable(Destinations.LOGIN) {
                 LoginScreen(
                     onLoginSuccess = { role ->
-                        preferencesHelper.saveRole(role) // Simpan role ke Preferences
+                        preferencesHelper.saveRole(role)
                         if (role == "guru") {
                             navController.navigate(Destinations.HOME_GURU) {
                                 popUpTo(Destinations.LOGIN) { inclusive = true }
@@ -196,6 +199,15 @@ fun AppNavGraph(
                     }
                 }
             }
+            composable(Destinations.NOTIFIKASI_GURU) {
+                if (userRole == "guru") {
+                    NotifikasiScreen() // Gunakan versi guru
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "Akses Ditolak. Anda bukan Guru.")
+                    }
+                }
+            }
 
             // Halaman untuk Orang Tua
             composable(Destinations.HOME_ORANGTUA) {
@@ -222,35 +234,15 @@ fun AppNavGraph(
                     }
                 }
             }
-            // Sementara komentari rute yang belum ada
-            // composable(Destinations.ABSENSI_ORANGTUA) { backStackEntry ->
-            //     if (userRole == "orang_tua") {
-            //         val siswaIdString = backStackEntry.arguments?.getString("siswaId")
-            //         val siswaId = siswaIdString?.toIntOrNull() ?: 0
-            //         // Placeholder, ganti dengan AbsensiOrangTuaScreen jika ada
-            //         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            //             Text(text = "Absensi Orang Tua (siswaId: $siswaId)")
-            //         }
-            //     } else {
-            //         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            //             Text(text = "Akses Ditolak. Anda bukan Orang Tua.")
-            //         }
-            //     }
-            // }
-            // composable(Destinations.NILAI_ORANGTUA) { backStackEntry ->
-            //     if (userRole == "orang_tua") {
-            //         val siswaIdString = backStackEntry.arguments?.getString("siswaId")
-            //         val siswaId = siswaIdString?.toIntOrNull() ?: 0
-            //         // Placeholder, ganti dengan NilaiOrangTuaScreen jika ada
-            //         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            //             Text(text = "Nilai Orang Tua (siswaId: $siswaId)")
-            //         }
-            //     } else {
-            //         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            //             Text(text = "Akses Ditolak. Anda bukan Orang Tua.")
-            //         }
-            //     }
-            // }
+            composable(Destinations.NOTIFIKASI_ORANGTUA) {
+                if (userRole == "orang_tua") {
+                    NotifikasiScreen() // Gunakan versi orang tua
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "Akses Ditolak. Anda bukan Orang Tua.")
+                    }
+                }
+            }
         }
     }
 }

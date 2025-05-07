@@ -1,18 +1,30 @@
-// app/src/main/java/com/example/learnsphereapp2/network/RetrofitClient.kt
 package com.example.learnsphereapp2.network
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.13.131:8000/" // Untuk emulator; ganti dengan IP server jika menggunakan perangkat fisik
+    // Base URL untuk API lokal
+    private const val LOCAL_BASE_URL = "http://10.0.2.2:8000/" // Ganti dengan IP server atau "http://10.0.2.2:8000/" untuk emulator
 
+    // Base URL untuk Calendarific API
+    private const val CALENDARIFIC_BASE_URL = "https://calendarific.com/api/v2/"
+
+    // Instance untuk API lokal
     val apiService: ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(LOCAL_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
     }
+
+    // Instance untuk Calendarific API
+    val calendarificApi: CalendarificApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(CALENDARIFIC_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(CalendarificApi::class.java)
+    }
 }
-//http://10.0.2.2:8000/
