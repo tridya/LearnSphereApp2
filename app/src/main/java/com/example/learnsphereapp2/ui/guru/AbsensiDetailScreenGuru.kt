@@ -95,7 +95,7 @@ fun AbsensiDetailScreenGuru(
                     .size(24.dp)
                     .clickable {
                         navController.navigate(
-                            Destinations.ABSENSI_HARIAN_GURU.replace("{kelasId}", kelasId.toString())
+                            Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())
                         )
                     }
             )
@@ -223,7 +223,7 @@ fun AbsensiDetailScreenGuru(
         Button(
             onClick = {
                 navController.navigate(
-                    Destinations.ABSENSI_HARIAN_GURU.replace("{kelasId}", kelasId.toString())
+                    Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())
                 )
             },
             modifier = Modifier

@@ -20,7 +20,6 @@ import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.BlueCard
 import com.example.learnsphereapp2.ui.theme.GrayText
-import com.example.learnsphereapp2.ui.theme.OffWhite
 import androidx.compose.foundation.shape.CircleShape
 
 @Composable
@@ -61,7 +60,7 @@ fun BottomNavigationGuru(navController: NavController, currentRoute: String?) {
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth(),
-        containerColor = OffWhite, // White background from Color.kt
+        containerColor = BackgroundWhite, // White background from Color.kt
         contentColor = GrayText // Unselected icon and text color
     ) {
         val items = listOf(
@@ -78,7 +77,7 @@ fun BottomNavigationGuru(navController: NavController, currentRoute: String?) {
             NavItem(
                 iconRes = R.drawable.ic_nilai,
                 label = "Nilai",
-                route = Destinations.NILAI_GURU
+                route = "nilai"
             ),
             NavItem(
                 iconRes = R.drawable.ic_jadwal,

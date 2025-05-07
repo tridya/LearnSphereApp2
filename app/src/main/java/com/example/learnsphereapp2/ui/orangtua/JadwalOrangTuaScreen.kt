@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -25,18 +23,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.learnsphereapp2.ui.Destinations // Impor Destinations
 import com.example.learnsphereapp2.ui.guru.JadwalItem
 import com.example.learnsphereapp2.ui.orangtua.FilterBar
 import com.example.learnsphereapp2.ui.orangtua.FilterItem
 import com.example.learnsphereapp2.ui.orangtua.FilterType
-import com.example.learnsphereapp2.ui.orangtua.CalendarView // Impor dari package yang sama
 import com.example.learnsphereapp2.ui.theme.*
 import com.example.learnsphereapp2.util.PreferencesHelper
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
+import java.time.format.TextStyle // Impor TextStyle
 import java.util.Locale
 import android.util.Log
 
@@ -55,13 +51,11 @@ fun JadwalOrangTuaScreen(
     )
 
     val currentTime = LocalDateTime.now()
-    val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale("id", "ID"))
-    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss", java.util.Locale("id", "ID"))
+    val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale("id", "ID"))
     val formattedDate = currentTime.format(dateFormatter)
     val formattedTime = currentTime.format(timeFormatter)
-    val currentDay = currentTime.dayOfWeek.getDisplayName(TextStyle.FULL, java.util.Locale("id", "ID")).replaceFirstChar { it.uppercase() }
-    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    val selectedDate = remember { mutableStateOf(LocalDate.now()) }
+    val currentDay = currentTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("id", "ID")).replaceFirstChar { it.uppercase() }
 
     // State for filter selection
     var selectedFilter by remember {
@@ -137,8 +131,8 @@ fun JadwalOrangTuaScreen(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .clickable { /* TODO: Aksi notifikasi */ },
-                    tint = Color.Black
+                        //.clickable { navController.navigate(Destinations.NOTIFIKASI_ORANGTUA) },
+                    //tint = Color.Black
                 )
                 Icon(
                     imageVector = Icons.Default.Person,
@@ -182,44 +176,6 @@ fun JadwalOrangTuaScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Kontrol bulan
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Bulan Sebelumnya",
-                modifier = Modifier
-                    .clickable { currentMonth = currentMonth.minusMonths(1) }
-            )
-            Text(
-                text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale("id", "ID"))),
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
-            )
-            Icon(
-                imageVector = Icons.Default.ArrowForward,
-                contentDescription = "Bulan Berikutnya",
-                modifier = Modifier
-                    .clickable { currentMonth = currentMonth.plusMonths(1) }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Kalender
-        CalendarView(
-            yearMonth = currentMonth,
-            onDateSelected = { date ->
-                selectedDate.value = date
-                val selectedDay = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("id", "ID")).replaceFirstChar { it.uppercase() }
-                selectedFilter = filters.find { it.type == FilterType.hari_ini } ?: selectedFilter
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Filter Bar
         FilterBar(
             filters = filters,
@@ -235,7 +191,7 @@ fun JadwalOrangTuaScreen(
         val jadwalList by remember { derivedStateOf {
             when (selectedFilter.type) {
                 FilterType.hari_ini -> viewModel.allJadwalList.filter { jadwal ->
-                    jadwal.hari?.equals(selectedDate.value.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("id", "ID")).replaceFirstChar { it.uppercase() }, ignoreCase = true) == true
+                    jadwal.hari?.equals(currentDay, ignoreCase = true) == true
                 }
                 FilterType.jadwal_ini -> viewModel.allJadwalList
                 else -> viewModel.allJadwalList
@@ -270,7 +226,7 @@ fun JadwalOrangTuaScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = when (selectedFilter.type) {
-                            FilterType.hari_ini -> "Tidak ada jadwal untuk hari ${selectedDate.value.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("id", "ID")).replaceFirstChar { it.uppercase() }}."
+                            FilterType.hari_ini -> "Tidak ada jadwal untuk hari $currentDay."
                             FilterType.jadwal_ini -> "Tidak ada jadwal untuk anak ini."
                             else -> "Tidak ada jadwal untuk anak ini."
                         },

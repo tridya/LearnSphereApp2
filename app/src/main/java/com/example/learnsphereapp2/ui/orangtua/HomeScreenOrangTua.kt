@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,12 +31,13 @@ import com.example.learnsphereapp2.util.PreferencesHelper
 @Composable
 fun HomeScreenOrangTua(
     navController: NavController,
-    preferencesHelper: PreferencesHelper
+    preferencesHelper: PreferencesHelper,
+    modifier: Modifier = Modifier
 ) {
     val viewModel: JadwalOrangTuaViewModel = viewModel(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return JadwalOrangTuaViewModel(preferencesHelper) as T // Hapus siswaId = 0
+                return JadwalOrangTuaViewModel(preferencesHelper) as T
             }
         }
     )
@@ -46,10 +48,11 @@ fun HomeScreenOrangTua(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
+        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -58,12 +61,17 @@ fun HomeScreenOrangTua(
             Column {
                 Text(
                     text = "Selamat datang, ${preferencesHelper.getUsername() ?: "Orang Tua"}",
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
                     color = DarkText
                 )
                 Text(
                     text = "Lihat informasi terkait anak Anda",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp
+                    ),
                     color = GrayText
                 )
             }
@@ -95,6 +103,7 @@ fun HomeScreenOrangTua(
             }
         } else {
             siswaList.forEach { siswa ->
+                // Card Absensi
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -114,13 +123,18 @@ fun HomeScreenOrangTua(
                         Column {
                             Text(
                                 text = "Absensi ${siswa.nama}",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                ),
                                 color = DarkText
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Lihat kehadiran ${siswa.nama}",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 12.sp
+                                ),
                                 color = GrayText
                             )
                         }
@@ -134,6 +148,7 @@ fun HomeScreenOrangTua(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Card Jadwal
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -153,13 +168,18 @@ fun HomeScreenOrangTua(
                         Column {
                             Text(
                                 text = "Jadwal ${siswa.nama}",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                ),
                                 color = DarkText
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Lihat jadwal ${siswa.nama}",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 12.sp
+                                ),
                                 color = GrayText
                             )
                         }
@@ -173,6 +193,7 @@ fun HomeScreenOrangTua(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Card Nilai
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -192,13 +213,18 @@ fun HomeScreenOrangTua(
                         Column {
                             Text(
                                 text = "Nilai ${siswa.nama}",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                ),
                                 color = DarkText
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Lihat nilai ${siswa.nama}",
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 12.sp
+                                ),
                                 color = GrayText
                             )
                         }

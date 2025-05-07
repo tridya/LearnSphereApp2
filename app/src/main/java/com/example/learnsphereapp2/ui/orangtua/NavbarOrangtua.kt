@@ -1,13 +1,12 @@
 package com.example.learnsphereapp2.ui.orangtua
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -15,76 +14,88 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
-import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.BlueCard
 import com.example.learnsphereapp2.ui.theme.GrayText
-import com.example.learnsphereapp2.ui.theme.OffWhite
 
 @Composable
-fun BottomNavigationOrangTua(navController: NavController, currentRoute: String?) {
+fun BottomNavigationOrangTua(
+    navController: NavController,
+    currentRoute: String?
+) {
     NavigationBar(
-        modifier = Modifier
-            .fillMaxWidth(),
-        containerColor = OffWhite, // White background from Color.kt
-        contentColor = GrayText // Unselected icon and text color
+        modifier = Modifier.height(64.dp),
+        containerColor = Color.White,
+        contentColor = GrayText
     ) {
-        val items = listOf(
-            NavItem(
-                iconRes = R.drawable.ic_home, // Ganti dengan resource ikon yang sesuai
-                label = "Home",
+        // Daftar item navbar untuk orang tua
+        val menuItems = listOf(
+            NavItemOrangTua(
+                iconRes = R.drawable.ic_home,
+                label = "Beranda",
                 route = Destinations.HOME_ORANGTUA
             ),
-            NavItem(
-                iconRes = R.drawable.ic_jadwal, // Ganti dengan resource ikon yang sesuai
+            NavItemOrangTua(
+                iconRes = R.drawable.ic_absensi,
+                label = "Absensi",
+                route = Destinations.ABSENSI_ORANGTUA
+            ),
+            NavItemOrangTua(
+                iconRes = R.drawable.ic_nilai,
+                label = "Nilai",
+                route = Destinations.NILAI_ORANGTUA
+            ),
+            NavItemOrangTua(
+                iconRes = R.drawable.ic_jadwal,
                 label = "Jadwal",
                 route = Destinations.JADWAL_ORANGTUA.replace("{siswaId}", "1") // Default siswaId
             )
         )
 
-        items.forEach { item ->
-            val isSelected = currentRoute?.startsWith(item.route) == true
+        // Menampilkan setiap item navbar
+        menuItems.forEach { menuItem ->
+            val isSelected = currentRoute == menuItem.route
             NavigationBarItem(
                 icon = {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp) // Size of the circular background
-                            .background(
-                                color = if (isSelected) BlueCard else Color.Transparent,
-                                shape = CircleShape // Circular background for selected item
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = item.iconRes),
-                            contentDescription = item.label,
-                            modifier = Modifier.size(24.dp),
-                            tint = if (isSelected) Color.White else GrayText // White for selected, gray for unselected
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = menuItem.iconRes),
+                        contentDescription = menuItem.label,
+                        tint = if (isSelected) BlueCard else GrayText
+                    )
                 },
-                label = { Text(item.label) },
+                label = {
+                    Text(
+                        text = menuItem.label,
+                        color = if (isSelected) BlueCard else GrayText
+                    )
+                },
                 selected = isSelected,
                 onClick = {
                     if (!isSelected) {
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                        // Navigasi ke route yang dipilih
+                        navController.navigate(menuItem.route) {
+                            // Bersihkan back stack sampai ke Beranda
+                            popUpTo(Destinations.HOME_ORANGTUA) {
+                                saveState = true
+                            }
+                            // Hindari multiple copy dari screen yang sama
                             launchSingleTop = true
+                            // Restore state ketika kembali ke screen sebelumnya
+                            restoreState = true
                         }
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.White, // White icon for selected
-                    unselectedIconColor = GrayText, // Gray for unselected
-                    selectedTextColor = BlueCard, // Blue text for selected label
-                    unselectedTextColor = GrayText, // Gray for unselected label
-                    indicatorColor = Color.Transparent // Remove the default indicator
+                    selectedIconColor = BlueCard,
+                    unselectedIconColor = GrayText,
+                    indicatorColor = Color.Transparent
                 )
             )
         }
     }
 }
 
-data class NavItem(
+// Data class untuk menyimpan informasi item navbar
+data class NavItemOrangTua(
     val iconRes: Int,
     val label: String,
     val route: String
