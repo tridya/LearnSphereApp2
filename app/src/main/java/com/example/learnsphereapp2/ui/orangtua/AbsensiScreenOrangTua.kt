@@ -1,5 +1,6 @@
-package com.example.learnsphereapp2.ui.guru
+package com.example.learnsphereapp2.ui.orangtua
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,11 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.learnsphereapp2.ui.Destinations
+import androidx.navigation.NavHostController
+import com.example.learnsphereapp2.data.model.AbsensiResponse
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
@@ -30,25 +28,54 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Composable
-fun AbsensiScreenGuru(
-    navController: NavController,
-    kelasId: Int,
-    preferencesHelper: PreferencesHelper
+fun AbsensiScreenOrangTua(
+    navController: NavHostController,
+    preferencesHelper: PreferencesHelper,
+    viewModel: AbsensiOrangTuaViewModel = AbsensiOrangTuaViewModel(preferencesHelper)
 ) {
-    val viewModel: AbsensiViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return AbsensiViewModel(preferencesHelper) as T
-            }
-        }
-    )
-    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    val formatter = remember { DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID")) }
+    val absensiList by viewModel.absensiList
+    val hadirCount by viewModel.hadirCount
+    val absenCount by viewModel.absenCount
+    val izinCount by viewModel.izinCount
+    val sakitCount by viewModel.sakitCount
+    val isLoading by viewModel.isLoading
+    val errorMessage by viewModel.errorMessage
 
-    LaunchedEffect(selectedDate) {
-        viewModel.fetchData(kelasId = kelasId, tanggal = selectedDate)
+    val today = LocalDate.now()
+    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    var selectedDate by remember { mutableStateOf(today) }
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
+    val siswaIdHardcoded = 1 // Hardcode siswaId di sini
+    val currentSiswaId = siswaIdHardcoded
+
+    Log.d("AbsensiScreenOrangTua", "siswaId yang digunakan (hardcoded): $siswaIdHardcoded")
+
+    if (currentSiswaId == null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "ID siswa tidak ditemukan. Silakan login kembali.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                textAlign = TextAlign.Center
+            )
+        }
+        return
+    }
+
+    LaunchedEffect(currentMonth, currentSiswaId) {
+        viewModel.fetchAbsensiByStudent(currentMonth.atDay(1), currentSiswaId)
+    }
+
+    LaunchedEffect(absensiList, selectedDate) {
+        val dateKey = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        val foundStatus = absensiList.find { it.tanggal == dateKey }?.status
+        Log.d("AbsensiScreenOrangTua", "Tanggal dipilih: $dateKey, Status: $foundStatus")
+        Log.d("AbsensiScreenOrangTua", "AbsensiList: ${absensiList.map { "${it.tanggal}: ${it.status}" }}")
     }
 
     LazyColumn(
@@ -74,7 +101,7 @@ fun AbsensiScreenGuru(
                         .clickable { navController.popBackStack() }
                 )
                 Text(
-                    text = "Absen Harian Siswa",
+                    text = "Absensi Harian",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
@@ -86,66 +113,86 @@ fun AbsensiScreenGuru(
         }
 
         item {
-            // Kontrol bulan dan kalender
-            MonthSelector(
-                currentMonth = currentMonth,
-                onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
-                onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            CalendarView(
-                yearMonth = currentMonth,
-                selectedDate = selectedDate,
-                onDateSelected = { date -> selectedDate = date }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            // Tombol refresh
+            Button(
+                onClick = { viewModel.fetchAbsensiByStudent(currentMonth.atDay(1), currentSiswaId) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD))
+            ) {
+                Text(
+                    text = "Refresh Data",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         item {
-            // Statistik absensi
-            AttendanceStats(
-                hadir = viewModel.hadirCount.value,
-                absen = viewModel.absenCount.value,
-                izin = viewModel.izinCount.value,
-                sakit = viewModel.sakitCount.value,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            // Pesan error
+            errorMessage?.let { pesan ->
+                Text(
+                    text = pesan,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp)
+                )
+            }
         }
 
-        item {
-            SectionTitle("Daftar Siswa")
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        if (isLoading) {
+            item {
+                LoadingIndicator()
+            }
+        } else {
+            item {
+                // Kontrol bulan dan kalender
+                MonthSelector(
+                    currentMonth = currentMonth,
+                    onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
+                    onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-        when {
-            viewModel.isLoading.value -> {
-                item {
-                    LoadingIndicator()
-                }
+                CalendarView(
+                    yearMonth = currentMonth,
+                    selectedDate = selectedDate,
+                    absensiList = absensiList, // Teruskan absensiList ke CalendarView
+                    onDateSelected = { date -> selectedDate = date }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            viewModel.errorMessage.value != null -> {
-                item {
-                    ErrorMessage(viewModel.errorMessage.value ?: "Terjadi kesalahan")
-                }
+
+            item {
+                // Statistik absensi
+                AttendanceStats(
+                    hadir = hadirCount,
+                    absen = absenCount,
+                    izin = izinCount,
+                    sakit = sakitCount,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
             }
-            viewModel.siswaList.value.isEmpty() -> {
-                item {
-                    EmptyState("Tidak ada siswa ditemukan")
-                }
+
+            item {
+                SectionTitle("Daftar Absensi")
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            else -> {
-                items(viewModel.siswaList.value.sortedBy { it.nama }) { siswa ->
-                    val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
-                    StudentItem(
-                        name = siswa.nama,
-                        status = absensi?.status ?: "Belum Diisi",
+
+            if (absensiList.isEmpty()) {
+                item {
+                    EmptyState("Tidak ada data absensi untuk bulan ini")
+                }
+            } else {
+                items(absensiList.sortedBy { it.tanggal }) { absensi ->
+                    AttendanceItem(
+                        tanggal = absensi.tanggal,
+                        status = absensi.status,
                         onClick = {
-                            navController.navigate(
-                                Destinations.ABSENSI_DETAIL_GURU
-                                    .replace("{kelasId}", kelasId.toString())
-                                    .replace("{tanggal}", selectedDate.format(formatter))
-                            )
+                            Log.d("AbsensiScreenOrangTua", "Klik pada ${absensi.tanggal}: ${absensi.status}")
                         }
                     )
                 }
@@ -188,11 +235,12 @@ private fun MonthSelector(
 @Composable
 private fun CalendarView(
     yearMonth: YearMonth,
-    selectedDate: LocalDate?,
+    selectedDate: LocalDate,
+    absensiList: List<AbsensiResponse>, // Tambahkan parameter absensiList
     onDateSelected: (LocalDate) -> Unit
 ) {
     val daysInMonth = yearMonth.lengthOfMonth()
-    val firstDayOfMonth = yearMonth.atDay(1).dayOfWeek.value % 7 // Minggu = 0, Senin = 1, ..., Sabtu = 6
+    val firstDayOfMonth = if (yearMonth.atDay(1).dayOfWeek.value == 7) 0 else yearMonth.atDay(1).dayOfWeek.value // Pastikan Minggu = 0
     val daysOfWeek = listOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
 
     Column {
@@ -206,10 +254,7 @@ private fun CalendarView(
             daysOfWeek.forEach { day ->
                 Text(
                     text = day,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
@@ -218,30 +263,25 @@ private fun CalendarView(
 
         // Tanggal-tanggal
         var day = 1
-        val totalSlots = (daysInMonth + firstDayOfMonth - 1) / 7 + 1
-
-        for (week in 0 until totalSlots) {
+        for (week in 0 until 6) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 for (i in 0 until 7) {
-                    if (week == 0 && i < firstDayOfMonth || day > daysInMonth) {
+                    if ((week == 0 && i < firstDayOfMonth) || day > daysInMonth) {
                         Box(modifier = Modifier.size(40.dp).weight(1f))
                     } else {
                         val date = yearMonth.atDay(day)
-                        val isToday = date == LocalDate.now()
-                        val isSelected = date == selectedDate
-
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .weight(1f)
                                 .background(
                                     color = when {
-                                        isToday && isSelected -> Color(0xFF6200EE)
-                                        isToday -> Color(0xFF6200EE).copy(alpha = 0.7f)
-                                        isSelected -> Color(0xFF03DAC5)
+                                        date == selectedDate -> MaterialTheme.colorScheme.primary
+                                        date == LocalDate.now() -> MaterialTheme.colorScheme.secondaryContainer
+                                        absensiList.any { it.tanggal == date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) } -> Color(0xFF8BC34A).copy(alpha = 0.7f)
                                         else -> Color.Transparent
                                     },
                                     shape = RoundedCornerShape(8.dp)
@@ -251,10 +291,9 @@ private fun CalendarView(
                         ) {
                             Text(
                                 text = day.toString(),
-                                style = MaterialTheme.typography.bodyMedium,
                                 color = when {
-                                    isToday || isSelected -> Color.White
-                                    else -> MaterialTheme.colorScheme.onSurface
+                                    date == selectedDate -> Color.White
+                                    else -> MaterialTheme.colorScheme.onBackground
                                 }
                             )
                         }
@@ -327,11 +366,14 @@ private fun StatCard(
 }
 
 @Composable
-private fun StudentItem(
-    name: String,
+private fun AttendanceItem(
+    tanggal: String,
     status: String,
     onClick: () -> Unit
 ) {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
+    val formattedTanggal = LocalDate.parse(tanggal, DateTimeFormatter.ofPattern("yyyy-MM-dd")).format(formatter)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -350,20 +392,19 @@ private fun StudentItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = name,
+                text = formattedTanggal,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = status,
-                color = when (status) {
-                    "Hadir" -> Color(0xFF4CAF50)
-                    "Alpa" -> Color(0xFFF44336)
-                    "Izin" -> Color(0xFF2196F3)
-                    "Sakit" -> Color(0xFFFFEB3B)
-                    "Belum Diisi" -> MaterialTheme.colorScheme.onSurfaceVariant
+                text = status.replaceFirstChar { it.uppercase() },
+                color = when (status.lowercase()) {
+                    "hadir" -> Color(0xFF4CAF50)
+                    "alpa" -> Color(0xFFF44336)
+                    "izin" -> Color(0xFF2196F3)
+                    "sakit" -> Color(0xFFFFEB3B)
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
                 style = MaterialTheme.typography.bodyMedium.copy(

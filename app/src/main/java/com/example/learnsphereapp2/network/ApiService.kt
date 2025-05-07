@@ -53,6 +53,14 @@ interface ApiService {
         @Query("tanggal") tanggal: String
     ): Response<List<AbsensiResponse>>
 
+    @GET("api/absensi/siswa/{siswa_id}")
+    suspend fun getAbsensiByStudent(
+        @Header("Authorization") authorization: String,
+        @Path("siswa_id") siswaId: Int,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Response<List<AbsensiResponse>>
+
     @GET("api/kelas/guru")
     suspend fun getKelasByGuru(
         @Header("Authorization") authorization: String

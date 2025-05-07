@@ -73,7 +73,7 @@ fun BottomNavigationGuru(navController: NavController, currentRoute: String?) {
             NavItem(
                 iconRes = R.drawable.ic_absensi,
                 label = "Absensi",
-                route = Destinations.ABSENSI_GURU.replace("{kelasId}", "1")
+                route = Destinations.ABSENSI_HARIAN_GURU
             ),
             NavItem(
                 iconRes = R.drawable.ic_nilai,

@@ -6,6 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
@@ -25,7 +27,6 @@ import com.example.learnsphereapp2.ui.theme.GrayText
 import com.example.learnsphereapp2.ui.theme.VibrantBlue
 import com.example.learnsphereapp2.ui.theme.VibrantOrange
 import com.example.learnsphereapp2.ui.theme.VibrantPurple
-import com.example.learnsphereapp2.ui.theme.NotificationBackground
 import com.example.learnsphereapp2.util.PreferencesHelper
 
 @Composable
@@ -41,37 +42,65 @@ fun HomeScreenGuru(
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
+        // Header: Judul dan ikon notifikasi/profil
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp), // Padding atas untuk header
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
-                Text(
-                    text = "Good day $username,",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = DarkText
-                )
-                Text(
-                    text = "Here some of the ways you can find help to grow in your studies",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = GrayText
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(NotificationBackground),
-                contentAlignment = Alignment.Center
+            // Judul "HomeScreen Guru" rata kiri
+            Text(
+                text = "HomeScreen Guru",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.Black,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Ikon notifikasi dan profil
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "T",
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelLarge,
-                    textAlign = TextAlign.Center
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifikasi",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .clickable { /* TODO: Aksi notifikasi */ },
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profil",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFD1D5DB))
+                        .clickable { navController.navigate(Destinations.PROFILE_GURU) },
+                    tint = Color.Black
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Teks sambutan
+        Column {
+            Text(
+                text = "Good day $username,",
+                style = MaterialTheme.typography.headlineLarge,
+                color = DarkText
+            )
+            Text(
+                text = "Here some of the ways you can find help to grow in your studies",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayText
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -80,7 +109,7 @@ fun HomeScreenGuru(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { navController.navigate(Destinations.ABSENSI_GURU) },
+                .clickable { navController.navigate(Destinations.ABSENSI_HARIAN_GURU) },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = VibrantPurple)
         ) {
@@ -105,7 +134,7 @@ fun HomeScreenGuru(
                     )
                 }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_absen_ilustration),
+                    painter = painterResource(id = R.drawable.ic_absenn),
                     contentDescription = "Ilustrasi Absensi",
                     modifier = Modifier.size(80.dp)
                 )
@@ -143,7 +172,7 @@ fun HomeScreenGuru(
                     )
                 }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_nilai_ilustration),
+                    painter = painterResource(id = R.drawable.ic_nilaii),
                     contentDescription = "Ilustrasi Nilai",
                     modifier = Modifier.size(80.dp)
                 )
@@ -175,13 +204,13 @@ fun HomeScreenGuru(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Daftar jadwal mata pelajaran siswa",
+                        text = "Daftar jadwal mata pelajaran\nsiswa",
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayText
                     )
                 }
                 Image(
-                    painter = painterResource(id = R.drawable.ic_jadwal_ilustration),
+                    painter = painterResource(id = R.drawable.ic_jadwall),
                     contentDescription = "Ilustrasi Jadwal",
                     modifier = Modifier.size(80.dp)
                 )
