@@ -147,7 +147,7 @@ fun HomeScreenGuru(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Nanti tambahkan navigasi ke Nilai */ },
+                .clickable { navController.navigate(Destinations.REKAPAN_SISWA_GURU) },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = VibrantOrange)
         ) {

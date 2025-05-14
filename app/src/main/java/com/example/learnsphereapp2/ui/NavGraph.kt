@@ -25,10 +25,10 @@ object Destinations {
     const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId}?"
     const val DAFTAR_JADWAL = "daftar_jadwal/{kelasId}"
     const val JADWAL_KEGIATAN = "jadwal_kegiatan"
-
     const val ABSENSI_ORANGTUA = "absensi_orangtua"
     const val NILAI_ORANGTUA = "nilai_orangtua"
     const val JADWAL_ORANGTUA = "jadwal_orangtua"
+    const val REKAPAN_SISWA_GURU = "rekapan_siswa_guru/{kelasId}" // Rute baru
 }
 
 @Composable
@@ -117,12 +117,12 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
-            composable(Destinations.PROFILE_GURU) {
-                ProfileScreenGuru(
-                    navController = navController,
-                    preferencesHelper = preferencesHelper
-                )
-            }
+//            composable(Destinations.PROFILE_GURU) {
+//                ProfileScreenGuru(
+//                    navController = navController,
+//                    preferencesHelper = preferencesHelper
+//                )
+//            }
             composable(Destinations.HOME_ORANGTUA) {
                 HomeScreenOrangTua(navController = navController)
             }
@@ -159,7 +159,15 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
+            composable(Destinations.REKAPAN_SISWA_GURU) { backStackEntry ->
+                val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+                val kelasId = kelasIdString?.toIntOrNull() ?: 1
+                RekapanSiswaGuruScreen(
+                    navController = navController,
+                    kelasId = kelasId,
+                    preferencesHelper = preferencesHelper
+                )
+            }
         }
     }
 }
-

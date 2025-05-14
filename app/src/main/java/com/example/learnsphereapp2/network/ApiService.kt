@@ -7,7 +7,11 @@ import com.example.learnsphereapp2.data.model.AbsensiResponse
 import com.example.learnsphereapp2.data.model.JadwalCreate
 import com.example.learnsphereapp2.data.model.JadwalResponse
 import com.example.learnsphereapp2.data.model.KelasResponse
+import com.example.learnsphereapp2.data.model.MataPelajaranResponse
+import com.example.learnsphereapp2.data.model.RekapanSiswaCreate
+import com.example.learnsphereapp2.data.model.RekapanSiswaResponse
 import com.example.learnsphereapp2.data.model.SiswaResponse
+import com.example.learnsphereapp2.data.model.StatusRekapanSiswa
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -101,4 +105,43 @@ interface ApiService {
         @Header("Authorization") authorization: String,
         @Path("kelas_id") kelasId: Int
     ): Response<List<JadwalResponse>>
+
+    @GET("api/rekapan-siswa/rekapan/kelas/{kelasId}/mata_pelajaran/{mataPelajaranId}")
+    suspend fun getRekapanByKelas(
+        @Path("kelasId") kelasId: Int,
+        @Path("mataPelajaranId") mataPelajaranId: Int,
+        @Header("Authorization") token: String
+    ): List<StatusRekapanSiswa>
+
+    @GET("api/rekapan-siswa/jadwal/kelas/{kelasId}")
+    suspend fun getJadwalByKelas(
+        @Path("kelasId") kelasId: Int,
+        @Header("Authorization") token: String
+    ): List<JadwalResponse>
+
+
+    @GET("api/rekapan-siswa/mata_pelajaran")
+    suspend fun getMataPelajaran(
+        @Header("Authorization") token: String
+    ): List<MataPelajaranResponse>
+
+    @GET("api/rekapan-siswa/kelas")
+    suspend fun getKelas(
+        @Header("Authorization") token: String
+    ): List<KelasResponse>
+
+    // In ApiService.kt
+    @GET("api/rekapan-siswa/daily/{kelasId}")
+    suspend fun getDailyRekapan(
+        @Path("kelasId") kelasId: Int,
+        @Query("tanggal") tanggal: String, // Format: YYYY-MM-DD
+        @Header("Authorization") token: String
+    ): List<RekapanSiswaResponse>
+
+
+    @POST("api/rekapan-siswa/daily")
+    suspend fun createDailyRekapan(
+        @Header("Authorization") token: String,
+        @Body rekapan: RekapanSiswaCreate
+    ): RekapanSiswaResponse
 }

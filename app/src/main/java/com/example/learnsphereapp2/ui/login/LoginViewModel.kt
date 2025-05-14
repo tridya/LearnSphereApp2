@@ -1,46 +1,67 @@
-// ui/login/LoginViewModel.kt
 package com.example.learnsphereapp2.ui.login
 
-import androidx.compose.runtime.MutableState
+import android.util.Log
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.learnsphereapp2.data.repository.AuthRepository
 import com.example.learnsphereapp2.util.PreferencesHelper
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
 class LoginViewModel(
     private val authRepository: AuthRepository,
-    private val preferencesHelper: PreferencesHelper // Tambahkan PreferencesHelper sebagai parameter
+    private val preferencesHelper: PreferencesHelper
 ) : ViewModel() {
-    var username by mutableStateOf("")
-        private set
-    var password by mutableStateOf("")
-        private set
+    private val _username = mutableStateOf("")
+    val username: String get() = _username.value
 
-    private val _isLoading: MutableState<Boolean> = mutableStateOf(false)
-    val isLoading: State<Boolean> get() = _isLoading
+    private val _password = mutableStateOf("")
+    val password: String get() = _password.value
 
-    private val _errorMessage: MutableState<String?> = mutableStateOf(null)
-    val errorMessage: State<String?> get() = _errorMessage
+    private val _usernameError = mutableStateOf<String?>(null)
+    val usernameError: State<String?> = _usernameError
 
-    private val _loginSuccess: MutableState<Boolean> = mutableStateOf(false)
-    val loginSuccess: State<Boolean> get() = _loginSuccess
+    private val _passwordError = mutableStateOf<String?>(null)
+    val passwordError: State<String?> = _passwordError
+
+    private val _isLoading = mutableStateOf(false)
+    val isLoading: State<Boolean> = _isLoading
+
+    private val _errorMessage = mutableStateOf<String?>(null)
+    val errorMessage: State<String?> = _errorMessage
+
+    private val _loginSuccess = mutableStateOf(false)
+    val loginSuccess: State<Boolean> = _loginSuccess
+
+    init {
+        // Clear previous session data
+        preferencesHelper.clear()
+    }
 
     fun onUsernameChange(newUsername: String) {
-        username = newUsername
+        _username.value = newUsername
+        _usernameError.value = if (newUsername.isBlank()) "Username cannot be empty" else null
     }
 
     fun onPasswordChange(newPassword: String) {
-        password = newPassword
+        _password.value = newPassword
+        _passwordError.value = if (newPassword.isBlank()) "Password cannot be empty" else null
+    }
+
+    fun isInputValid(): Boolean {
+        return _username.value.isNotBlank() && _password.value.isNotBlank()
     }
 
     fun login() {
-        if (username.isBlank() || password.isBlank()) {
-            _errorMessage.value = "Username and password cannot be empty"
+        if (!isInputValid()) {
+            _usernameError.value = if (_username.value.isBlank()) "Username cannot be empty" else null
+            _passwordError.value = if (_password.value.isBlank()) "Password cannot be empty" else null
+            _errorMessage.value = "Please fill in all fields"
             return
         }
 
@@ -49,34 +70,67 @@ class LoginViewModel(
         _loginSuccess.value = false
 
         viewModelScope.launch {
-            val loginResult = authRepository.login(username, password)
-            if (loginResult.isSuccess) {
-                val userResult = authRepository.getCurrentUser()
-                if (userResult.isSuccess) {
-                    _loginSuccess.value = true
+            try {
+                val loginResult = authRepository.login(_username.value, _password.value)
+                if (loginResult.isSuccess) {
+                    val userResult = authRepository.getCurrentUser()
+                    if (userResult.isSuccess) {
+                        val user = userResult.getOrNull()
+                        if (user != null && user.role.isNotBlank()) {
+                            _loginSuccess.value = true
+                            Log.d("LoginViewModel", "Login successful, user: $user")
+                        } else {
+                            _errorMessage.value = "Invalid user data or role not found"
+                            Log.e("LoginViewModel", "User data invalid or role missing: $user")
+                            _loginSuccess.value = false
+                        }
+                    } else {
+                        val error = userResult.exceptionOrNull()
+                        _errorMessage.value = when (error) {
+                            is HttpException -> when (error.code()) {
+                                401 -> "Unauthorized: Invalid token"
+                                404 -> "User data not found"
+                                else -> "Failed to fetch user data: ${error.message()}"
+                            }
+                            is ConnectException -> "Cannot connect to server. Check your network."
+                            is SocketTimeoutException -> "Connection timed out. Try again later."
+                            is IOException -> "Network error. Check your internet connection."
+                            else -> "Failed to fetch user data: ${error?.message ?: "Unknown error"}"
+                        }
+                        Log.e("LoginViewModel", "User fetch failed: ${_errorMessage.value}", error)
+                        _loginSuccess.value = false
+                    }
                 } else {
-                    _errorMessage.value = userResult.exceptionOrNull()?.message ?: "Failed to fetch user data"
+                    val error = loginResult.exceptionOrNull()
+                    _errorMessage.value = when (error) {
+                        is HttpException -> when (error.code()) {
+                            401 -> "Username or password is incorrect"
+                            400 -> "Invalid login request"
+                            else -> "Login failed: ${error.message()}"
+                        }
+                        is ConnectException -> "Cannot connect to server. Check your network."
+                        is SocketTimeoutException -> "Connection timed out. Try again later."
+                        is IOException -> "Network error. Check your internet connection."
+                        else -> "Login failed: ${error?.message ?: "Unknown error"}"
+                    }
+                    Log.e("LoginViewModel", "Login failed: ${_errorMessage.value}", error)
                     _loginSuccess.value = false
                 }
-            } else {
-                _errorMessage.value = loginResult.exceptionOrNull()?.message ?: "Login failed"
+            } catch (e: Exception) {
+                _errorMessage.value = "Unexpected error: ${e.message ?: "Unknown error"}"
+                Log.e("LoginViewModel", "Unexpected error during login", e)
                 _loginSuccess.value = false
+            } finally {
+                _isLoading.value = false
             }
-            _isLoading.value = false
         }
     }
 
-    // Fungsi baru untuk menangani navigasi setelah login
-    fun handleLoginNavigation(onLoginSuccess: (String) -> Unit) {
-        if (_loginSuccess.value) {
-            val role = preferencesHelper.getRole()
-            if (role != null) {
-                onLoginSuccess(role)
-                _loginSuccess.value = false // Reset loginSuccess setelah navigasi
-            } else {
-                _errorMessage.value = "Role not found. Please try again."
-                _loginSuccess.value = false
-            }
-        }
+    fun clearErrorMessage() {
+        _errorMessage.value = null
+    }
+
+    fun resetLoginSuccess() {
+        _loginSuccess.value = false
     }
 }

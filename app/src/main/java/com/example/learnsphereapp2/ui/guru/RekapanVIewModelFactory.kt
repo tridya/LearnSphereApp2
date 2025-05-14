@@ -1,19 +1,18 @@
-package com.example.learnsphereapp2.ui.login
+package com.example.learnsphereapp2.ui.guru
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.learnsphereapp2.data.repository.AuthRepository
 import com.example.learnsphereapp2.network.ApiService
 import com.example.learnsphereapp2.util.PreferencesHelper
 
-class LoginViewModelFactory(
-    private val authRepository: AuthRepository,
+class RekapanViewModelFactory(
+    private val apiService: ApiService,
     private val preferencesHelper: PreferencesHelper
 ) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return LoginViewModel(authRepository, preferencesHelper) as T
+        if (modelClass.isAssignableFrom(RekapanViewModel::class.java)) {
+            return RekapanViewModel(apiService, preferencesHelper) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
