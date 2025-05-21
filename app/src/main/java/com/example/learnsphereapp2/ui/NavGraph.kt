@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,6 +30,7 @@ object Destinations {
     const val ABSENSI_ORANGTUA = "absensi_orangtua"
     const val NILAI_ORANGTUA = "nilai_orangtua"
     const val JADWAL_ORANGTUA = "jadwal_orangtua"
+    const val PROFILE_ORANGTUA = "profile_orangtua"
 }
 
 @Composable
@@ -118,10 +120,7 @@ fun AppNavGraph(
                 )
             }
             composable(Destinations.PROFILE_GURU) {
-                ProfileScreenGuru(
-                    navController = navController,
-                    preferencesHelper = preferencesHelper
-                )
+                ProfileScreenGuru(navController, preferencesHelper)
             }
             composable(Destinations.HOME_ORANGTUA) {
                 HomeScreenOrangTua(navController = navController)
@@ -130,6 +129,12 @@ fun AppNavGraph(
                 AbsensiScreenOrangTua(
                     navController = navController,
                     preferencesHelper = preferencesHelper
+                )
+            }
+            composable(Destinations.PROFILE_ORANGTUA) {
+                ProfileScreenOrangTua(
+                    navController = navController,
+                    preferencesHelper = PreferencesHelper(LocalContext.current)
                 )
             }
             composable(Destinations.TAMBAH_JADWAL) { backStackEntry ->

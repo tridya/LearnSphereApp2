@@ -1,6 +1,7 @@
 package com.example.learnsphereapp2.ui.orangtua
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.learnsphereapp2.data.model.AbsensiResponse
+import com.example.learnsphereapp2.data.model.Holiday
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
@@ -40,15 +44,15 @@ fun AbsensiScreenOrangTua(
     val sakitCount by viewModel.sakitCount
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
+    val nationalHolidays by viewModel.nationalHolidays
+    val isHolidaysLoading by viewModel.isHolidaysLoading
 
-    val today = LocalDate.now()
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    var selectedDate by remember { mutableStateOf(today) }
-    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("id", "ID"))
     val siswaIdHardcoded = 1 // Hardcode siswaId di sini
     val currentSiswaId = siswaIdHardcoded
 
     Log.d("AbsensiScreenOrangTua", "siswaId yang digunakan (hardcoded): $siswaIdHardcoded")
+    Log.d("AbsensiScreenOrangTua", "National Holidays saat ini: ${nationalHolidays.map { "${it.date}: ${it.event}" }}")
 
     if (currentSiswaId == null) {
         Box(
@@ -69,13 +73,6 @@ fun AbsensiScreenOrangTua(
 
     LaunchedEffect(currentMonth, currentSiswaId) {
         viewModel.fetchAbsensiByStudent(currentMonth.atDay(1), currentSiswaId)
-    }
-
-    LaunchedEffect(absensiList, selectedDate) {
-        val dateKey = selectedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        val foundStatus = absensiList.find { it.tanggal == dateKey }?.status
-        Log.d("AbsensiScreenOrangTua", "Tanggal dipilih: $dateKey, Status: $foundStatus")
-        Log.d("AbsensiScreenOrangTua", "AbsensiList: ${absensiList.map { "${it.tanggal}: ${it.status}" }}")
     }
 
     LazyColumn(
@@ -101,33 +98,14 @@ fun AbsensiScreenOrangTua(
                         .clickable { navController.popBackStack() }
                 )
                 Text(
-                    text = "Absensi Harian",
+                    text = "Rekapan Absensi Bulanan",
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 )
                 Spacer(modifier = Modifier.width(24.dp))
-            }
-        }
-
-        item {
-            // Tombol refresh
-            Button(
-                onClick = { viewModel.fetchAbsensiByStudent(currentMonth.atDay(1), currentSiswaId) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD))
-            ) {
-                Text(
-                    text = "Refresh Data",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
 
@@ -143,7 +121,7 @@ fun AbsensiScreenOrangTua(
             }
         }
 
-        if (isLoading) {
+        if (isLoading || isHolidaysLoading) {
             item {
                 LoadingIndicator()
             }
@@ -159,15 +137,19 @@ fun AbsensiScreenOrangTua(
 
                 CalendarView(
                     yearMonth = currentMonth,
-                    selectedDate = selectedDate,
-                    absensiList = absensiList, // Teruskan absensiList ke CalendarView
-                    onDateSelected = { date -> selectedDate = date }
+                    absensiList = absensiList,
+                    viewModel = viewModel
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Keterangan warna
+                ColorLegend()
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
                 // Statistik absensi
+                SectionTitle("Rekapan Bulan ${currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale("id", "ID")))}")
                 AttendanceStats(
                     hadir = hadirCount,
                     absen = absenCount,
@@ -210,12 +192,24 @@ private fun MonthSelector(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
+            .padding(bottom = 8.dp)
+            .shadow(4.dp, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(onClick = onPreviousMonth) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Bulan Sebelumnya")
+        IconButton(
+            onClick = onPreviousMonth,
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+        ) {
+            Icon(
+                Icons.Default.ArrowBack,
+                contentDescription = "Bulan Sebelumnya",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
         Text(
             text = currentMonth.format(
@@ -223,11 +217,21 @@ private fun MonthSelector(
             ),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 20.sp
             )
         )
-        IconButton(onClick = onNextMonth) {
-            Icon(Icons.Default.ArrowForward, contentDescription = "Bulan Berikutnya")
+        IconButton(
+            onClick = onNextMonth,
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+        ) {
+            Icon(
+                Icons.Default.ArrowForward,
+                contentDescription = "Bulan Berikutnya",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -235,73 +239,135 @@ private fun MonthSelector(
 @Composable
 private fun CalendarView(
     yearMonth: YearMonth,
-    selectedDate: LocalDate,
-    absensiList: List<AbsensiResponse>, // Tambahkan parameter absensiList
-    onDateSelected: (LocalDate) -> Unit
+    absensiList: List<AbsensiResponse>,
+    viewModel: AbsensiOrangTuaViewModel
 ) {
     val daysInMonth = yearMonth.lengthOfMonth()
     val firstDayOfMonth = if (yearMonth.atDay(1).dayOfWeek.value == 7) 0 else yearMonth.atDay(1).dayOfWeek.value // Pastikan Minggu = 0
     val daysOfWeek = listOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
 
-    Column {
-        // Hari dalam minggu
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
         ) {
-            daysOfWeek.forEach { day ->
-                Text(
-                    text = day,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        // Tanggal-tanggal
-        var day = 1
-        for (week in 0 until 6) {
+            // Hari dalam minggu
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                for (i in 0 until 7) {
-                    if ((week == 0 && i < firstDayOfMonth) || day > daysInMonth) {
-                        Box(modifier = Modifier.size(40.dp).weight(1f))
-                    } else {
-                        val date = yearMonth.atDay(day)
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .weight(1f)
-                                .background(
+                daysOfWeek.forEach { day ->
+                    Text(
+                        text = day,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            // Tanggal-tanggal
+            var day = 1
+            for (week in 0 until 6) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    for (i in 0 until 7) {
+                        if ((week == 0 && i < firstDayOfMonth) || day > daysInMonth) {
+                            Box(modifier = Modifier.size(40.dp).weight(1f))
+                        } else {
+                            val date = yearMonth.atDay(day)
+                            val isToday = date == LocalDate.now()
+                            val hasAbsensi = absensiList.any { it.tanggal == date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) }
+                            val isSunday = date.dayOfWeek.value == 7 // Minggu
+                            val isNationalHoliday = viewModel.isNationalHoliday(date)
+                            val isSemesterHoliday = viewModel.isSemesterHoliday(date)
+
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        color = when {
+                                            isNationalHoliday -> Color(0xFFF44336) // Merah untuk libur nasional
+                                            isSemesterHoliday -> Color(0xFFFFEB3B) // Kuning untuk libur semester
+                                            isSunday -> Color(0xFFFF9800) // Oranye untuk hari Minggu
+                                            isToday && hasAbsensi -> Color(0xFF006FFD) // Biru tua untuk hari ini dengan absensi
+                                            isToday -> Color(0xFF006FFD).copy(alpha = 0.3f) // Biru muda untuk hari ini tanpa absensi
+                                            hasAbsensi -> Color(0xFF006FFD).copy(alpha = 0.3f) // Biru muda untuk tanggal dengan absensi
+                                            else -> Color.Transparent
+                                        }
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = day.toString(),
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
+                                    ),
                                     color = when {
-                                        date == selectedDate -> MaterialTheme.colorScheme.primary
-                                        date == LocalDate.now() -> MaterialTheme.colorScheme.secondaryContainer
-                                        absensiList.any { it.tanggal == date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) } -> Color(0xFF8BC34A).copy(alpha = 0.7f)
-                                        else -> Color.Transparent
-                                    },
-                                    shape = RoundedCornerShape(8.dp)
+                                        isNationalHoliday || isSemesterHoliday || isSunday || isToday || hasAbsensi -> Color.White
+                                        else -> MaterialTheme.colorScheme.onBackground
+                                    }
                                 )
-                                .clickable { onDateSelected(date) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = day.toString(),
-                                color = when {
-                                    date == selectedDate -> Color.White
-                                    else -> MaterialTheme.colorScheme.onBackground
-                                }
-                            )
+                            }
+                            day++
                         }
-                        day++
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ColorLegend() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    ) {
+        LegendItem(color = Color(0xFFFF9800), label = "Hari Minggu")
+        LegendItem(color = Color(0xFFF44336), label = "Libur Nasional")
+        LegendItem(color = Color(0xFFFFEB3B), label = "Libur Semester")
+    }
+}
+
+@Composable
+private fun LegendItem(color: Color, label: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .background(color, RoundedCornerShape(4.dp))
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
     }
 }
 
@@ -314,7 +380,9 @@ private fun AttendanceStats(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         StatCard("Hadir", hadir, Color(0xFF4CAF50))
@@ -330,15 +398,22 @@ private fun StatCard(
     count: Int,
     color: Color
 ) {
+    var isPressed by remember { mutableStateOf(false) }
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isPressed) color.copy(alpha = 0.2f) else color.copy(alpha = 0.1f)
+    )
+
     Card(
         modifier = Modifier
             .width(80.dp)
-            .height(80.dp),
+            .height(80.dp)
+            .clickable(
+                onClick = { isPressed = !isPressed }
+            ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.1f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            containerColor = backgroundColor
+        )
     ) {
         Column(
             modifier = Modifier
@@ -349,14 +424,18 @@ private fun StatCard(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                ),
                 color = color,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = count.toString(),
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 ),
                 color = color,
                 textAlign = TextAlign.Center
@@ -378,12 +457,12 @@ private fun AttendanceItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .shadow(4.dp, RoundedCornerShape(12.dp))
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        )
     ) {
         Row(
             modifier = Modifier
@@ -394,7 +473,8 @@ private fun AttendanceItem(
             Text(
                 text = formattedTanggal,
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp
                 ),
                 modifier = Modifier.weight(1f)
             )
@@ -408,7 +488,8 @@ private fun AttendanceItem(
                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                 },
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
                 ),
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -429,22 +510,6 @@ private fun LoadingIndicator() {
 }
 
 @Composable
-private fun ErrorMessage(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = message,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
-@Composable
 private fun EmptyState(message: String) {
     Box(
         modifier = Modifier
@@ -454,7 +519,7 @@ private fun EmptyState(message: String) {
     ) {
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -466,7 +531,8 @@ private fun SectionTitle(title: String) {
         text = title,
         style = MaterialTheme.typography.titleMedium.copy(
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 18.sp
         ),
         modifier = Modifier.padding(bottom = 4.dp)
     )

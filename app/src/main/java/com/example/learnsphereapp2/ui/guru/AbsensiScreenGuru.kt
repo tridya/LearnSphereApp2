@@ -137,15 +137,19 @@ fun AbsensiScreenGuru(
             else -> {
                 items(viewModel.siswaList.value.sortedBy { it.nama }) { siswa ->
                     val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
+                    val status = absensi?.status ?: "Belum Diisi"
                     StudentItem(
                         name = siswa.nama,
-                        status = absensi?.status ?: "Belum Diisi",
+                        status = status,
                         onClick = {
-                            navController.navigate(
-                                Destinations.ABSENSI_DETAIL_GURU
-                                    .replace("{kelasId}", kelasId.toString())
-                                    .replace("{tanggal}", selectedDate.format(formatter))
-                            )
+                            // Navigasi hanya jika status bukan "Belum Diisi" atau "Sakit"
+                            if (status != "Belum Diisi" && status != "Sakit") {
+                                navController.navigate(
+                                    Destinations.ABSENSI_DETAIL_GURU
+                                        .replace("{kelasId}", kelasId.toString())
+                                        .replace("{tanggal}", selectedDate.format(formatter))
+                                )
+                            }
                         }
                     )
                 }
@@ -239,9 +243,9 @@ private fun CalendarView(
                                 .weight(1f)
                                 .background(
                                     color = when {
-                                        isToday && isSelected -> Color(0xFF6200EE)
-                                        isToday -> Color(0xFF6200EE).copy(alpha = 0.7f)
-                                        isSelected -> Color(0xFF03DAC5)
+                                        isToday && isSelected -> Color(0xFF006FFD) // Biru tua untuk hari ini dan dipilih
+                                        isToday -> Color(0xFF006FFD).copy(alpha = 0.3f) // Biru muda untuk hari ini saja
+                                        isSelected -> Color(0xFF006FFD) // Biru tua untuk tanggal yang dipilih
                                         else -> Color.Transparent
                                     },
                                     shape = RoundedCornerShape(8.dp)

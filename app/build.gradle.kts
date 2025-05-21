@@ -42,7 +42,6 @@ android {
 
 dependencies {
     // Core Android
-
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
@@ -81,4 +80,13 @@ dependencies {
 
     implementation ("com.airbnb.android:lottie-compose:6.0.0")
 
+    // OkHttp untuk Multipart
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Coil untuk memuat gambar
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    implementation(libs.coil.compose)
 }

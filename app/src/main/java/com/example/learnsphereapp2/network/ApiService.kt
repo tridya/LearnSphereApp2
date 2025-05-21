@@ -6,17 +6,21 @@ import com.example.learnsphereapp2.data.model.AbsensiCreate
 import com.example.learnsphereapp2.data.model.AbsensiResponse
 import com.example.learnsphereapp2.data.model.JadwalCreate
 import com.example.learnsphereapp2.data.model.JadwalResponse
+import com.example.learnsphereapp2.data.model.Holiday
 import com.example.learnsphereapp2.data.model.KelasResponse
 import com.example.learnsphereapp2.data.model.SiswaResponse
 import retrofit2.Response
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -61,6 +65,12 @@ interface ApiService {
         @Query("end_date") endDate: String
     ): Response<List<AbsensiResponse>>
 
+    // Endpoint untuk API hari libur nasional dari libur.deno.dev
+    @GET("https://libur.deno.dev/api")
+    suspend fun getNationalHolidays(
+        @Query("year") year: Int
+    ): Response<List<Holiday>>
+
     @GET("api/kelas/guru")
     suspend fun getKelasByGuru(
         @Header("Authorization") authorization: String
@@ -101,4 +111,11 @@ interface ApiService {
         @Header("Authorization") authorization: String,
         @Path("kelas_id") kelasId: Int
     ): Response<List<JadwalResponse>>
+
+    @Multipart
+    @POST("api/users/me/profile-picture")
+    suspend fun uploadProfilePicture(
+        @Header("Authorization") authorization: String,
+        @Part file: MultipartBody.Part
+    ): Response<Map<String, String>>
 }

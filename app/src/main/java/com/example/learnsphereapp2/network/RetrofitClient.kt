@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http:/192.168.137.1:8000/" // Untuk emulator; ganti dengan IP server jika menggunakan perangkat fisik
+    private const val BASE_URL = "http:/192.168.100.5:8000/" // Untuk emulator; ganti dengan IP server jika menggunakan perangkat fisik
 
     val apiService: ApiService by lazy {
         Retrofit.Builder()
