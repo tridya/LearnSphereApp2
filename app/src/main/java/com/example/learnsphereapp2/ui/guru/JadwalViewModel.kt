@@ -33,9 +33,6 @@ class JadwalViewModel(
         }
     }
 
-    fun setKelasId(newKelasId: Int) {
-        kelasId = newKelasId
-    }
 
     fun fetchKelasByTeacher() {
         viewModelScope.launch {

@@ -36,9 +36,9 @@ class PreferencesHelper(context: Context) {
         sharedPreferences.edit().clear().apply()
     }
 
-    fun saveKelasId(kelasId: Int) {
-        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
-    }
+//    fun saveKelasId(kelasId: Int) {
+//        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
+//    }
 
     fun getKelasId(): Int {
         return sharedPreferences.getInt("kelasId", -1) // -1 sebagai default jika tidak ada
@@ -76,7 +76,29 @@ class PreferencesHelper(context: Context) {
         }
     }
 
-    fun getUserId(): String? = sharedPreferences.getString("user_id", null)
+    fun saveKelasId(kelasId: Int) {
+        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
+    }
+
+
+    fun saveUserId(userId: Int) {
+        sharedPreferences.edit().putInt("userId", userId).apply()
+    }
+
+    fun getUserId(): Int? {
+        return sharedPreferences.getInt("userId", -1).takeIf { it != -1 }
+    }
+
+    fun saveGuruId(guruId: Int) {
+        sharedPreferences.edit().putInt("guru_id", guruId).apply()
+    }
+
+    fun getGuruId(): Int? {
+        return sharedPreferences.getInt("guru_id", -1).takeIf { it !=-1}
+    }
+
+
+//    fun getUserId(): String? = sharedPreferences.getString("user_id", null)
 
     fun setOnboardingShown(shown: Boolean) {
         sharedPreferences.edit().putBoolean("onboarding_shown", shown).apply()

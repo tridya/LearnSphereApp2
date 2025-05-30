@@ -29,7 +29,9 @@ object Destinations {
 
     const val ABSENSI_ORANGTUA = "absensi_orangtua" // Hapus {siswaId}
     const val NILAI_ORANGTUA = "nilai_orangtua" // Hapus {siswaId}
-    const val JADWAL_ORANGTUA = "jadwal_orangtua/{siswaId}" // Tetap dengan {siswaId} karena diperlukan oleh JadwalOrangTuaScreen
+    const val JADWAL_ORANGTUA = "jadwal_orangtua/{siswaId}"
+    const val REKAPAN_SISWA_GURU = "rekapan_siswa_guru/{kelasId}"
+
 }
 
 @Composable
@@ -136,9 +138,12 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
-//            composable(Destinations.NILAI_ORANGTUA) {
-//                NilaiScreenOrangTua(
+//            composable(Destinations.REKAPAN_SISWA_GURU) { backStackEntry ->
+//                val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+//                val kelasId = kelasIdString?.toIntOrNull() ?: preferencesHelper.getKelasId().takeIf { it != -1 } ?: 1
+//                RekapanSiswaGuruScreen(
 //                    navController = navController,
+//                    kelasId = kelasId,
 //                    preferencesHelper = preferencesHelper
 //                )
 //            }
