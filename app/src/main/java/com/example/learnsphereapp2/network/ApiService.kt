@@ -6,21 +6,21 @@ import com.example.learnsphereapp2.data.model.AbsensiCreate
 import com.example.learnsphereapp2.data.model.AbsensiResponse
 import com.example.learnsphereapp2.data.model.JadwalCreate
 import com.example.learnsphereapp2.data.model.JadwalResponse
+import com.example.learnsphereapp2.data.model.Holiday
 import com.example.learnsphereapp2.data.model.KelasResponse
-import com.example.learnsphereapp2.data.model.MataPelajaranResponse
-import com.example.learnsphereapp2.data.model.RekapanSiswaCreate
-import com.example.learnsphereapp2.data.model.RekapanSiswaResponse
 import com.example.learnsphereapp2.data.model.SiswaResponse
-import com.example.learnsphereapp2.data.model.StatusRekapanSiswa
 import retrofit2.Response
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -35,8 +35,8 @@ interface ApiService {
     @GET("api/users/me")
     suspend fun getUser(@Header("Authorization") authorization: String): Response<UserResponse>
 
-    @GET("health") // Ganti placeholder dengan endpoint kesehatan yang valid, misalnya "/health"
-    suspend fun checkHealth(): Response<Map<String, String>>
+    @GET("/")
+    suspend fun checkHealth(): Map<String, String>
 
     @GET("api/siswa/kelas/{kelas_id}")
     suspend fun getStudentsByClass(
@@ -64,6 +64,12 @@ interface ApiService {
         @Query("start_date") startDate: String,
         @Query("end_date") endDate: String
     ): Response<List<AbsensiResponse>>
+
+    // Endpoint untuk API hari libur nasional dari libur.deno.dev
+    @GET("https://libur.deno.dev/api")
+    suspend fun getNationalHolidays(
+        @Query("year") year: Int
+    ): Response<List<Holiday>>
 
     @GET("api/kelas/guru")
     suspend fun getKelasByGuru(
@@ -106,59 +112,10 @@ interface ApiService {
         @Path("kelas_id") kelasId: Int
     ): Response<List<JadwalResponse>>
 
-    @GET("api/jadwal/orangtua/siswa/{siswa_id}")
-    suspend fun getJadwalBySiswa(
+    @Multipart
+    @POST("api/users/me/profile-picture")
+    suspend fun uploadProfilePicture(
         @Header("Authorization") authorization: String,
-        @Path("siswa_id") siswaId: Int
-    ): Response<List<JadwalResponse>>
-
-    @GET("api/jadwal/orangtua/siswa/{siswa_id}/current")
-    suspend fun getCurrentJadwalBySiswa(
-        @Header("Authorization") authorization: String,
-        @Path("siswa_id") siswaId: Int
-    ): Response<List<JadwalResponse>>
-
-    @GET("api/siswa/orangtua")
-    suspend fun getSiswaByParent(
-        @Header("Authorization") authorization: String
-    ): Response<List<SiswaResponse>>
-
-    @GET("api/rekapan-siswa/rekapan/kelas/{kelasId}/mata_pelajaran/{mataPelajaranId}")
-    suspend fun getRekapanByKelas(
-        @Path("kelasId") kelasId: Int,
-        @Path("mataPelajaranId") mataPelajaranId: Int,
-        @Header("Authorization") token: String
-    ): List<StatusRekapanSiswa>
-
-    @GET("api/rekapan-siswa/jadwal/kelas/{kelasId}")
-    suspend fun getJadwalByKelas(
-        @Path("kelasId") kelasId: Int,
-        @Header("Authorization") token: String
-    ): List<JadwalResponse>
-
-
-    @GET("api/rekapan-siswa/mata_pelajaran")
-    suspend fun getMataPelajaran(
-        @Header("Authorization") token: String
-    ): List<MataPelajaranResponse>
-
-    @GET("api/rekapan-siswa/kelas")
-    suspend fun getKelas(
-        @Header("Authorization") token: String
-    ): List<KelasResponse>
-
-    // In ApiService.kt
-    @GET("api/rekapan-siswa/daily/{kelasId}")
-    suspend fun getDailyRekapan(
-        @Path("kelasId") kelasId: Int,
-        @Query("tanggal") tanggal: String, // Format: YYYY-MM-DD
-        @Header("Authorization") token: String
-    ): List<RekapanSiswaResponse>
-
-
-    @POST("api/rekapan-siswa/daily")
-    suspend fun createDailyRekapan(
-        @Header("Authorization") token: String,
-        @Body rekapan: RekapanSiswaCreate
-    ): RekapanSiswaResponse
+        @Part file: MultipartBody.Part
+    ): Response<Map<String, String>>
 }

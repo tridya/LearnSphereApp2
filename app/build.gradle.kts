@@ -43,7 +43,6 @@ android {
 
 dependencies {
     // Core Android
-
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
@@ -66,8 +65,7 @@ dependencies {
 
     // Coroutines
     implementation(libs.coroutines.android)
-    implementation(libs.androidx.runtime.livedata)
-
+//    implementation(libs.androidx.runtime.livedata)
 
     // Testing
     testImplementation(libs.junit)
@@ -89,4 +87,13 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
 
+    // OkHttp untuk Multipart
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Coil untuk memuat gambar
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    implementation(libs.coil.compose)
 }

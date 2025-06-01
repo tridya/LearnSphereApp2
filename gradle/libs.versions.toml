@@ -14,7 +14,8 @@ okhttp = "4.12.0"
 coroutines = "1.10.1"
 appcompat = "1.7.0"
 gson = "2.11.0"
-runtime-livedata = "1.8.0"
+room = "2.6.1"
+coil = "2.7.0"
 
 [libraries]
 # Core Android
@@ -54,7 +55,14 @@ compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4
 # Debug
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtime-livedata" }
+
+# Room
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+# Coil
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
