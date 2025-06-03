@@ -4,7 +4,7 @@ package com.example.learnsphereapp2.data.model
 import com.google.gson.annotations.SerializedName
 
 data class UserResponse(
-    @SerializedName("id")
+    @SerializedName("user_id")
     val id: Int,
     @SerializedName("nama")
     val nama: String,

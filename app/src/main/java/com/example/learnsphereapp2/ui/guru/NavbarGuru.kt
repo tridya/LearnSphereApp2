@@ -77,7 +77,7 @@ fun BottomNavigationGuru(navController: NavController, currentRoute: String?) {
             NavItem(
                 iconRes = R.drawable.ic_nilai,
                 label = "Nilai",
-                route = "nilai"
+                route = Destinations.REKAPAN_SISWA_GURU
             ),
             NavItem(
                 iconRes = R.drawable.ic_jadwal,
