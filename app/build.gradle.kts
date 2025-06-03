@@ -79,6 +79,6 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.navigation.compose)
 
-    implementation ("com.airbnb.android:lottie-compose:6.0.0")
+    implementation (libs.lottie.compose)
 
 }

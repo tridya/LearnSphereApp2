@@ -12,24 +12,27 @@ class PreferencesHelper(context: Context) {
         username: String,
         nama: String,
         role: String,
-        kelasId: Int?
+        kelasId: Int? = null
     ) {
         with(sharedPreferences.edit()) {
-            putInt("user_id", userId)
+            if (userId > 0) putInt("user_id", userId)
             putString("username", username)
             putString("nama", nama)
             putString("role", role)
-            kelasId?.let { putInt("kelasId", it) }
+            kelasId?.let { if (it > 0) putInt("kelasId", it) }
             apply()
         }
     }
 
     fun getUserId(): Int? {
-        return sharedPreferences.getInt("user_id", -1).takeIf { it != -1 }
+        val userId = sharedPreferences.getInt("user_id", -1)
+        return if (userId != -1) userId else null
     }
 
     fun saveToken(token: String) {
-        sharedPreferences.edit().putString("token", token).apply()
+        if (token.isNotBlank()) {
+            sharedPreferences.edit().putString("token", token).apply()
+        }
     }
 
     fun getToken(): String? {
@@ -37,7 +40,9 @@ class PreferencesHelper(context: Context) {
     }
 
     fun saveUsername(username: String) {
-        sharedPreferences.edit().putString("username", username).apply()
+        if (username.isNotBlank()) {
+            sharedPreferences.edit().putString("username", username).apply()
+        }
     }
 
     fun getUsername(): String? {
@@ -45,7 +50,9 @@ class PreferencesHelper(context: Context) {
     }
 
     fun saveRole(role: String) {
-        sharedPreferences.edit().putString("role", role).apply()
+        if (role.isNotBlank()) {
+            sharedPreferences.edit().putString("role", role).apply()
+        }
     }
 
     fun getRole(): String? {
@@ -53,7 +60,9 @@ class PreferencesHelper(context: Context) {
     }
 
     fun saveNama(nama: String) {
-        sharedPreferences.edit().putString("nama", nama).apply()
+        if (nama.isNotBlank()) {
+            sharedPreferences.edit().putString("nama", nama).apply()
+        }
     }
 
     fun getNama(): String? {
@@ -61,19 +70,25 @@ class PreferencesHelper(context: Context) {
     }
 
     fun saveKelasId(kelasId: Int) {
-        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
+        if (kelasId > 0) {
+            sharedPreferences.edit().putInt("kelasId", kelasId).apply()
+        }
     }
 
-    fun getKelasId(): Int {
-        return sharedPreferences.getInt("kelasId", -1)
+    fun getKelasId(): Int? {
+        val kelasId = sharedPreferences.getInt("kelasId", -1)
+        return if (kelasId != -1) kelasId else null
     }
 
     fun saveSiswaId(siswaId: Int) {
-        sharedPreferences.edit().putInt("siswaId", siswaId).apply()
+        if (siswaId > 0) {
+            sharedPreferences.edit().putInt("siswaId", siswaId).apply()
+        }
     }
 
-    fun getSiswaId(): Int {
-        return sharedPreferences.getInt("siswaId", -1)
+    fun getSiswaId(): Int? {
+        val siswaId = sharedPreferences.getInt("siswaId", -1)
+        return if (siswaId != -1) siswaId else null
     }
 
     fun clear() {

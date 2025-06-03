@@ -139,7 +139,7 @@ fun LihatRekapanSiswaOrangTua(
                             onClick = {
                                 selectedSiswaId?.let { siswaId ->
                                     navController.navigate(
-                                        Destinations.STATISTIK_SISWA
+                                        Destinations.ABSENSI_GURU
                                             .replace("{siswaId}", siswaId.toString())
                                             .replace("{mataPelajaranId}", subject.mataPelajaranId.toString())
                                     )
