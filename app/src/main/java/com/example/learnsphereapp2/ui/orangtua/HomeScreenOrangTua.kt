@@ -98,7 +98,7 @@ fun HomeScreenOrangTua(
             description = "Pantau perkembangan akademik $username",
             iconRes = R.drawable.ic_nilai,
             color = VibrantOrange,
-            onClick = { navController.navigate(Destinations.NILAI_ORANGTUA) }
+            onClick = { navController.navigate(Destinations.REKAPAN_SISWA_ORANGTUA) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -119,7 +119,6 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<JadwalResponse>
 
-
     @GET("api/rekapan-siswa/mata_pelajaran")
     suspend fun getMataPelajaran(
         @Header("Authorization") token: String
@@ -130,18 +129,61 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<KelasResponse>
 
-    // In ApiService.kt
     @GET("api/rekapan-siswa/daily/{kelasId}")
     suspend fun getDailyRekapan(
         @Path("kelasId") kelasId: Int,
-        @Query("tanggal") tanggal: String, // Format: YYYY-MM-DD
+        @Query("tanggal") tanggal: String,
         @Header("Authorization") token: String
     ): List<RekapanSiswaResponse>
-
 
     @POST("api/rekapan-siswa/daily")
     suspend fun createDailyRekapan(
         @Header("Authorization") token: String,
         @Body rekapan: RekapanSiswaCreate
     ): RekapanSiswaResponse
+
+    @GET("api/rekapan-siswa/siswa")
+    suspend fun getSiswaOrangTua(
+        @Header("Authorization") token: String
+    ): List<SiswaResponse>
+
+    @GET("api/rekapan-siswa/orangtua/{siswa_id}/jadwal")
+    suspend fun getAllJadwalByKelas(
+        @Header("Authorization") token: String,
+        @Path("siswa_id") siswaId: Int,
+        @Query("hari") hari: String? = null
+    ): List<JadwalResponse>
+
+    @GET("api/rekapan-siswa/rekapan")
+    suspend fun getRekapanSiswaOrangTua(
+        @Header("Authorization") token: String,
+        @Query("siswa_id") siswaId: Int,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String,
+        @Query("mata_pelajaran_id") mataPelajaranId: Int? = null
+    ): List<RekapanSiswaResponse>
+
+    @GET("api/rekapan-siswa/siswa/{siswa_id}")
+    suspend fun getSiswaById(
+        @Header("Authorization") token: String,
+        @Path("siswa_id") siswaId: Int
+    ): SiswaResponse
+
+    @GET("api/rekapan-siswa/orangtua/{siswa_id}")
+    suspend fun getRekapanBySiswaId(
+        @Header("Authorization") token: String,
+        @Path("siswa_id") siswaId: Int,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null,
+        @Query("mata_pelajaran_id") mataPelajaranId: Int? = null
+    ): List<RekapanSiswaResponse>
+
+    @GET("api/rekapan-siswa/orangtua/{siswa_id}/jadwal")
+    suspend fun getAllJadwalBySiswa(
+        @Header("Authorization") token: String,
+        @Path("siswa_id") siswaId: Int,
+        @Query("hari") hari: String? = null
+    ): List<JadwalResponse>
+
+
 }
