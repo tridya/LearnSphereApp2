@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.ui.orangtua.FilterBar
 import com.example.learnsphereapp2.ui.orangtua.FilterItem
 import com.example.learnsphereapp2.ui.orangtua.FilterType
@@ -116,53 +117,13 @@ fun DaftarJadwalScreen(
             modifier = Modifier.weight(1f)
         ) {
             // Header dengan judul "Jadwal Pelajaran", tombol back, notifikasi, dan profil
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Kembali",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
-                    tint = DarkText
-                )
-                Text(
-                    text = "Jadwal Pelajaran",
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold), // Sedikit semibold
-                    color = DarkText,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifikasi",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { navController.navigate("notifications") },
-                        tint = DarkText
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profil",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { navController.navigate("profile") },
-                        tint = DarkText
-                    )
-                }
-            }
+            CommonTitleBar(
+                title = "Daftar Jadwal",
+                navController = navController,
+                onBackClick = { navController.navigate(Destinations.JADWAL_KEGIATAN) },
+                onNotificationClick = { navController.navigate("notifications") },
+                onProfileClick = { navController.navigate("profile") }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -461,6 +422,6 @@ fun JadwalItem(
 }
 
 fun getCardColor(index: Int): Color {
-    val colors = listOf(BlueCard, VibrantBlue, WhiteBlue)
+    val colors = listOf(VibrantPurple, VibrantOrange, VibrantBlue)
     return colors[index % colors.size]
 }

@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.BlueCard
 import com.example.learnsphereapp2.ui.theme.GrayText
@@ -86,53 +87,13 @@ fun TambahJadwalScreen(
         Column(
             modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Kembali",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
-                    tint = Color.Black
-                )
-                Text(
-                    text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifikasi",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { },
-                        tint = Color.Black
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profil",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { },
-                        tint = Color.Black
-                    )
-                }
-            }
+            CommonTitleBar(
+                title = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
+                navController = navController,
+                onBackClick = { navController.navigate(Destinations.JADWAL_KEGIATAN) },
+                onNotificationClick = { /* TODO: Navigate to notifications */ },
+                onProfileClick = { /* TODO: Navigate to profile */ }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 

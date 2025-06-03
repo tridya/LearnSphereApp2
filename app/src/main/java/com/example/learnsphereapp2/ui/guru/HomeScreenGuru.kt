@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
+import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.DarkText
 import com.example.learnsphereapp2.ui.theme.GrayText
 import com.example.learnsphereapp2.ui.theme.VibrantBlue
@@ -40,52 +42,18 @@ fun HomeScreenGuru(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        // Header: Judul dan ikon notifikasi/profil
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp), // Padding atas untuk header
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
-            // Judul "HomeScreen Guru" rata kiri
-            Text(
-                text = "HomeScreen Guru",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.weight(1f)
-            )
-
-            // Ikon notifikasi dan profil
-            Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .clickable { /* TODO: Aksi notifikasi */ },
-                    tint = Color.Black
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFD1D5DB))
-                        .clickable { navController.navigate(Destinations.PROFILE_GURU) },
-                    tint = Color.Black
-                )
-            }
-        }
+        CommonTitleBar(
+            title = "Beranda Guru",
+            showBackButton = false, // No back button for home screen
+            onNotificationClick = { /* TODO: Navigate to notifications */ },
+            onProfileClick = { navController.navigate(Destinations.PROFILE_GURU) }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -217,4 +185,5 @@ fun HomeScreenGuru(
             }
         }
     }
+}
 }

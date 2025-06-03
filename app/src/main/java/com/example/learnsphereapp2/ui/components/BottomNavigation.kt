@@ -23,9 +23,9 @@ import com.example.learnsphereapp2.ui.theme.*
 
 // Sealed class untuk mendefinisikan tipe filter
 sealed class FilterType(val label: String, val iconRes: Int, val selectedColor: Color, val selectedText: Color, val selectedIconColor: Color) {
-    object saat_ini : FilterType("Saat Ini", R.drawable.ic_saat_ini, BlueCard, WhiteBlue, WhiteBlue)
-    object hari_ini : FilterType("Hari Ini", R.drawable.ic_hari_ini, BlueCard, WhiteBlue, WhiteBlue)
-    object jadwal_ini : FilterType("Jadwal", R.drawable.ic_jadwal_ini, BlueCard, WhiteBlue, WhiteBlue)
+    object saat_ini : FilterType("Saat Ini", R.drawable.ic_saat_ini, BlueCard, OffWhite, OffWhite)
+    object hari_ini : FilterType("Hari Ini", R.drawable.ic_hari_ini, BlueCard, OffWhite, OffWhite)
+    object jadwal_ini : FilterType("Jadwal", R.drawable.ic_jadwal_ini, BlueCard, OffWhite, OffWhite)
 }
 
 // Data class untuk item filter
@@ -50,7 +50,7 @@ fun FilterBar(
             .fillMaxWidth()
             .height(60.dp) // Mengatur tinggi FilterBar
             .clip(RoundedCornerShape(12.dp)) // Background dengan sudut melengkung
-            .background(WhiteBlue) // Latar belakang menggunakan VibrantBlue saja
+            .background(OffWhite) // Latar belakang menggunakan VibrantBlue saja
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly

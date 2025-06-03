@@ -53,7 +53,7 @@ fun BottomNavigationOrangTua(
             NavItemOrangTua(
                 iconRes = R.drawable.ic_jadwal,
                 label = "Jadwal",
-                route = Destinations.JADWAL_ORANGTUA.replace("{siswaId}", "1") // Default siswaId
+                route = Destinations.JADWAL_ORANGTUA
             )
         )
 

@@ -29,6 +29,8 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import androidx.compose.foundation.background
 import android.util.Log
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
+import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 
 @Composable
 fun AbsensiDetailScreenGuru(
@@ -52,11 +54,17 @@ fun AbsensiDetailScreenGuru(
     Log.d("AbsensiDetailScreenGuru", "Tanggal diterima: $tanggal")
 
     val today = LocalDate.now()
-    Log.d("AbsensiDetailScreenGuru", "Menggunakan tanggal hari ini secara paksa: $today, Day of week: ${today.dayOfWeek}")
+    Log.d(
+        "AbsensiDetailScreenGuru",
+        "Menggunakan tanggal hari ini secara paksa: $today, Day of week: ${today.dayOfWeek}"
+    )
 
     val parsedDateFromInput = try {
         val date = LocalDate.parse(tanggal, formatterInput)
-        Log.d("AbsensiDetailScreenGuru", "Parsed date dari input: $date, Day of week: ${date.dayOfWeek}")
+        Log.d(
+            "AbsensiDetailScreenGuru",
+            "Parsed date dari input: $date, Day of week: ${date.dayOfWeek}"
+        )
         date
     } catch (e: Exception) {
         Log.e("AbsensiDetailScreenGuru", "Gagal parsing tanggal: $tanggal, error: ${e.message}")
@@ -79,37 +87,23 @@ fun AbsensiDetailScreenGuru(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(MaterialTheme.colorScheme.background)
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Kembali",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable {
-                        navController.navigate(
-                            Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())
-                        )
-                    }
-            )
-            Text(
-                text = tanggalDisplay,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+        // Title Bar
+        CommonTitleBar(
+            title = tanggalDisplay.takeIf { it.isNotBlank() } ?: today.format(formatterInput),
+            navController = navController,
+            onBackClick = {
+                navController.navigate(
+                    Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())
                 )
-            )
-            Spacer(modifier = Modifier.width(24.dp))
-        }
+            },
+            showNotificationIcon = false,
+            showProfileIcon = false
+        )
+
+        Spacer(modifier = Modifier.height(8.dp)) // Reduced from 16.dp for tighter spacing
 
         Row(
             modifier = Modifier
@@ -171,6 +165,7 @@ fun AbsensiDetailScreenGuru(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
+
             viewModel.siswaList.value.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -183,6 +178,7 @@ fun AbsensiDetailScreenGuru(
                     )
                 }
             }
+
             else -> {
                 val sortedSiswaList = viewModel.siswaList.value
                     .sortedBy { it.nama }

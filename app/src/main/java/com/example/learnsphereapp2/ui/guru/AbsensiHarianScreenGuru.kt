@@ -1,6 +1,7 @@
 package com.example.learnsphereapp2.ui.guru
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -21,6 +22,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 import androidx.compose.foundation.clickable
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,31 +31,24 @@ fun AbsensiHarianScreenGuru(
     kelasId: Int,
     preferencesHelper: PreferencesHelper
 ) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Absensi Siswa",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
-                // Hapus navigationIcon untuk menghilangkan tombol back
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White
-                )
-            )
-        }
-    ) { innerPadding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+            modifier = Modifier.weight(1f)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
+            // Title Bar
+            CommonTitleBar(
+                title = "Absensi Harian",
+                showBackButton = false,
+                onNotificationClick = { /* TODO: Navigate to notifications */ },
+                onProfileClick = { /* TODO: Navigate to profile */ }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Card Absen Harian Siswa
             Card(
@@ -84,13 +79,13 @@ fun AbsensiHarianScreenGuru(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             ),
-                            color = Color.White
+                            color = DarkText
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Catat kehadiran siswa harian",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color.White.copy(alpha = 0.9f)
+                                color = GrayText.copy(alpha = 0.9f)
                             )
                         )
                     }
@@ -138,13 +133,13 @@ fun AbsensiHarianScreenGuru(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             ),
-                            color = Color.White
+                            color = DarkText
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Lihat rekapan absensi siswa",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color.White.copy(alpha = 0.9f)
+                                color = GrayText.copy(alpha = 0.9f)
                             )
                         )
                     }

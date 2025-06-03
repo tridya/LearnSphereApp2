@@ -29,7 +29,7 @@ object Destinations {
 
     const val ABSENSI_ORANGTUA = "absensi_orangtua"
     const val NILAI_ORANGTUA = "nilai_orangtua"
-    const val JADWAL_ORANGTUA = "jadwal_orangtua"
+    const val JADWAL_ORANGTUA = "jadwal_orangtua/{siswaId}"
     const val PROFILE_ORANGTUA = "profile_orangtua"
 }
 
@@ -128,6 +128,15 @@ fun AppNavGraph(
             composable(Destinations.ABSENSI_ORANGTUA) {
                 AbsensiScreenOrangTua(
                     navController = navController,
+                    preferencesHelper = preferencesHelper
+                )
+            }
+            composable(Destinations.JADWAL_ORANGTUA) { backStackEntry ->
+                val siswaIdString = backStackEntry.arguments?.getString("siswaId")
+                val siswaId = siswaIdString?.toIntOrNull() ?: 1
+                JadwalOrangTuaScreen(
+                    navController = navController,
+                    siswaId = siswaId,
                     preferencesHelper = preferencesHelper
                 )
             }

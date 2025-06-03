@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.learnsphereapp2.data.model.AbsensiResponse
 import com.example.learnsphereapp2.data.model.Holiday
+import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
@@ -78,35 +80,19 @@ fun AbsensiScreenOrangTua(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
         item {
-            // Header dengan tombol back dan judul
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Kembali",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { navController.popBackStack() }
-                )
-                Text(
-                    text = "Rekapan Absensi Bulanan",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                )
-                Spacer(modifier = Modifier.width(24.dp))
-            }
+            // Header using CommonTitleBar
+            CommonTitleBar(
+                title = "Rekapan Absensi",
+                navController = navController,
+                showBackButton = true,
+                onNotificationClick = { /* TODO: Aksi notifikasi */ },
+                onProfileClick = { navController.navigate(Destinations.PROFILE_ORANGTUA) },
+                onBackClick = { navController.popBackStack() }
+            )
         }
 
         item {

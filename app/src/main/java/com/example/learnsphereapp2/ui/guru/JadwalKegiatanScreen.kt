@@ -24,7 +24,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.ui.theme.BackgroundWhite
+import com.example.learnsphereapp2.ui.theme.DarkText
 import com.example.learnsphereapp2.ui.theme.GrayText
 import com.example.learnsphereapp2.ui.theme.VibrantBlue
 import com.example.learnsphereapp2.ui.theme.VibrantOrange
@@ -47,47 +49,13 @@ fun JadwalKegiatanScreen(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Spacer(modifier = Modifier.size(24.dp))
-                Text(
-                    text = "Jadwal Kegiatan",
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
-                    color = Color.Black,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifikasi",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                navController.navigate(Destinations.NOTIFIKASI_GURU) // Mengarah ke rute guru
-                            },
-                        tint = Color.Black
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profil",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { /* TODO: Aksi profil */ },
-                        tint = Color.Black
-                    )
-                }
-            }
+            CommonTitleBar(
+                title = "Jadwal Kegiatan",
+                navController = navController,
+                showBackButton = false,
+                onNotificationClick = { /* TODO: Navigate to notifications */ },
+                onProfileClick = { /* TODO: Navigate to profile */ }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -127,12 +95,12 @@ fun JadwalKegiatanScreen(
                         Text(
                             text = "Tambah Jadwal",
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.Black
+                            color = DarkText
                         )
                         Text(
                             text = "Buat jadwal baru",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
+                            color = GrayText
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
@@ -183,12 +151,12 @@ fun JadwalKegiatanScreen(
                         Text(
                             text = "Lihat Daftar",
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.Black
+                            color = DarkText
                         )
                         Text(
                             text = "Lihat dan kelola jadwal",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
+                            color = GrayText
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
