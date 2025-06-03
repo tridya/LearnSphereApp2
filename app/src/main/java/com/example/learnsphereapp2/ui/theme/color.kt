@@ -20,6 +20,7 @@ val IndicatorBackground = Color(0x333B82F6) // Light blue for selected item back
 val VibrantPurple = Color(0xFFD6BCFA) // Ungu pekat untuk card Absensi
 val VibrantOrange = Color(0xFFFDBA74) // Oranye pekat untuk card Kelas
 val VibrantBlue = Color(0xFF93C5FD) // Biru pekat untuk card Tugas
+val WhiteBlue = Color(0xFFDAF5F6) // Biru pekat untuk card Tugas
 val DarkText = Color(0xFF1F2A44) // Warna teks utama yang lebih gelap dan kontras
 val NotificationBackground = Color(0xFFFBBF24) // Warna kuning untuk background ikon notifikasi
 

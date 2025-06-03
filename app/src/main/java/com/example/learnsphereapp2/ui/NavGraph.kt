@@ -123,9 +123,9 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
-//            composable(Destinations.PROFILE_GURU) {
-//                ProfileScreenGuru(navController, preferencesHelper)
-//            }
+            composable(Destinations.PROFILE_GURU) {
+                ProfileScreenGuru(navController, preferencesHelper)
+            }
             composable(Destinations.HOME_ORANGTUA) {
                 HomeScreenOrangTua(navController = navController)
             }
@@ -135,12 +135,12 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
-//            composable(Destinations.PROFILE_ORANGTUA) {
-//                ProfileScreenOrangTua(
-//                    navController = navController,
-//                    preferencesHelper = PreferencesHelper(LocalContext.current)
-//                )
-//            }
+            composable(Destinations.PROFILE_ORANGTUA) {
+                ProfileScreenOrangTua(
+                    navController = navController,
+                    preferencesHelper = PreferencesHelper(LocalContext.current)
+                )
+            }
             composable(Destinations.TAMBAH_JADWAL) { backStackEntry ->
                 val kelasIdString = backStackEntry.arguments?.getString("kelasId")
                 val jadwalIdString = backStackEntry.arguments?.getString("jadwalId")
@@ -168,7 +168,7 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
-
         }
     }
 }
+

@@ -11,5 +11,7 @@ data class UserResponse(
     @SerializedName("username")
     val username: String,
     @SerializedName("role")
-    val role: String
+    val role: String,
+    @SerializedName("profile_picture")
+    val profilePicture: String? = null
 )

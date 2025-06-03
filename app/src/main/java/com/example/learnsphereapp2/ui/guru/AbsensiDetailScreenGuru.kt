@@ -63,7 +63,7 @@ fun AbsensiDetailScreenGuru(
         null
     }
 
-    val parsedDate = today
+    val parsedDate = parsedDateFromInput ?: today
     val tanggalApi = parsedDate.format(formatterOutput)
     val tanggalDisplay = parsedDate.format(formatterInput)
 
@@ -74,6 +74,7 @@ fun AbsensiDetailScreenGuru(
     var searchQuery by remember { mutableStateOf("") }
     var showStatusDialog by remember { mutableStateOf(false) }
     var selectedSiswaId by remember { mutableStateOf<Int?>(null) }
+    val isAbsensiEnabled by viewModel.isAbsensiEnabled // Ambil status absensi
 
     Column(
         modifier = Modifier
@@ -95,7 +96,7 @@ fun AbsensiDetailScreenGuru(
                     .size(24.dp)
                     .clickable {
                         navController.navigate(
-                            Destinations.ABSENSI_HARIAN_GURU.replace("{kelasId}", kelasId.toString())
+                            Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())
                         )
                     }
             )
@@ -116,10 +117,10 @@ fun AbsensiDetailScreenGuru(
                 .padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatusButton("Hadir", Color(0xFF4CAF50))
-            StatusButton("Izin", Color(0xFF2196F3))
-            StatusButton("Sakit", Color(0xFFFFEB3B))
-            StatusButton("Alpa", Color(0xFFF44336))
+            StatusButton("Hadir", Color(0xFF4CAF50), enabled = isAbsensiEnabled)
+            StatusButton("Izin", Color(0xFF2196F3), enabled = isAbsensiEnabled)
+            StatusButton("Sakit", Color(0xFFFFEB3B), enabled = isAbsensiEnabled)
+            StatusButton("Alpa", Color(0xFFF44336), enabled = isAbsensiEnabled)
         }
 
         OutlinedTextField(
@@ -208,9 +209,12 @@ fun AbsensiDetailScreenGuru(
                                 siswa = siswa,
                                 status = viewModel.statusMap[siswa.siswaId] ?: "Belum Diisi",
                                 onStatusClick = {
-                                    selectedSiswaId = siswa.siswaId
-                                    showStatusDialog = true
-                                }
+                                    if (isAbsensiEnabled) {
+                                        selectedSiswaId = siswa.siswaId
+                                        showStatusDialog = true
+                                    }
+                                },
+                                enabled = isAbsensiEnabled
                             )
                         }
                     }
@@ -223,7 +227,7 @@ fun AbsensiDetailScreenGuru(
         Button(
             onClick = {
                 navController.navigate(
-                    Destinations.ABSENSI_HARIAN_GURU.replace("{kelasId}", kelasId.toString())
+                    Destinations.ABSENSI_GURU.replace("{kelasId}", kelasId.toString())
                 )
             },
             modifier = Modifier
@@ -231,7 +235,8 @@ fun AbsensiDetailScreenGuru(
                 .height(50.dp)
                 .padding(bottom = 8.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006FFD)),
+            enabled = isAbsensiEnabled
         ) {
             Text(
                 text = "Simpan Perubahan",
@@ -241,7 +246,7 @@ fun AbsensiDetailScreenGuru(
             )
         }
 
-        if (showStatusDialog && selectedSiswaId != null) {
+        if (showStatusDialog && selectedSiswaId != null && isAbsensiEnabled) {
             val siswaId = selectedSiswaId!!
             AlertDialog(
                 onDismissRequest = { showStatusDialog = false },
@@ -314,15 +319,19 @@ fun AbsensiDetailScreenGuru(
 }
 
 @Composable
-private fun StatusButton(text: String, color: Color) {
+private fun StatusButton(text: String, color: Color, enabled: Boolean) {
     Button(
         onClick = { /* Placeholder */ },
-        colors = ButtonDefaults.buttonColors(containerColor = color),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = color,
+            disabledContainerColor = color.copy(alpha = 0.5f)
+        ),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .height(40.dp)
             .widthIn(min = 70.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+        enabled = enabled
     ) {
         Text(
             text = text,
@@ -338,7 +347,8 @@ private fun SiswaStatusItem(
     index: Int,
     siswa: SiswaResponse,
     status: String,
-    onStatusClick: () -> Unit
+    onStatusClick: () -> Unit,
+    enabled: Boolean
 ) {
     val buttonColor = when (status) {
         "Hadir" -> Color(0xFF4CAF50)
@@ -360,7 +370,7 @@ private fun SiswaStatusItem(
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA)), // Warna biru muda seperti di kode asli
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -379,12 +389,16 @@ private fun SiswaStatusItem(
             )
             Button(
                 onClick = onStatusClick,
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonColor,
+                    disabledContainerColor = buttonColor.copy(alpha = 0.5f)
+                ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .height(32.dp)
                     .width(100.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
+                enabled = enabled
             ) {
                 Text(
                     text = buttonText,

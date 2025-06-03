@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -85,7 +87,9 @@ fun TambahJadwalScreen(
             modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -100,14 +104,13 @@ fun TambahJadwalScreen(
                 )
                 Text(
                     text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
                     color = Color.Black,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(1f)
                 )
                 Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -119,14 +122,12 @@ fun TambahJadwalScreen(
                             .clickable { },
                         tint = Color.Black
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profil",
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFD1D5DB))
                             .clickable { },
                         tint = Color.Black
                     )
@@ -137,7 +138,7 @@ fun TambahJadwalScreen(
 
             Text(
                 text = if (isEditMode) "Edit Jadwal" else "Tambah Jadwal",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Normal),
                 color = Color.Black
             )
 

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -60,6 +61,8 @@ dependencies {
 
     // Retrofit & Network
     implementation(libs.bundles.retrofit)
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Coroutines
     implementation(libs.coroutines.android)
@@ -79,6 +82,18 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.navigation.compose)
 
-    implementation (libs.lottie.compose)
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
+    implementation("com.google.firebase:firebase-messaging:24.1.1")
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.firebase:firebase-analytics")
 
+    // OkHttp untuk Multipart
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Coil untuk memuat gambar
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    implementation(libs.coil.compose)
 }

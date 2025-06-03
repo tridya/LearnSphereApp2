@@ -1,4 +1,4 @@
-package com.example.learnsphereapp2.ui.guru
+package com.example.learnsphereapp2.ui.orangtua
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,7 +43,7 @@ import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreenGuru(
+fun ProfileScreenOrangTua(
     navController: NavController,
     preferencesHelper: PreferencesHelper
 ) {
@@ -52,8 +52,8 @@ fun ProfileScreenGuru(
     val apiService = RetrofitClient.apiService
 
     // State untuk data profil
-    var username by remember { mutableStateOf(preferencesHelper.getUsername() ?: "Guru") }
-    var nama by remember { mutableStateOf(preferencesHelper.getNama() ?: "Nama Guru") }
+    var username by remember { mutableStateOf(preferencesHelper.getUsername() ?: "Orang Tua") }
+    var nama by remember { mutableStateOf(preferencesHelper.getNama() ?: "Nama Orang Tua") }
     var profilePicture by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }

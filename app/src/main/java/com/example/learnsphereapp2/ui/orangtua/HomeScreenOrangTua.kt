@@ -6,6 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,45 +41,70 @@ fun HomeScreenOrangTua(
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
-        // Header
+        // Header: Judul dan ikon notifikasi/profil
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
-                Text(
-                    text = "Halo Orang Tua,",
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = DarkText
-                )
-                Text(
-                    text = "Pantau perkembangan $username di sini",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp
-                    ),
-                    color = GrayText
-                )
-            }
+            // Judul "HomeScreen Orang Tua" rata kiri
+            Text(
+                text = "HomeScreen Orang Tua",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.Black,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.weight(1f)
+            )
 
-            // Foto profil
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(NotificationBackground),
-                contentAlignment = Alignment.Center
+            // Ikon notifikasi dan profil
+            Row(
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "O", // Inisial Orang Tua
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelLarge,
-                    textAlign = TextAlign.Center
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Notifikasi",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .clickable { /* TODO: Aksi notifikasi */ },
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profil",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFD1D5DB))
+                        .clickable { navController.navigate(Destinations.PROFILE_ORANGTUA) },
+                    tint = Color.Black
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Teks sambutan
+        Column {
+            Text(
+                text = "Halo Orang Tua,",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = DarkText
+            )
+            Text(
+                text = "Pantau perkembangan $username di sini",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp
+                ),
+                color = GrayText
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))

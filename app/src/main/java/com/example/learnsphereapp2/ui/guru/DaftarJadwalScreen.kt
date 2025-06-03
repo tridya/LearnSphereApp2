@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,10 +25,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.orangtua.FilterBar
+import com.example.learnsphereapp2.ui.orangtua.FilterItem
+import com.example.learnsphereapp2.ui.orangtua.FilterType
 import com.example.learnsphereapp2.ui.theme.*
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun DaftarJadwalScreen(
@@ -43,21 +49,61 @@ fun DaftarJadwalScreen(
         }
     )
 
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Jadwal Hari Ini", "Jadwal Mingguan")
     val currentTime = LocalDateTime.now()
     val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", java.util.Locale("id", "ID"))
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss", java.util.Locale("id", "ID"))
     val formattedDate = currentTime.format(dateFormatter)
     val formattedTime = currentTime.format(timeFormatter)
+    val currentDay = currentTime.dayOfWeek.getDisplayName(TextStyle.FULL, java.util.Locale("id", "ID")).replaceFirstChar { it.uppercase() }
 
     // State for class selection
     val kelasList by viewModel.kelasList.collectAsState()
-    var selectedKelasId by remember { mutableStateOf(kelasId) }
+    var selectedKelasId by remember { mutableStateOf(kelasId ?: -1) } // Default ke -1 jika null
     var expandedKelas by remember { mutableStateOf(false) }
+
+    // State for filter selection
+    var selectedFilter by remember {
+        mutableStateOf(
+            FilterItem(
+                type = FilterType.saat_ini,
+                label = FilterType.saat_ini.label,
+                iconRes = FilterType.saat_ini.iconRes,
+                selectedColor = FilterType.saat_ini.selectedColor,
+                selectedText = FilterType.saat_ini.selectedText,
+                selectedIconColor = FilterType.saat_ini.selectedIconColor
+            )
+        )
+    }
+    val filters = listOf(
+        FilterItem(
+            type = FilterType.saat_ini,
+            label = FilterType.saat_ini.label,
+            iconRes = FilterType.saat_ini.iconRes,
+            selectedColor = FilterType.saat_ini.selectedColor,
+            selectedText = FilterType.saat_ini.selectedText,
+            selectedIconColor = FilterType.saat_ini.selectedIconColor
+        ),
+        FilterItem(
+            type = FilterType.hari_ini,
+            label = FilterType.hari_ini.label,
+            iconRes = FilterType.hari_ini.iconRes,
+            selectedColor = FilterType.hari_ini.selectedColor,
+            selectedText = FilterType.hari_ini.selectedText,
+            selectedIconColor = FilterType.hari_ini.selectedIconColor
+        ),
+        FilterItem(
+            type = FilterType.jadwal_ini,
+            label = FilterType.jadwal_ini.label,
+            iconRes = FilterType.jadwal_ini.iconRes,
+            selectedColor = FilterType.jadwal_ini.selectedColor,
+            selectedText = FilterType.jadwal_ini.selectedText,
+            selectedIconColor = FilterType.jadwal_ini.selectedIconColor
+        )
+    )
 
     LaunchedEffect(Unit) {
         viewModel.fetchKelasByTeacher()
+        if (kelasId != null) selectedKelasId = kelasId // Pastikan selectedKelasId diatur dari parameter
     }
 
     Column(
@@ -69,8 +115,11 @@ fun DaftarJadwalScreen(
         Column(
             modifier = Modifier.weight(1f)
         ) {
+            // Header dengan judul "Jadwal Pelajaran", tombol back, notifikasi, dan profil
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -81,18 +130,17 @@ fun DaftarJadwalScreen(
                         .size(24.dp)
                         .clip(CircleShape)
                         .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
-                    tint = Color.Black
+                    tint = DarkText
                 )
                 Text(
-                    text = "Daftar Jadwal",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.Black,
+                    text = "Jadwal Pelajaran",
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold), // Sedikit semibold
+                    color = DarkText,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(1f)
                 )
                 Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -101,84 +149,47 @@ fun DaftarJadwalScreen(
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .clickable { },
-                        tint = Color.Black
+                            .clickable { navController.navigate("notifications") },
+                        tint = DarkText
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profil",
                         modifier = Modifier
                             .size(24.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFD1D5DB))
-                            .clickable { },
-                        tint = Color.Black
+                            .clickable { navController.navigate("profile") },
+                        tint = DarkText
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Class selection dropdown
-            Box {
-                OutlinedTextField(
-                    value = kelasList.find { it.kelasId == selectedKelasId }?.namaKelas ?: "Pilih Kelas",
-                    onValueChange = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    placeholder = { Text("Pilih Kelas", style = MaterialTheme.typography.bodyLarge, color = GrayText) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = BlueCard,
-                        unfocusedBorderColor = GrayText
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedKelas) }
-                )
-                DropdownMenu(
-                    expanded = expandedKelas,
-                    onDismissRequest = { expandedKelas = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    kelasList.forEach { kelas ->
-                        DropdownMenuItem(
-                            text = { Text(kelas.namaKelas, style = MaterialTheme.typography.bodyLarge) },
-                            onClick = {
-                                selectedKelasId = kelas.kelasId
-                                expandedKelas = false
-                                viewModel.setKelasId(kelas.kelasId)
-                                if (selectedTabIndex == 0) viewModel.fetchCurrentJadwal()
-                                else viewModel.fetchAllJadwal()
-                            }
-                        )
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clickable { expandedKelas = true }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Column {
+            // Tata letak tanggal di kiri, hari dan jam di kanan
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = formattedDate,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.Black
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Normal),
+                    color = DarkText
                 )
-                Text(
-                    text = "Hari Ini",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = GrayText
-                )
-                Text(
-                    text = "Waktu Saat Ini: $formattedTime",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = GrayText
-                )
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "Hari Ini: $currentDay",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                        color = GrayText
+                    )
+                    Text(
+                        text = "Waktu: $formattedTime",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                        color = GrayText
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -190,7 +201,7 @@ fun DaftarJadwalScreen(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
-            } else if (selectedKelasId == null) {
+            } else if (selectedKelasId == -1) { // Periksa jika belum ada kelas yang dipilih
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Silakan pilih kelas terlebih dahulu.",
@@ -198,51 +209,45 @@ fun DaftarJadwalScreen(
                     )
                 }
             } else {
-                TabRow(selectedTabIndex = selectedTabIndex) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            text = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-                            selected = selectedTabIndex == index,
-                            onClick = {
-                                selectedTabIndex = index
-                                when (index) {
-                                    0 -> viewModel.fetchCurrentJadwal()
-                                    1 -> viewModel.fetchAllJadwal()
-                                }
-                            }
-                        )
+                FilterBar(
+                    filters = filters,
+                    selectedFilter = selectedFilter,
+                    onFilterSelected = { filter ->
+                        selectedFilter = filter
+                        when (filter.type) {
+                            FilterType.saat_ini -> viewModel.fetchCurrentJadwal()
+                            FilterType.hari_ini, FilterType.jadwal_ini -> viewModel.fetchAllJadwal()
+                            else -> viewModel.fetchAllJadwal()
+                        }
                     }
-                }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                when (selectedTabIndex) {
-                    0 -> JadwalContent(
+                when (selectedFilter.type) {
+                    FilterType.saat_ini -> JadwalContent(
                         viewModel = viewModel,
-                        kelasId = selectedKelasId!!,
-                        isCurrent = true
+                        kelasId = selectedKelasId,
+                        isCurrent = true,
+                        currentDay = currentDay,
+                        selectedFilter = selectedFilter
                     )
-                    1 -> JadwalContent(
+                    FilterType.hari_ini, FilterType.jadwal_ini -> JadwalContent(
                         viewModel = viewModel,
-                        kelasId = selectedKelasId!!,
+                        kelasId = selectedKelasId,
                         isCurrent = false,
-                        navController = navController
+                        currentDay = currentDay,
+                        navController = navController,
+                        selectedFilter = selectedFilter
                     )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { navController.navigate("tambahJadwal/$selectedKelasId") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = BlueCard,
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Tambah Jadwal", style = MaterialTheme.typography.labelLarge)
+                    else -> JadwalContent(
+                        viewModel = viewModel,
+                        kelasId = selectedKelasId,
+                        isCurrent = false,
+                        currentDay = currentDay,
+                        navController = navController,
+                        selectedFilter = selectedFilter
+                    )
                 }
             }
         }
@@ -254,20 +259,30 @@ fun JadwalContent(
     viewModel: JadwalViewModel,
     kelasId: Int,
     isCurrent: Boolean,
-    navController: NavController? = null
+    currentDay: String,
+    navController: NavController? = null,
+    selectedFilter: FilterItem
 ) {
     var searchHari by remember { mutableStateOf("") }
-    val hariList = listOf("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu")
+    val hariList = listOf("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Semua Hari")
     var expandedHari by remember { mutableStateOf(false) }
 
-    val jadwalList = if (isCurrent) viewModel.currentJadwalList else {
-        val sortedList = viewModel.allJadwalList.sortedBy { hariList.indexOf(it.hari ?: "Senin") }
-        if (searchHari.isEmpty()) sortedList
-        else sortedList.filter { it.hari?.equals(searchHari, ignoreCase = true) == true }
+    val jadwalList = if (isCurrent) {
+        viewModel.currentJadwalList
+    } else {
+        if (selectedFilter.type == FilterType.hari_ini) {
+            viewModel.allJadwalList.filter { it.hari?.equals(currentDay, ignoreCase = true) == true }
+        } else if (selectedFilter.type == FilterType.jadwal_ini) {
+            val sortedList = viewModel.allJadwalList.sortedBy { hariList.indexOf(it.hari ?: "Senin") }
+            if (searchHari.isEmpty() || searchHari == "Semua Hari") sortedList
+            else sortedList.filter { it.hari?.equals(searchHari, ignoreCase = true) == true }
+        } else {
+            viewModel.allJadwalList
+        }
     }
 
     Column {
-        if (!isCurrent) {
+        if (!isCurrent && selectedFilter.type == FilterType.jadwal_ini) {
             Box {
                 OutlinedTextField(
                     value = searchHari,
@@ -297,13 +312,6 @@ fun JadwalContent(
                             }
                         )
                     }
-                    DropdownMenuItem(
-                        text = { Text("Semua Hari", style = MaterialTheme.typography.bodyLarge) },
-                        onClick = {
-                            searchHari = ""
-                            expandedHari = false
-                        }
-                    )
                 }
                 Box(
                     modifier = Modifier
@@ -340,10 +348,12 @@ fun JadwalContent(
                     Text(
                         text = if (isCurrent) {
                             "Tidak ada jadwal saat ini untuk Kelas $kelasId"
-                        } else if (searchHari.isEmpty()) {
-                            "Tidak ada jadwal untuk Kelas $kelasId"
-                        } else {
+                        } else if (selectedFilter.type == FilterType.hari_ini) {
+                            "Tidak ada jadwal untuk hari $currentDay"
+                        } else if (selectedFilter.type == FilterType.jadwal_ini && searchHari.isNotEmpty() && searchHari != "Semua Hari") {
                             "Tidak ada jadwal untuk hari $searchHari"
+                        } else {
+                            "Tidak ada jadwal untuk Kelas $kelasId"
                         },
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -357,7 +367,7 @@ fun JadwalContent(
                             jamMulai = jadwal.jamMulai ?: "Unknown",
                             jamSelesai = jadwal.jamSelesai ?: "Unknown",
                             mataPelajaran = jadwal.mataPelajaran?.nama ?: "Unknown",
-                            waliKelas = jadwal.waliKelas?.nama ?: "Unknown",
+                            waliKelas = "",
                             cardColor = getCardColor(index),
                             showActions = !isCurrent,
                             onEditClick = { navController?.navigate("tambahJadwal/$kelasId/${jadwal.jadwalId}") },
@@ -396,12 +406,12 @@ fun JadwalItem(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = jamMulai,
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 16.sp),
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 12.sp),
                 color = Color.Black
             )
             Text(
                 text = jamSelesai,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 10.sp),
                 color = GrayText
             )
         }
@@ -409,7 +419,7 @@ fun JadwalItem(
         Card(
             modifier = Modifier
                 .weight(1f)
-                .height(80.dp),
+                .height(60.dp),
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = cardColor),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -426,16 +436,6 @@ fun JadwalItem(
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                         color = Color.Black
                     )
-                    Text(
-                        text = "Perkenalan",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        color = GrayText
-                    )
-                    Text(
-                        text = waliKelas,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        color = GrayText
-                    )
                 }
                 if (showActions) {
                     Row {
@@ -443,7 +443,7 @@ fun JadwalItem(
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit Jadwal",
-                                tint = BlueCard
+                                tint = VibrantOrange
                             )
                         }
                         IconButton(onClick = { onDeleteClick?.invoke() }) {
@@ -461,6 +461,6 @@ fun JadwalItem(
 }
 
 fun getCardColor(index: Int): Color {
-    val colors = listOf(Purple80, PurpleGrey80, YellowCard, Pink80)
+    val colors = listOf(BlueCard, VibrantBlue, WhiteBlue)
     return colors[index % colors.size]
 }
