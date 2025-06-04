@@ -48,6 +48,7 @@ class PreferencesHelper(context: Context) {
         sharedPreferences.edit().putString("role", role).apply()
     }
 
+
     fun getRole(): String? {
         return sharedPreferences.getString("role", null)
     }
@@ -78,6 +79,18 @@ class PreferencesHelper(context: Context) {
 
     fun clear() {
         sharedPreferences.edit().clear().apply()
+    }
+    fun saveUserId(userId: Int) {
+        sharedPreferences.edit().putInt("userId", userId).apply()
+    }
+
+
+    fun saveGuruId(guruId: Int) {
+        sharedPreferences.edit().putInt("guru_id", guruId).apply()
+    }
+
+    fun getGuruId(): Int? {
+        return sharedPreferences.getInt("guru_id", -1).takeIf { it !=-1}
     }
 
     fun setOnboardingShown(shown: Boolean) {

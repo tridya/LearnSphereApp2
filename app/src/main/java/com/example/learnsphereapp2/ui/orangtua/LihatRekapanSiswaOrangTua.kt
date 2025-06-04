@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.ui.theme.*
 import com.example.learnsphereapp2.util.PreferencesHelper
 
@@ -37,26 +38,31 @@ fun LihatRekapanSiswaOrangTua(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        // Header
-        Text(
-            text = "Pilih Mata Pelajaran",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = DarkText
+        // Header using CommonTitleBar
+        CommonTitleBar(
+            title = "Pilih Mata Pelajaran",
+            navController = navController,
+            showBackButton = false,
+            showNotificationIcon = true,
+            showProfileIcon = true,
+            onProfileClick = { /* TODO: Aksi profil */ }
         )
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             text = "Pilih siswa dan mata pelajaran untuk melihat rekapan",
             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
             color = GrayText
         )
+
 
         Spacer(modifier = Modifier.height(16.dp))
 

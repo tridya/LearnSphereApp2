@@ -48,7 +48,7 @@ fun BottomNavigationOrangTua(
             NavItemOrangTua(
                 iconRes = R.drawable.ic_nilai,
                 label = "Nilai",
-                route = Destinations.NILAI_ORANGTUA
+                route = Destinations.REKAPAN_SISWA_ORANGTUA
             ),
             NavItemOrangTua(
                 iconRes = R.drawable.ic_jadwal,

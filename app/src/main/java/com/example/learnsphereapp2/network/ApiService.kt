@@ -4,6 +4,7 @@ import com.example.learnsphereapp2.data.model.Token
 import com.example.learnsphereapp2.data.model.UserResponse
 import com.example.learnsphereapp2.data.model.AbsensiCreate
 import com.example.learnsphereapp2.data.model.AbsensiResponse
+import com.example.learnsphereapp2.data.model.Holiday
 import com.example.learnsphereapp2.data.model.JadwalCreate
 import com.example.learnsphereapp2.data.model.JadwalResponse
 import com.example.learnsphereapp2.data.model.KelasResponse
@@ -12,6 +13,7 @@ import com.example.learnsphereapp2.data.model.RekapanSiswaCreate
 import com.example.learnsphereapp2.data.model.RekapanSiswaResponse
 import com.example.learnsphereapp2.data.model.SiswaResponse
 import com.example.learnsphereapp2.data.model.StatusRekapanSiswa
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -19,8 +21,10 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -184,6 +188,32 @@ interface ApiService {
         @Path("siswa_id") siswaId: Int,
         @Query("hari") hari: String? = null
     ): List<JadwalResponse>
+    @GET("https://libur.deno.dev/api")
+    suspend fun getNationalHolidays(
+        @Query("year") year: Int
+    ): Response<List<Holiday>>
 
+    @Multipart
+    @POST("api/users/me/profile-picture")
+    suspend fun uploadProfilePicture(
+        @Header("Authorization") authorization: String,
+        @Part file: MultipartBody.Part
+    ): Response<Map<String, String>>
 
+    @GET("api/siswa/orangtua")
+    suspend fun getSiswaByParent(
+        @Header("Authorization") authorization: String
+    ): Response<List<SiswaResponse>>
+
+    @GET("api/jadwal/orangtua/siswa/{siswa_id}/current")
+    suspend fun getCurrentJadwalBySiswa(
+        @Header("Authorization") authorization: String,
+        @Path("siswa_id") siswaId: Int
+    ): Response<List<JadwalResponse>>
+
+    @GET("api/jadwal/orangtua/siswa/{siswa_id}")
+    suspend fun getJadwalBySiswa(
+        @Header("Authorization") authorization: String,
+        @Path("siswa_id") siswaId: Int
+    ): Response<List<JadwalResponse>>
 }
