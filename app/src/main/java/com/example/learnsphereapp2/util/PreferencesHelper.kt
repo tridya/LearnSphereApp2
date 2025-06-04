@@ -98,37 +98,11 @@ class PreferencesHelper(context: Context) {
         }
     }
 
-    fun getKelasId(): Int? {
-        val kelasId = sharedPreferences.getInt("kelasId", -1)
-        return if (kelasId != -1) kelasId else null
-    }
-
-    fun saveSiswaId(siswaId: Int) {
-        if (siswaId > 0) {
-            sharedPreferences.edit().putInt("siswaId", siswaId).apply()
-        }
-    }
-
-    fun getSiswaId(): Int? {
-        val siswaId = sharedPreferences.getInt("siswaId", -1)
-        return if (siswaId != -1) siswaId else null
-    }
-
-    fun clear() {
-        sharedPreferences.edit().clear().apply()
-    }
-    fun saveKelasId(kelasId: Int) {
-        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
-    }
-
 
     fun saveUserId(userId: Int) {
         sharedPreferences.edit().putInt("userId", userId).apply()
     }
 
-    fun getUserId(): Int? {
-        return sharedPreferences.getInt("userId", -1).takeIf { it != -1 }
-    }
 
     fun saveGuruId(guruId: Int) {
         sharedPreferences.edit().putInt("guru_id", guruId).apply()
