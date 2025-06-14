@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/learnsphereapp2/util/PreferencesHelper.kt
 package com.example.learnsphereapp2.util
 
 import android.content.Context
@@ -13,21 +12,20 @@ class PreferencesHelper(context: Context) {
         username: String,
         nama: String,
         role: String,
-        kelasId: Int? = null
+        kelasId: Int?
     ) {
         with(sharedPreferences.edit()) {
-            if (userId > 0) putInt("user_id", userId)
+            putInt("user_id", userId)
             putString("username", username)
             putString("nama", nama)
             putString("role", role)
-            kelasId?.let { if (it > 0) putInt("kelasId", it) }
+            kelasId?.let { putInt("kelasId", it) }
             apply()
         }
     }
 
     fun getUserId(): Int? {
-        val userId = sharedPreferences.getInt("user_id", -1)
-        return if (userId != -1) userId else null
+        return sharedPreferences.getInt("user_id", -1).takeIf { it != -1 }
     }
 
     fun saveToken(token: String) {
@@ -50,29 +48,11 @@ class PreferencesHelper(context: Context) {
         sharedPreferences.edit().putString("role", role).apply()
     }
 
+
     fun getRole(): String? {
         return sharedPreferences.getString("role", null)
     }
 
-    fun clear() {
-        sharedPreferences.edit().clear().apply()
-    }
-
-    fun saveKelasId(kelasId: Int) {
-        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
-    }
-
-    fun getKelasId(): Int {
-        return sharedPreferences.getInt("kelasId", -1) // -1 sebagai default jika tidak ada
-    }
-
-    fun saveSiswaId(siswaId: Int) {
-        sharedPreferences.edit().putInt("siswaId", siswaId).apply()
-    }
-
-    fun getSiswaId(): Int {
-        return sharedPreferences.getInt("siswaId", -1) // -1 sebagai default jika tidak ada
-    }
     fun saveNama(nama: String) {
         sharedPreferences.edit().putString("nama", nama).apply()
     }
@@ -81,24 +61,25 @@ class PreferencesHelper(context: Context) {
         return sharedPreferences.getString("nama", null)
     }
 
-    fun saveUserData(
-        userId: String,
-        username: String,
-        nama: String,
-        role: String,
-        kelasId: Int?
-    ) {
-        with(sharedPreferences.edit()) {
-            putString("user_id", userId)
-            putString("username", username)
-            putString("nama", nama)
-            putString("role", role)
-            kelasId?.let { putInt("kelasId", it) }
-            apply()
-        }
+    fun saveKelasId(kelasId: Int) {
+        sharedPreferences.edit().putInt("kelasId", kelasId).apply()
     }
 
+    fun getKelasId(): Int {
+        return sharedPreferences.getInt("kelasId", -1)
+    }
 
+    fun saveSiswaId(siswaId: Int) {
+        sharedPreferences.edit().putInt("siswaId", siswaId).apply()
+    }
+
+    fun getSiswaId(): Int {
+        return sharedPreferences.getInt("siswaId", -1)
+    }
+
+    fun clear() {
+        sharedPreferences.edit().clear().apply()
+    }
     fun saveUserId(userId: Int) {
         sharedPreferences.edit().putInt("userId", userId).apply()
     }
@@ -111,9 +92,6 @@ class PreferencesHelper(context: Context) {
     fun getGuruId(): Int? {
         return sharedPreferences.getInt("guru_id", -1).takeIf { it !=-1}
     }
-
-
-//    fun getUserId(): String? = sharedPreferences.getString("user_id", null)
 
     fun setOnboardingShown(shown: Boolean) {
         sharedPreferences.edit().putBoolean("onboarding_shown", shown).apply()

@@ -52,7 +52,6 @@ class RekapanViewModel(
     private var guruId: Int? = preferencesHelper.getUserId()
 
     init {
-        // Validasi guru_id saat inisialisasi
         if (guruId == null || guruId!! <= 0) {
             _errorMessage.value = "ID guru tidak valid. Silakan login kembali."
             _navigateToLogin.value = true
@@ -78,7 +77,8 @@ class RekapanViewModel(
                     _navigateToLogin.value = true
                     "Sesi Anda telah berakhir. Silakan login kembali."
                 }
-                403 -> "Akses ditolak."
+                403 -> "Akses ditolak: Anda tidak memiliki izin."
+                404 -> "Data tidak ditemukan: $errorBody"
                 else -> "Gagal: ${e.message()} (HTTP ${e.code()}) Detail: $errorBody"
             }
             Log.e("RekapanViewModel", errorMsg, e)
@@ -107,13 +107,24 @@ class RekapanViewModel(
         }
     }
 
+    private suspend fun isValidKelasAndMataPelajaran(kelasId: Int, mataPelajaranId: Int, token: String): Boolean {
+        return try {
+            val kelasResponse = apiService.getKelas("Bearer $token").any { it.kelasId == kelasId }
+            val mataPelajaranResponse = apiService.getMataPelajaran("Bearer $token").any { it.mataPelajaranId == mataPelajaranId }
+            kelasResponse && mataPelajaranResponse
+        } catch (e: Exception) {
+            Log.e("RekapanViewModel", "Validation failed: ${e.message}", e)
+            false
+        }
+    }
+
     fun fetchCurrentUser(token: String) {
         viewModelScope.launch {
             _isLoading.value = true
             withValidToken(token) { authToken ->
                 Log.d("RekapanViewModel", "Fetching current user with token: $authToken")
                 val user = apiService.getUser(authToken).body()
-                if (user != null) {
+                if (user != null && user.role == "guru") {
                     _currentUser.value = user
                     guruId = user.id
                     preferencesHelper.saveUserData(
@@ -125,8 +136,9 @@ class RekapanViewModel(
                     )
                     Log.d("RekapanViewModel", "User fetched: $user, guruId set to ${user.id}")
                 } else {
-                    _errorMessage.value = "Gagal mengambil data pengguna: Respons kosong"
-                    Log.e("RekapanViewModel", "Empty user response")
+                    _errorMessage.value = "Pengguna bukan guru atau data tidak ditemukan."
+                    _navigateToLogin.value = true
+                    Log.e("RekapanViewModel", "Invalid user role or null response: $user")
                 }
             }
             _isLoading.value = false
@@ -136,6 +148,11 @@ class RekapanViewModel(
     fun fetchRekapanByKelas(kelasId: Int, mataPelajaranId: Int, token: String) {
         viewModelScope.launch {
             _isLoading.value = true
+            if (!isValidKelasAndMataPelajaran(kelasId, mataPelajaranId, token)) {
+                _errorMessage.value = "Kelas atau mata pelajaran tidak valid."
+                _isLoading.value = false
+                return@launch
+            }
             withValidToken(token) { authToken ->
                 Log.d("RekapanViewModel", "Fetching rekapan for kelasId: $kelasId, mataPelajaranId: $mataPelajaranId")
                 val rekapan = apiService.getRekapanByKelas(
@@ -147,7 +164,6 @@ class RekapanViewModel(
                 _rekapanList.value = rekapan
                 if (rekapan.isEmpty()) {
                     Log.w("RekapanViewModel", "No rekapan found for kelasId: $kelasId, mataPelajaranId: $mataPelajaranId")
-                    // Tidak dianggap error, hanya status informatif
                 }
             }
             _isLoading.value = false
@@ -170,7 +186,6 @@ class RekapanViewModel(
                     _siswaList.value = students
                     if (students.isEmpty()) {
                         Log.w("RekapanViewModel", "No students found for kelasId: $kelasId")
-                        // Tidak dianggap error, hanya status informatif
                     }
                 } else {
                     val errorMsg = when (response.code()) {
@@ -276,7 +291,6 @@ class RekapanViewModel(
                 _mataPelajaran.value = mataPelajaran
                 if (mataPelajaran.isEmpty()) {
                     Log.w("RekapanViewModel", "No mata pelajaran found")
-                    // Tidak dianggap error, hanya status informatif
                 }
             }
             _isLoading.value = false
@@ -297,7 +311,6 @@ class RekapanViewModel(
                 _kelas.value = kelasList
                 if (kelasList.isEmpty()) {
                     Log.w("RekapanViewModel", "No kelas found")
-                    // Tidak dianggap error, hanya status informatif
                 }
             }
             _isLoading.value = false
@@ -318,7 +331,6 @@ class RekapanViewModel(
                 _dailyRekapanList.value = rekapan
                 if (rekapan.isEmpty()) {
                     Log.w("RekapanViewModel", "No rekapan found for tanggal: $tanggal")
-                    // Tidak dianggap error, hanya status informatif
                 }
             }
             _isLoading.value = false
@@ -331,5 +343,9 @@ class RekapanViewModel(
 
     fun resetNavigation() {
         _navigateToLogin.value = false
+    }
+
+    fun setErrorMessage(message: String) {
+        _errorMessage.value = message
     }
 }
