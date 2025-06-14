@@ -62,12 +62,9 @@ fun AppNavGraph(
             when {
                 currentRoute?.startsWith(Destinations.HOME_ORANGTUA) == true ||
                         currentRoute?.startsWith(Destinations.ABSENSI_ORANGTUA) == true ||
-                        currentRoute?.startsWith(Destinations.NILAI_ORANGTUA) == true ||
+                        currentRoute?.startsWith(Destinations.REKAPAN_SISWA_ORANGTUA) == true ||
                         currentRoute?.startsWith(Destinations.JADWAL_ORANGTUA) == true -> {
-                    BottomNavigationOrangTua(
-                        navController = navController,
-                        currentRoute = currentRoute
-                    )
+
                 }
                 currentRoute !in hideNavBarRoutes -> {
                     BottomNavigationGuru(

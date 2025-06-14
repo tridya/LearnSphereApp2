@@ -32,6 +32,11 @@ fun LihatStatistikSiswa(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    // Calculate rating statistics
+    val ratingStats = reports.groupBy { it.rating }
+        .mapValues { it.value.size }
+        .toSortedMap()
+
     // Fetch reports when the screen is loaded
     LaunchedEffect(siswaId, mataPelajaranId) {
         viewModel.fetchReports(siswaId, mataPelajaranId)
@@ -80,6 +85,58 @@ fun LihatStatistikSiswa(
                 )
             }
             else -> {
+                // Statistics Section
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = PurpleGrey80)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Statistik Rating",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = DarkText
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ratingStats.forEach { (rating, count) ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "$rating Bintang",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                    color = DarkText
+                                )
+                                Text(
+                                    text = "$count kali",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                    color = DarkText
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Total Penilaian: ${reports.size}",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = DarkText
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Reports List
                 LazyColumn {
                     items(reports) { report ->
@@ -120,7 +177,7 @@ private fun ReportCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Rating: ${report.rating}",
+                text = "Rating: ${report.rating} Bintang",
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 color = DarkText
             )
