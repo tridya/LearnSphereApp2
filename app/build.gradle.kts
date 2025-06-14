@@ -66,6 +66,7 @@ dependencies {
 
     // Coroutines
     implementation(libs.coroutines.android)
+    implementation(libs.androidx.runtime.livedata)
 
     // Testing
     testImplementation(libs.junit)

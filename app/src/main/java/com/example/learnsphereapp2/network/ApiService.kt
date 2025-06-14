@@ -189,7 +189,22 @@ interface ApiService {
         @Query("hari") hari: String? = null
     ): List<JadwalResponse>
 
+    @GET("api/jadwal/orangtua/siswa/{siswa_id}/current")
+    suspend fun getCurrentJadwalBySiswa(
+        @Header("Authorization") authorization: String,
+        @Path("siswa_id") siswaId: Int
+    ): Response<List<JadwalResponse>>
 
+    @GET("api/jadwal/orangtua/siswa/{siswa_id}")
+    suspend fun getJadwalBySiswa(
+        @Header("Authorization") authorization: String,
+        @Path("siswa_id") siswaId: Int
+    ): Response<List<JadwalResponse>>
+
+    @GET("https://libur.deno.dev/api")
+    suspend fun getNationalHolidays(
+        @Query("year") year: Int
+    ): Response<List<Holiday>>
 
     @Multipart
     @POST("api/users/me/profile-picture")
@@ -197,4 +212,11 @@ interface ApiService {
         @Header("Authorization") authorization: String,
         @Part file: MultipartBody.Part
     ): Response<Map<String, String>>
+
+    @GET("api/siswa/orangtua")
+    suspend fun getSiswaByParent(
+        @Header("Authorization") authorization: String
+    ): Response<List<SiswaResponse>>
+
+
 }

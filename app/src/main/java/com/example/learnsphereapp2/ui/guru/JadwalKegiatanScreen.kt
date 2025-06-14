@@ -73,7 +73,7 @@ fun JadwalKegiatanScreen(
                             .size(24.dp)
                             .clip(CircleShape)
                             .clickable {
-                                navController.navigate(Destinations.NOTIFIKASI_GURU) // Mengarah ke rute guru
+//                                navController.navigate(Destinations.NOTIFIKASI_GURU) // Mengarah ke rute guru
                             },
                         tint = Color.Black
                     )

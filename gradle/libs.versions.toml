@@ -17,6 +17,7 @@ appcompat = "1.7.0"
 gson = "2.11.0"
 room = "2.6.1"
 coil = "2.7.0"
+runtime-livedata = "1.8.2"
 
 [libraries]
 # Core Android
@@ -65,6 +66,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtime-livedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
