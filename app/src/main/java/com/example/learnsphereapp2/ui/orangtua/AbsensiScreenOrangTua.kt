@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.learnsphereapp2.data.model.AbsensiResponse
-import com.example.learnsphereapp2.data.model.Holiday
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
@@ -245,6 +244,7 @@ private fun CalendarView(
     val daysInMonth = yearMonth.lengthOfMonth()
     val firstDayOfMonth = if (yearMonth.atDay(1).dayOfWeek.value == 7) 0 else yearMonth.atDay(1).dayOfWeek.value // Pastikan Minggu = 0
     val daysOfWeek = listOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
+    val today = LocalDate.now()
 
     Card(
         modifier = Modifier
@@ -290,11 +290,20 @@ private fun CalendarView(
                             Box(modifier = Modifier.size(40.dp).weight(1f))
                         } else {
                             val date = yearMonth.atDay(day)
-                            val isToday = date == LocalDate.now()
+                            val isToday = date == today
                             val hasAbsensi = absensiList.any { it.tanggal == date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) }
                             val isSunday = date.dayOfWeek.value == 7 // Minggu
                             val isNationalHoliday = viewModel.isNationalHoliday(date)
                             val isSemesterHoliday = viewModel.isSemesterHoliday(date)
+                            val isBeforeToday = date.isBefore(today)
+
+                            val textColor = when {
+                                isSemesterHoliday -> Color(0xFFFFEB3B) // Kuning untuk libur semester
+                                isSunday -> Color(0xFFFF9800) // Oranye untuk hari Minggu
+                                isBeforeToday && !hasAbsensi && !isSunday && !isSemesterHoliday && !isNationalHoliday -> Color(0xFFF44336) // Merah untuk tanpa absensi
+                                hasAbsensi -> Color(0xFF006FFD) // Biru untuk tanggal dengan absensi
+                                else -> MaterialTheme.colorScheme.onBackground // Warna default
+                            }
 
                             Box(
                                 modifier = Modifier
@@ -302,14 +311,10 @@ private fun CalendarView(
                                     .weight(1f)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(
-                                        color = when {
-                                            isNationalHoliday -> Color(0xFFF44336) // Merah untuk libur nasional
-                                            isSemesterHoliday -> Color(0xFFFFEB3B) // Kuning untuk libur semester
-                                            isSunday -> Color(0xFFFF9800) // Oranye untuk hari Minggu
-                                            isToday && hasAbsensi -> Color(0xFF006FFD) // Biru tua untuk hari ini dengan absensi
-                                            isToday -> Color(0xFF006FFD).copy(alpha = 0.3f) // Biru muda untuk hari ini tanpa absensi
-                                            hasAbsensi -> Color(0xFF006FFD).copy(alpha = 0.3f) // Biru muda untuk tanggal dengan absensi
-                                            else -> Color.Transparent
+                                        color = if (isToday) {
+                                            if (hasAbsensi) Color(0xFF006FFD) else Color(0xFF006FFD).copy(alpha = 0.3f)
+                                        } else {
+                                            Color.Transparent
                                         }
                                     ),
                                 contentAlignment = Alignment.Center
@@ -319,10 +324,8 @@ private fun CalendarView(
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
                                     ),
-                                    color = when {
-                                        isNationalHoliday || isSemesterHoliday || isSunday || isToday || hasAbsensi -> Color.White
-                                        else -> MaterialTheme.colorScheme.onBackground
-                                    }
+                                    color = if (isToday) Color.White else textColor,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                             day++
@@ -341,9 +344,11 @@ private fun ColorLegend() {
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
     ) {
-        LegendItem(color = Color(0xFFFF9800), label = "Hari Minggu")
-        LegendItem(color = Color(0xFFF44336), label = "Libur Nasional")
-        LegendItem(color = Color(0xFFFFEB3B), label = "Libur Semester")
+        LegendItem(color = Color(0xFFF44336), label = "Tanggal Tanpa Absensi")
+        LegendItem(color = Color(0xFFFFEB3B), label = "Tanggal Libur Semester")
+        LegendItem(color = Color(0xFFFF9800), label = "Tanggal Hari Minggu")
+        LegendItem(color = Color(0xFF006FFD), label = "Tanggal Dengan Absensi")
+        LegendItem(color = Color(0xFF006FFD).copy(alpha = 0.3f), label = "Hari Ini")
     }
 }
 

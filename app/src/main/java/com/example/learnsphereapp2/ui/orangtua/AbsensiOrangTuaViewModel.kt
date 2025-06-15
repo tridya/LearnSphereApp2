@@ -130,7 +130,6 @@ class AbsensiOrangTuaViewModel(
                         absensiList.value = absensiData
                         if (absensiList.value.isEmpty()) {
                             Log.w("AbsensiOrangTuaVM", "Data absensi kosong meskipun respons 200")
-                            errorMessage.value = "Tidak ada data absensi untuk periode ini."
                         } else {
                             updateStatistics()
                             Log.d("AbsensiOrangTuaVM", "Berhasil mengambil ${absensiList.value.size} data absensi: ${absensiList.value.map { "${it.tanggal}: ${it.status}" }}")
