@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.learnsphereapp2.network.RetrofitClient
+import com.example.learnsphereapp2.ui.auth.ForgotPasswordScreen
 import com.example.learnsphereapp2.ui.guru.*
 import com.example.learnsphereapp2.ui.login.LoginScreen
 import com.example.learnsphereapp2.ui.orangtua.*
@@ -27,6 +28,7 @@ object Destinations {
     const val ABSENSI_DETAIL_GURU = "absensi_detail_guru/{kelasId}/{tanggal}"
     const val ABSENSI_HARIAN_GURU = "absensi_harian_guru/{kelasId}"
     const val PROFILE_GURU = "profile_guru"
+    const val FORGOT_PASSWORD = "forgot_password"
     const val HOME_ORANGTUA = "home_orangtua"
     const val TAMBAH_JADWAL = "tambahJadwal/{kelasId}/{jadwalId}?"
     const val DAFTAR_JADWAL = "daftar_jadwal/{kelasId}"
@@ -50,11 +52,11 @@ fun AppNavGraph(
     val currentRoute = currentBackStackEntry?.destination?.route
     val role = preferencesHelper.getRole()
 
-    val hideNavBarRoutes = listOf(Destinations.LOGIN, Destinations.HOME_ORANGTUA)
+    val hideNavBarRoutes = listOf(Destinations.LOGIN, Destinations.HOME_ORANGTUA, Destinations.FORGOT_PASSWORD) // Tambahkan FORGOT_PASSWORD
     LaunchedEffect(currentRoute) {
         val token = preferencesHelper.getToken()
         Log.d("AppNavGraph", "Current route: $currentRoute, Token: $token, Role: $role")
-        if (currentRoute != Destinations.LOGIN && token == null) {
+        if (currentRoute != Destinations.LOGIN && currentRoute != Destinations.FORGOT_PASSWORD && token == null) { // Kecualikan FORGOT_PASSWORD
             navController.navigate(Destinations.LOGIN) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
@@ -97,6 +99,7 @@ fun AppNavGraph(
         ) {
             composable(Destinations.LOGIN) {
                 LoginScreen(
+                    navController = navController,
                     onLoginSuccess = { role ->
                         Log.d("AppNavGraph", "Login successful, role: $role")
                         when (role) {
@@ -215,20 +218,26 @@ fun AppNavGraph(
                     mataPelajaranId = mataPelajaranId
                 )
             }
-            composable(Destinations.JADWAL_ORANGTUA) { backStackEntry ->
-                val siswaIdString = backStackEntry.arguments?.getString("siswaId")
-                val siswaId = siswaIdString?.toIntOrNull() ?: 1
+            composable(
+                route = Destinations.JADWAL_ORANGTUA,
+                arguments = listOf(navArgument("siswaId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val siswaId = backStackEntry.arguments?.getString("siswaId")?.toIntOrNull() ?: 1
                 JadwalOrangTuaScreen(
                     navController = navController,
                     siswaId = siswaId,
                     preferencesHelper = preferencesHelper
                 )
             }
-            composable(Destinations.TAMBAH_JADWAL) { backStackEntry ->
-                val kelasIdString = backStackEntry.arguments?.getString("kelasId")
-                val jadwalIdString = backStackEntry.arguments?.getString("jadwalId")
-                val kelasId = kelasIdString?.toIntOrNull() ?: 1
-                val jadwalId = jadwalIdString?.toIntOrNull()
+            composable(
+                route = Destinations.TAMBAH_JADWAL,
+                arguments = listOf(
+                    navArgument("kelasId") { type = NavType.StringType },
+                    navArgument("jadwalId") { type = NavType.StringType; nullable = true }
+                )
+            ) { backStackEntry ->
+                val kelasId = backStackEntry.arguments?.getString("kelasId")?.toIntOrNull() ?: 1
+                val jadwalId = backStackEntry.arguments?.getString("jadwalId")?.toIntOrNull()
                 TambahJadwalScreen(
                     navController = navController,
                     preferencesHelper = preferencesHelper,
@@ -236,9 +245,11 @@ fun AppNavGraph(
                     jadwalId = jadwalId
                 )
             }
-            composable(Destinations.DAFTAR_JADWAL) { backStackEntry ->
-                val kelasIdString = backStackEntry.arguments?.getString("kelasId")
-                val kelasId = kelasIdString?.toIntOrNull() ?: 1
+            composable(
+                route = Destinations.DAFTAR_JADWAL,
+                arguments = listOf(navArgument("kelasId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val kelasId = backStackEntry.arguments?.getString("kelasId")?.toIntOrNull() ?: 1
                 DaftarJadwalScreen(
                     navController = navController,
                     kelasId = kelasId,
@@ -273,14 +284,16 @@ fun AppNavGraph(
                     preferencesHelper = preferencesHelper
                 )
             }
-
             composable(Destinations.PROFILE_GURU) {
                 ProfileScreenGuru(navController, preferencesHelper)
             }
-
-
             composable(Destinations.PROFILE_ORANGTUA) {
                 ProfileScreenOrangTua(navController, preferencesHelper)
+            }
+            composable(Destinations.FORGOT_PASSWORD) {
+                ForgotPasswordScreen(
+                    navController = navController
+                )
             }
         }
     }
