@@ -110,10 +110,9 @@ fun JadwalOrangTuaScreen(
         CommonTitleBar(
             title = "Jadwal Anak",
             navController = navController,
-            showBackButton = false,
-            showNotificationIcon = true,
+            showBackButton = true,
             showProfileIcon = true,
-            onProfileClick = { navController.navigate(Destinations.PROFILE_ORANGTUA) },
+            onProfileClick = { navController.navigate(Destinations.PROFILE_ORANGTUA) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

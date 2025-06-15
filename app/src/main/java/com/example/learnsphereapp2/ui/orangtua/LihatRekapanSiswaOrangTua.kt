@@ -66,12 +66,12 @@ fun LihatRekapanSiswaOrangTua(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Daftar Nilai",
+                    text = students.find { it.siswaId == selectedSiswaId }?.nama ?: "Tidak ada siswa yang dipilih",
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     ),
-                    color = Color.Black
+                    color = GrayText
                 )
                 Text(
                     text = "HARI INI",
@@ -83,25 +83,7 @@ fun LihatRekapanSiswaOrangTua(
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "19 RABU MARET 2025",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Normal
-                ),
-                color = GrayText
-            )
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // Student Name (replacing dropdown)
-            Text(
-                text = students.find { it.siswaId == selectedSiswaId }?.nama ?: "Tidak ada siswa yang dipilih",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = GrayText
-            )
             Spacer(modifier = Modifier.height(16.dp))
 
             // Loading and Error States
@@ -143,7 +125,7 @@ fun LihatRekapanSiswaOrangTua(
                                     .padding(vertical = 4.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isEvenIndex) Color(0xFFF5E6FF) else Color(0xFFE6F0FA)
+                                    containerColor = if (isEvenIndex) Color(0xFFFDBA74) else Color(0xFFD0BCFF)
                                 )
                             ) {
                                 Row(
@@ -176,7 +158,7 @@ fun LihatRekapanSiswaOrangTua(
                                         painter = painterResource(id = R.drawable.ic_nilai),
                                         contentDescription = subject.nama,
                                         modifier = Modifier.size(24.dp),
-                                        tint = VibrantBlue
+                                        tint = WhiteBlue
                                     )
                                 }
                             }

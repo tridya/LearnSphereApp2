@@ -16,14 +16,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.data.repository.AuthRepository
 import com.example.learnsphereapp2.network.RetrofitClient
+import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.util.PreferencesHelper
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    navController: NavController, // Tambahkan parameter navController
     onLoginSuccess: (String) -> Unit,
     preferencesHelper: PreferencesHelper,
     viewModel: LoginViewModel = viewModel(
@@ -136,7 +139,7 @@ fun LoginScreen(
                     )
                 )
 
-                Spacer(modifier = Modifier.height(4.dp)) // Reduced from 10.dp to 4.dp
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Password field
                 OutlinedTextField(
@@ -177,7 +180,7 @@ fun LoginScreen(
 
             // Forgot Password link
             TextButton(
-                onClick = { /* TODO: Implement forgot password functionality */ },
+                onClick = { navController.navigate(Destinations.FORGOT_PASSWORD) }, // Perbaiki onClick
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text("Lupa Kata Sandi?", color = Color(0xFF1976D2))

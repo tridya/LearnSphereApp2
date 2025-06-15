@@ -29,9 +29,12 @@ import com.example.learnsphereapp2.data.model.MataPelajaranResponse
 import com.example.learnsphereapp2.data.model.RekapanSiswaCreate
 import com.example.learnsphereapp2.data.model.StatusRekapanSiswa
 import com.example.learnsphereapp2.network.RetrofitClient
+import com.example.learnsphereapp2.ui.Destinations
 import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.util.PreferencesHelper
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -71,7 +74,24 @@ fun RekapanSiswaGuruScreen(
     val scope = rememberCoroutineScope()
     val ratingOptions = listOf("Sangat Baik", "Baik", "Cukup", "Kurang")
 
+    // Deteksi perubahan hari
+    val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    val currentDate by remember { mutableStateOf(dateFormat.format(Date())) }
+    val currentDay by remember { mutableStateOf(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) }
+
+    // Refresh data saat hari berubah
+    LaunchedEffect(currentDay) {
+        rekapanViewModel.fetchCurrentUser(token)
+        rekapanViewModel.fetchStudentsByClass(kelasId, token, forceRefresh = true)
+        rekapanViewModel.fetchJadwalByKelas(kelasId, token, forceRefresh = true)
+        rekapanViewModel.fetchMataPelajaran(token, forceRefresh = true)
+        selectedMataPelajaran?.let {
+            rekapanViewModel.fetchRekapanByKelas(kelasId, it.mataPelajaranId, token)
+        }
+    }
+
     LaunchedEffect(Unit) {
+        // Inisialisasi pertama
         rekapanViewModel.fetchCurrentUser(token)
         rekapanViewModel.fetchStudentsByClass(kelasId, token)
         rekapanViewModel.fetchJadwalByKelas(kelasId, token)
@@ -129,10 +149,7 @@ fun RekapanSiswaGuruScreen(
                 showProfileIcon = true,
                 onBackClick = { navController.popBackStack() },
                 onProfileClick = {
-                    preferencesHelper.clear()
-                    navController.navigate("login") {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                    }
+                    navController.navigate(Destinations.PROFILE_GURU)
                 }
             )
         },

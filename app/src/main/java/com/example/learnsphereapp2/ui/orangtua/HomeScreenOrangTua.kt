@@ -35,7 +35,7 @@ fun HomeScreenOrangTua(
 ) {
     val context = LocalContext.current
     val preferencesHelper = PreferencesHelper(context)
-    val username = preferencesHelper.getUsername() ?: "Unknown"
+    val username = preferencesHelper.getNama() ?: "Unknown"
 
     Column(
         modifier = modifier
@@ -65,7 +65,7 @@ fun HomeScreenOrangTua(
                 color = DarkText
             )
             Text(
-                text = "Pantau perkembangan $username di sini",
+                text = "Pantau perkembangan di sini",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 14.sp
                 ),
@@ -78,7 +78,7 @@ fun HomeScreenOrangTua(
         // Card Laporan
         FeatureCard(
             title = "Laporan Harian",
-            description = "Lihat aktivitas dan kehadiran $username",
+            description = "Lihat aktivitas dan kehadiran ",
             iconRes = R.drawable.ic_absenn,
             color = VibrantPurple,
             onClick = { navController.navigate(Destinations.ABSENSI_ORANGTUA) }
@@ -89,7 +89,7 @@ fun HomeScreenOrangTua(
         // Card Nilai
         FeatureCard(
             title = "Perkembangan Nilai",
-            description = "Pantau perkembangan akademik $username",
+            description = "Pantau perkembangan akademik",
             iconRes = R.drawable.ic_nilai_ilustration,
             color = VibrantOrange,
             onClick = {

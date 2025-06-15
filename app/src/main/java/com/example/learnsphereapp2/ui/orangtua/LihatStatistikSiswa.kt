@@ -314,7 +314,7 @@ private fun ReportCard(
         Card(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = VibrantPurple.copy(alpha = 0.8f)),
+            colors = CardDefaults.cardColors(containerColor = VibrantOrange.copy(alpha = 0.8f)),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(
