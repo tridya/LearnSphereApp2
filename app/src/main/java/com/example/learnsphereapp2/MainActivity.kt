@@ -159,7 +159,7 @@ class MainActivity : ComponentActivity() {
             ),
             OnboardingPage(
                 title = "Lihat Prestasi dan Aktivitas Anak Setiap Hari",
-                description = "Cek nilai, tugas, absensi, dan perilaku siswa langsung dari ponsel Anda.",
+                description = "Cek rekapan, absensi, dan jadwal siswa langsung dari ponsel Anda.",
                 animationRes = R.raw.onboarding_1
             ),
             OnboardingPage(
@@ -167,11 +167,6 @@ class MainActivity : ComponentActivity() {
                 description = "Chat langsung dengan guru untuk diskusi perkembangan anak tanpa harus datang ke sekolah.",
                 animationRes = R.raw.onboarding_1
             ),
-            OnboardingPage(
-                title = "Siap Memulai?",
-                description = "Daftar sebagai orang tua atau guru dan mulai pantau perkembangan siswa.",
-                animationRes = R.raw.onboarding_1
-            )
         )
 
         var currentPage by remember { mutableStateOf(0) }

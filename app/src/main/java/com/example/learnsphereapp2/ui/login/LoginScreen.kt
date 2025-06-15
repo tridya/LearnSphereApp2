@@ -50,7 +50,7 @@ fun LoginScreen(
                 onLoginSuccess(role)
                 viewModel.resetLoginSuccess()
             } else {
-
+                // Handle case where role is null if needed
             }
         }
     }
@@ -101,7 +101,7 @@ fun LoginScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Username field
                 OutlinedTextField(
@@ -110,21 +110,33 @@ fun LoginScreen(
                     label = { Text("Nama Pengguna") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .heightIn(min = 56.dp) // Consistent minimum height
+                        .padding(vertical = 4.dp), // Slight vertical padding for spacing
                     textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                     isError = usernameError != null,
-                    supportingText = { usernameError?.let { Text(it, color = MaterialTheme.colorScheme.error) } },
+                    supportingText = {
+                        usernameError?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    },
+                    singleLine = true, // Ensures single line input
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1976D2),
-                        unfocusedBorderColor = Color(0xFF1976D2),
+                        unfocusedBorderColor = Color(0xFF90CAF9),
                         errorBorderColor = MaterialTheme.colorScheme.error,
                         focusedLabelColor = Color(0xFF1976D2),
-                        unfocusedLabelColor = Color(0xFF1976D2),
-                        errorLabelColor = MaterialTheme.colorScheme.error
+                        unfocusedLabelColor = Color(0xFF90CAF9),
+                        errorLabelColor = MaterialTheme.colorScheme.error,
+                        focusedSupportingTextColor = MaterialTheme.colorScheme.error,
+                        unfocusedSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // Password field
                 OutlinedTextField(
@@ -134,22 +146,34 @@ fun LoginScreen(
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .heightIn(min = 56.dp) // Consistent minimum height
+                        .padding(vertical = 4.dp), // Slight vertical padding for spacing
                     textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                     isError = passwordError != null,
-                    supportingText = { passwordError?.let { Text(it, color = MaterialTheme.colorScheme.error) } },
+                    supportingText = {
+                        passwordError?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    },
+                    singleLine = true, // Ensures single line input
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1976D2),
-                        unfocusedBorderColor = Color(0xFF1976D2),
+                        unfocusedBorderColor = Color(0xFF90CAF9),
                         errorBorderColor = MaterialTheme.colorScheme.error,
                         focusedLabelColor = Color(0xFF1976D2),
-                        unfocusedLabelColor = Color(0xFF1976D2),
-                        errorLabelColor = MaterialTheme.colorScheme.error
+                        unfocusedLabelColor = Color(0xFF90CAF9),
+                        errorLabelColor = MaterialTheme.colorScheme.error,
+                        focusedSupportingTextColor = MaterialTheme.colorScheme.error,
+                        unfocusedSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Forgot Password link
             TextButton(
@@ -159,7 +183,7 @@ fun LoginScreen(
                 Text("Lupa Kata Sandi?", color = Color(0xFF1976D2))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Login button
             Button(
