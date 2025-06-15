@@ -40,25 +40,53 @@ fun LihatRekapanSiswaOrangTua(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
         // Header
-        Text(
-            text = "Pilih Mata Pelajaran",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = DarkText
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Daftar Nilai",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color.Black
+            )
+            Text(
+                text = "HARI INI",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal
+                ),
+                color = VibrantBlue
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Pilih siswa dan mata pelajaran untuk melihat rekapan",
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            text = "19 RABU MARET 2025",
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal
+            ),
             color = GrayText
         )
-
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Mata Pelajaran Label
+        Text(
+            text = "Mata Pelajaran",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            ),
+            color = GrayText
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Student Dropdown
         if (students.isNotEmpty()) {
@@ -68,7 +96,7 @@ fun LihatRekapanSiswaOrangTua(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextField(
-                    value = students.find { it.siswaId == selectedSiswaId }?.nama ?: "Pilih Siswa",
+                    value = students.find { it.siswaId == selectedSiswaId }?.nama ?: "",
                     onValueChange = {},
                     readOnly = true,
                     modifier = Modifier
@@ -79,24 +107,12 @@ fun LihatRekapanSiswaOrangTua(
                     },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
                     )
                 )
                 // Dropdown menu is handled manually for simplicity
-                Column {
-                    students.forEach { student ->
-                        Text(
-                            text = student.nama,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.setSelectedSiswaId(student.siswaId)
-                                }
-                                .padding(16.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
             }
         } else {
             Text(
@@ -131,21 +147,56 @@ fun LihatRekapanSiswaOrangTua(
                 // Subjects List
                 LazyColumn {
                     items(subjects) { subject ->
-                        FeatureCard(
-                            title = subject.nama,
-                            description = subject.deskripsi ?: "Tidak ada deskripsi",
-                            iconRes = R.drawable.ic_nilai, // Replace with appropriate icon
-                            color = VibrantBlue,
-                            onClick = {
-                                selectedSiswaId?.let { siswaId ->
-                                    navController.navigate(
-                                        Destinations.ABSENSI_GURU
-                                            .replace("{siswaId}", siswaId.toString())
-                                            .replace("{mataPelajaranId}", subject.mataPelajaranId.toString())
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedSiswaId?.let { siswaId ->
+                                        navController.navigate(
+                                            Destinations.STATISTIK_SISWA
+                                                .replace("{siswaId}", siswaId.toString())
+                                                .replace("{mataPelajaranId}", subject.mataPelajaranId.toString())
+                                        )
+                                    }
+                                }
+                                .padding(vertical = 4.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5E6FF))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = subject.nama,
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        color = Color.Black
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = subject.deskripsi ?: "Tidak ada deskripsi",
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontSize = 12.sp
+                                        ),
+                                        color = GrayText
                                     )
                                 }
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_nilai),
+                                    contentDescription = subject.nama,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = VibrantBlue
+                                )
                             }
-                        )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }

@@ -44,7 +44,7 @@ fun RekapanSiswaGuruScreen(
     val guruId = preferencesHelper.getUserId() ?: -1
 
     val rekapanViewModel: RekapanViewModel = viewModel(
-        factory = RekapanViewModelFactory(RetrofitClient.apiService, preferencesHelper) // Perbarui factory
+        factory = RekapanViewModelFactory(RetrofitClient.apiService, preferencesHelper)
     )
 
     val jadwalList by rekapanViewModel.jadwalList.collectAsState()
@@ -55,7 +55,6 @@ fun RekapanSiswaGuruScreen(
     val siswaList by rekapanViewModel.siswaList.collectAsState()
     val navigateToLogin by rekapanViewModel.navigateToLogin.collectAsState()
 
-    var selectedJadwal by remember { mutableStateOf<JadwalResponse?>(null) }
     var selectedMataPelajaran by remember { mutableStateOf<MataPelajaranResponse?>(null) }
     var expandedMataPelajaran by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -65,12 +64,12 @@ fun RekapanSiswaGuruScreen(
     var currentSiswaId by remember { mutableStateOf(0) }
     var tempCatatan by remember { mutableStateOf("") }
     var tempRating by remember { mutableStateOf<String?>(null) }
+    var showSuccessPopup by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val ratingOptions = listOf("Sangat Baik", "Baik", "Cukup", "Kurang", "Buruk")
+    val ratingOptions = listOf("Sangat Baik", "Baik", "Cukup", "Kurang")
 
-    // Fetch initial data
     LaunchedEffect(Unit) {
         rekapanViewModel.fetchCurrentUser(token)
         rekapanViewModel.fetchStudentsByClass(kelasId, token)
@@ -78,7 +77,6 @@ fun RekapanSiswaGuruScreen(
         rekapanViewModel.fetchMataPelajaran(token)
     }
 
-    // Handle navigation to login
     LaunchedEffect(navigateToLogin) {
         if (navigateToLogin) {
             preferencesHelper.clear()
@@ -89,28 +87,19 @@ fun RekapanSiswaGuruScreen(
         }
     }
 
-    // Set default mata pelajaran only if none is selected
-    LaunchedEffect(mataPelajaranList, jadwalList) {
-        if (jadwalList.isEmpty() && mataPelajaranList.isNotEmpty() && selectedJadwal == null && selectedMataPelajaran == null) {
-            val defaultMataPelajaran = mataPelajaranList.first()
-            selectedMataPelajaran = defaultMataPelajaran
-            rekapanViewModel.fetchRekapanByKelas(kelasId, defaultMataPelajaran.mataPelajaranId, token)
+    LaunchedEffect(mataPelajaranList) {
+        if (mataPelajaranList.isNotEmpty() && selectedMataPelajaran == null) {
+            selectedMataPelajaran = mataPelajaranList.first()
+            rekapanViewModel.fetchRekapanByKelas(kelasId, selectedMataPelajaran!!.mataPelajaranId, token)
         }
     }
 
-    // Fetch rekapan when jadwal or mata pelajaran changes
-    LaunchedEffect(selectedJadwal, selectedMataPelajaran) {
-        when {
-            selectedJadwal != null -> {
-                rekapanViewModel.fetchRekapanByKelas(kelasId, selectedJadwal!!.mataPelajaranId, token)
-            }
-            selectedMataPelajaran != null -> {
-                rekapanViewModel.fetchRekapanByKelas(kelasId, selectedMataPelajaran!!.mataPelajaranId, token)
-            }
+    LaunchedEffect(selectedMataPelajaran) {
+        selectedMataPelajaran?.let {
+            rekapanViewModel.fetchRekapanByKelas(kelasId, it.mataPelajaranId, token)
         }
     }
 
-    // Handle error messages
     LaunchedEffect(errorMessage) {
         errorMessage?.let { message ->
             scope.launch {
@@ -158,7 +147,7 @@ fun RekapanSiswaGuruScreen(
                 Text(
                     text = "Masukkan Nilai",
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     ),
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -171,9 +160,9 @@ fun RekapanSiswaGuruScreen(
                         .background(Color(0xFFF5E6CC))
                 ) {
                     Text(
-                        text = "Daftar Nilai\nAPR 30 - PAUSE PRACTICE",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 16.sp,
+                        text = "Daftar Nilai\n",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 12.sp,
                             color = Color.Gray
                         ),
                         modifier = Modifier
@@ -191,10 +180,11 @@ fun RekapanSiswaGuruScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    placeholder = { Text("Cari Nama Siswa") },
+                    placeholder = { Text("Cari Nama Siswa", fontSize = 12.sp) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                     singleLine = true,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -210,18 +200,17 @@ fun RekapanSiswaGuruScreen(
                         FilterChip(
                             selected = filterRating == rating,
                             onClick = { filterRating = if (filterRating == rating) null else rating },
-                            label = { Text(rating) },
+                            label = { Text(rating, fontSize = 10.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 containerColor = when (rating) {
                                     "Sangat Baik" -> Color(0xFF2196F3)
                                     "Baik" -> Color(0xFF4CAF50)
                                     "Cukup" -> Color(0xFFFF9800)
                                     "Kurang" -> Color(0xFFF44336)
-                                    "Buruk" -> Color(0xFF9C27B0)
                                     else -> Color(0xFFCCCCCC)
                                 },
                                 labelColor = Color.White
-                            )
+                            ),
                         )
                     }
                 }
@@ -230,11 +219,9 @@ fun RekapanSiswaGuruScreen(
 
             item {
                 var isFocused by remember { mutableStateOf(false) }
-                val isDropdownEnabled = jadwalList.isNotEmpty() || mataPelajaranList.isNotEmpty()
+                val isDropdownEnabled = mataPelajaranList.isNotEmpty()
                 OutlinedTextField(
-                    value = selectedJadwal?.mataPelajaran?.nama
-                        ?: selectedMataPelajaran?.nama
-                        ?: "Pilih Mata Pelajaran",
+                    value = selectedMataPelajaran?.nama ?: "Pilih Mata Pelajaran",
                     onValueChange = {},
                     modifier = Modifier
                         .fillMaxWidth()
@@ -243,8 +230,8 @@ fun RekapanSiswaGuruScreen(
                         .onFocusChanged { isFocused = it.isFocused },
                     readOnly = true,
                     enabled = isDropdownEnabled,
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    placeholder = { Text("Pilih Mata Pelajaran") },
+                    textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                    placeholder = { Text("Pilih Mata Pelajaran", fontSize = 12.sp) },
                     trailingIcon = {
                         if (isDropdownEnabled) {
                             Icon(
@@ -257,11 +244,7 @@ fun RekapanSiswaGuruScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = Color(0xFF00BCD4),
                         unfocusedBorderColor = Color(0xFF03A9F4),
-                        disabledBorderColor = Color.Gray,
-                        cursorColor = Color(0xFF00BCD4),
-                        focusedLabelColor = Color(0xFF00BCD4),
-                        unfocusedLabelColor = Color(0xFF03A9F4),
-                        disabledLabelColor = Color.Gray
+                        disabledBorderColor = Color.Gray
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -270,22 +253,11 @@ fun RekapanSiswaGuruScreen(
                     onDismissRequest = { expandedMataPelajaran = false },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    jadwalList.forEach { jadwal ->
-                        DropdownMenuItem(
-                            text = { Text("${jadwal.mataPelajaran.nama} (${jadwal.jamMulai} - ${jadwal.jamSelesai})") },
-                            onClick = {
-                                selectedJadwal = jadwal
-                                selectedMataPelajaran = null
-                                expandedMataPelajaran = false
-                            }
-                        )
-                    }
                     mataPelajaranList.forEach { mp ->
                         DropdownMenuItem(
-                            text = { Text(mp.nama) },
+                            text = { Text(mp.nama, fontSize = 12.sp) },
                             onClick = {
                                 selectedMataPelajaran = mp
-                                selectedJadwal = null
                                 expandedMataPelajaran = false
                             }
                         )
@@ -312,11 +284,12 @@ fun RekapanSiswaGuruScreen(
                         Text(
                             text = errorMessage ?: "Terjadi kesalahan",
                             color = Color.Red,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -324,23 +297,25 @@ fun RekapanSiswaGuruScreen(
                     item {
                         Text(
                             text = "Tidak ada siswa ditemukan untuk kelas ini",
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp
                         )
                     }
                 }
-                filteredRekapanList.isEmpty() && (selectedJadwal != null || selectedMataPelajaran != null) -> {
+                filteredRekapanList.isEmpty() && selectedMataPelajaran != null -> {
                     item {
                         Text(
                             text = "Tidak ada rekapan ditemukan untuk mata pelajaran ini",
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -352,7 +327,6 @@ fun RekapanSiswaGuruScreen(
                                 "Baik" -> Color(0xFF4CAF50)
                                 "Cukup" -> Color(0xFFFF9800)
                                 "Kurang" -> Color(0xFFF44336)
-                                "Buruk" -> Color(0xFF9C27B0)
                                 else -> Color(0xFFCCCCCC)
                             }
                         } else {
@@ -362,8 +336,8 @@ fun RekapanSiswaGuruScreen(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .border(2.dp, borderColor, RoundedCornerShape(8.dp)),
+                                .padding(vertical = 2.dp)
+                                .border(1.dp, borderColor, RoundedCornerShape(8.dp)),
                             shape = RoundedCornerShape(8.dp),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFE6F0FA))
                         ) {
@@ -375,24 +349,30 @@ fun RekapanSiswaGuruScreen(
                             ) {
                                 Text(
                                     text = "${index + 1}. ${rekapan.namaSiswa}",
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                                     modifier = Modifier.weight(1f)
                                 )
                                 if (rekapan.sudahDibuat) {
                                     rekapan.rekapan?.let { r ->
-                                        Text(
-                                            text = "Rating: ${r.rating}",
-                                            color = when (r.rating) {
-                                                "Sangat Baik" -> Color(0xFF2196F3)
-                                                "Baik" -> Color(0xFF4CAF50)
-                                                "Cukup" -> Color(0xFFFF9800)
-                                                "Kurang" -> Color(0xFFF44336)
-                                                "Buruk" -> Color(0xFF9C27B0)
-                                                else -> Color(0xFFCCCCCC)
-                                            },
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                                            modifier = Modifier.padding(start = 8.dp)
-                                        )
+                                        val ratingColor = when (r.rating) {
+                                            "Sangat Baik" -> Color(0xFF2196F3)
+                                            "Baik" -> Color(0xFF4CAF50)
+                                            "Cukup" -> Color(0xFFFF9800)
+                                            "Kurang" -> Color(0xFFF44336)
+                                            else -> Color(0xFFCCCCCC)
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(start = 8.dp)
+                                                .background(ratingColor, RoundedCornerShape(4.dp))
+                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        ) {
+                                            Text(
+                                                text = r.rating,
+                                                color = Color.Black,
+                                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp)
+                                            )
+                                        }
                                     }
                                 } else {
                                     Button(
@@ -403,12 +383,15 @@ fun RekapanSiswaGuruScreen(
                                             showRatingSheet = true
                                         },
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                                        modifier = Modifier.padding(start = 8.dp)
+                                        modifier = Modifier
+                                            .padding(start = 8.dp)
+                                            .size(70.dp, 30.dp), // Ukuran diperbesar agar teks tidak terpotong
+                                        shape = RoundedCornerShape(8.dp)
                                     ) {
                                         Text(
                                             text = "Nilai",
                                             color = Color.White,
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp)
+                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 8.sp)
                                         )
                                     }
                                 }
@@ -421,10 +404,10 @@ fun RekapanSiswaGuruScreen(
             item {
                 Text(
                     text = "${filteredRekapanList.size} Siswa",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                    style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray, fontSize = 10.sp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
+                        .padding(vertical = 8.dp),
                     textAlign = TextAlign.Center
                 )
             }
@@ -445,12 +428,12 @@ fun RekapanSiswaGuruScreen(
             ) {
                 Text(
                     text = "Beri Nilai",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 16.sp),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Text(
                     text = "Rating",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -461,14 +444,13 @@ fun RekapanSiswaGuruScreen(
                         FilterChip(
                             selected = tempRating == rating,
                             onClick = { tempRating = rating },
-                            label = { Text(rating) },
+                            label = { Text(rating, fontSize = 10.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 containerColor = when (rating) {
                                     "Sangat Baik" -> Color(0xFF2196F3)
                                     "Baik" -> Color(0xFF4CAF50)
                                     "Cukup" -> Color(0xFFFF9800)
                                     "Kurang" -> Color(0xFFF44336)
-                                    "Buruk" -> Color(0xFF9C27B0)
                                     else -> Color(0xFFCCCCCC)
                                 },
                                 labelColor = Color.White
@@ -480,12 +462,13 @@ fun RekapanSiswaGuruScreen(
                 OutlinedTextField(
                     value = tempCatatan,
                     onValueChange = { if (it.length <= 200) tempCatatan = it },
-                    label = { Text("Catatan (opsional)") },
+                    label = { Text("Catatan (opsional)", fontSize = 12.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f, fill = false),
                     maxLines = 3,
-                    supportingText = { Text("${tempCatatan.length}/200") }
+                    textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                    supportingText = { Text("${tempCatatan.length}/200", fontSize = 10.sp) }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
@@ -493,7 +476,7 @@ fun RekapanSiswaGuruScreen(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = { showRatingSheet = false }) {
-                        Text("Batal")
+                        Text("Batal", fontSize = 12.sp)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -502,7 +485,7 @@ fun RekapanSiswaGuruScreen(
                                 scope.launch {
                                     snackbarHostState.showSnackbar("Pilih rating terlebih dahulu")
                                 }
-                            } else if (selectedJadwal == null && selectedMataPelajaran == null) {
+                            } else if (selectedMataPelajaran == null) {
                                 scope.launch {
                                     snackbarHostState.showSnackbar("Pilih mata pelajaran terlebih dahulu")
                                 }
@@ -511,9 +494,7 @@ fun RekapanSiswaGuruScreen(
                                     snackbarHostState.showSnackbar("ID guru tidak valid. Silakan login kembali.")
                                 }
                             } else {
-                                val mataPelajaranId = selectedJadwal?.mataPelajaranId
-                                    ?: selectedMataPelajaran?.mataPelajaranId
-                                    ?: return@Button
+                                val mataPelajaranId = selectedMataPelajaran?.mataPelajaranId ?: return@Button
                                 val rekapanCreate = RekapanSiswaCreate(
                                     siswa_id = currentSiswaId,
                                     mata_pelajaran_id = mataPelajaranId,
@@ -522,26 +503,33 @@ fun RekapanSiswaGuruScreen(
                                     catatan = tempCatatan.takeIf { it.isNotBlank() }
                                 )
                                 rekapanViewModel.createDailyRekapan(rekapanCreate, token) {
-                                    when {
-                                        selectedJadwal != null -> {
-                                            rekapanViewModel.fetchRekapanByKelas(kelasId, selectedJadwal!!.mataPelajaranId, token)
-                                        }
-                                        selectedMataPelajaran != null -> {
-                                            rekapanViewModel.fetchRekapanByKelas(kelasId, selectedMataPelajaran!!.mataPelajaranId, token)
-                                        }
+                                    selectedMataPelajaran?.let {
+                                        rekapanViewModel.fetchRekapanByKelas(kelasId, it.mataPelajaranId, token)
                                     }
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Rekapan berhasil disimpan")
-                                    }
+                                    showSuccessPopup = true
                                 }
                                 showRatingSheet = false
                             }
-                        }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3))
                     ) {
-                        Text("Simpan")
+                        Text("Simpan", fontSize = 12.sp, color = Color.White)
                     }
                 }
             }
         }
+    }
+
+    if (showSuccessPopup) {
+        AlertDialog(
+            onDismissRequest = { showSuccessPopup = false },
+            title = { Text("Sukses", fontSize = 16.sp) },
+            text = { Text("Rekapan berhasil disimpan!", fontSize = 12.sp) },
+            confirmButton = {
+                TextButton(onClick = { showSuccessPopup = false }) {
+                    Text("OK", fontSize = 12.sp)
+                }
+            }
+        )
     }
 }

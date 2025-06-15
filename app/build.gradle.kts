@@ -95,6 +95,9 @@ dependencies {
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation ("androidx.compose.ui:ui-graphics:1.6.0")
+    implementation("com.patrykandpatrick.vico:compose:1.13.0") // Versi bisa berubah
+
 
     implementation(libs.coil.compose)
 }
