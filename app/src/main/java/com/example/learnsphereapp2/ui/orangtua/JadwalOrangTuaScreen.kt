@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle // Impor TextStyle
 import java.util.Locale
 import android.util.Log
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 
 @Composable
 fun JadwalOrangTuaScreen(
@@ -105,50 +106,18 @@ fun JadwalOrangTuaScreen(
             .background(BackgroundWhite)
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        // Header dengan judul "Jadwal Anak", notifikasi, dan profil (tanpa tombol kembali)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Spacer(modifier = Modifier.size(24.dp)) // Placeholder untuk simetri
-            Text(
-                text = "Jadwal Anak",
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        //.clickable { navController.navigate(Destinations.NOTIFIKASI_ORANGTUA) },
-                    //tint = Color.Black
-                )
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .clickable { /* TODO: Aksi profil */ },
-                    tint = Color.Black
-                )
-            }
-        }
+        // Header using CommonTitleBar
+        CommonTitleBar(
+            title = "Jadwal Anak",
+            navController = navController,
+            showBackButton = false,
+            showNotificationIcon = true,
+            showProfileIcon = true,
+            onProfileClick = { navController.navigate(Destinations.PROFILE_ORANGTUA) },
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tata letak tanggal di kiri, hari dan jam di kanan
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -254,6 +223,6 @@ fun JadwalOrangTuaScreen(
 }
 
 fun getCardColor(index: Int): Color {
-    val colors = listOf(BlueCard, VibrantBlue, WhiteBlue)
+    val colors = listOf(VibrantPurple, VibrantOrange, VibrantBlue)
     return colors[index % colors.size]
 }

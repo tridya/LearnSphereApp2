@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
+import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.util.PreferencesHelper
 import java.time.LocalDate
 import java.time.YearMonth
@@ -51,107 +53,95 @@ fun AbsensiScreenGuru(
         viewModel.fetchData(kelasId = kelasId, tanggal = selectedDate)
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(MaterialTheme.colorScheme.background)
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        item {
-            // Header dengan tombol back dan judul
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Kembali",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { navController.popBackStack() }
-                )
-                Text(
-                    text = "Absen Harian Siswa",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                )
-                Spacer(modifier = Modifier.width(24.dp))
-            }
-        }
-
-        item {
-            // Kontrol bulan dan kalender
-            MonthSelector(
-                currentMonth = currentMonth,
-                onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
-                onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            // Title Bar
+            CommonTitleBar(
+                title = "Daftar Absensi",
+                navController = navController,
+                onBackClick = { navController.navigate(Destinations.ABSENSI_HARIAN_GURU) },
+                onProfileClick = { navController.navigate(Destinations.PROFILE_GURU) }
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
-            CalendarView(
-                yearMonth = currentMonth,
-                selectedDate = selectedDate,
-                onDateSelected = { date -> selectedDate = date }
-            )
             Spacer(modifier = Modifier.height(16.dp))
-        }
 
-        item {
-            // Statistik absensi
-            AttendanceStats(
-                hadir = viewModel.hadirCount.value,
-                absen = viewModel.absenCount.value,
-                izin = viewModel.izinCount.value,
-                sakit = viewModel.sakitCount.value,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
-
-        item {
-            SectionTitle("Daftar Siswa")
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        when {
-            viewModel.isLoading.value -> {
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
                 item {
-                    LoadingIndicator()
-                }
-            }
-            viewModel.errorMessage.value != null -> {
-                item {
-                    ErrorMessage(viewModel.errorMessage.value ?: "Terjadi kesalahan")
-                }
-            }
-            viewModel.siswaList.value.isEmpty() -> {
-                item {
-                    EmptyState("Tidak ada siswa ditemukan")
-                }
-            }
-            else -> {
-                items(viewModel.siswaList.value.sortedBy { it.nama }) { siswa ->
-                    val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
-                    val status = absensi?.status ?: "Belum Diisi"
-                    StudentItem(
-                        name = siswa.nama,
-                        status = status,
-                        onClick = {
-                            // Navigasi hanya jika status bukan "Belum Diisi" atau "Sakit"
-                            if (status != "Belum Diisi" && status != "Sakit") {
-                                navController.navigate(
-                                    Destinations.ABSENSI_DETAIL_GURU
-                                        .replace("{kelasId}", kelasId.toString())
-                                        .replace("{tanggal}", selectedDate.format(formatter))
-                                )
-                            }
-                        }
+                    MonthSelector(
+                        currentMonth = currentMonth,
+                        onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
+                        onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    CalendarView(
+                        yearMonth = currentMonth,
+                        selectedDate = selectedDate,
+                        onDateSelected = { date -> selectedDate = date }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                item {
+                    // Statistik absensi
+                    AttendanceStats(
+                        hadir = viewModel.hadirCount.value,
+                        absen = viewModel.absenCount.value,
+                        izin = viewModel.izinCount.value,
+                        sakit = viewModel.sakitCount.value,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
+                item {
+                    SectionTitle("Daftar Siswa")
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                when {
+                    viewModel.isLoading.value -> {
+                        item {
+                            LoadingIndicator()
+                        }
+                    }
+                    viewModel.errorMessage.value != null -> {
+                        item {
+                            ErrorMessage(viewModel.errorMessage.value ?: "Terjadi kesalahan")
+                        }
+                    }
+                    viewModel.siswaList.value.isEmpty() -> {
+                        item {
+                            EmptyState("Tidak ada siswa ditemukan")
+                        }
+                    }
+                    else -> {
+                        items(viewModel.siswaList.value.sortedBy { it.nama }) { siswa ->
+                            val absensi = viewModel.absensiList.value.find { it.siswaId == siswa.siswaId }
+                            val status = absensi?.status ?: "Belum Diisi"
+                            StudentItem(
+                                name = siswa.nama,
+                                status = status,
+                                onClick = {
+                                    if (status != "Belum Diisi" && status != "Sakit") {
+                                        navController.navigate(
+                                            Destinations.ABSENSI_DETAIL_GURU
+                                                .replace("{kelasId}", kelasId.toString())
+                                                .replace("{tanggal}", selectedDate.format(formatter))
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

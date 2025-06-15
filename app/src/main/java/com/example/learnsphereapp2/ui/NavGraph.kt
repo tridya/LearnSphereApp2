@@ -215,26 +215,20 @@ fun AppNavGraph(
                     mataPelajaranId = mataPelajaranId
                 )
             }
-            composable(
-                route = Destinations.JADWAL_ORANGTUA,
-                arguments = listOf(navArgument("siswaId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val siswaId = backStackEntry.arguments?.getString("siswaId")?.toIntOrNull() ?: 1
+            composable(Destinations.JADWAL_ORANGTUA) { backStackEntry ->
+                val siswaIdString = backStackEntry.arguments?.getString("siswaId")
+                val siswaId = siswaIdString?.toIntOrNull() ?: 1
                 JadwalOrangTuaScreen(
                     navController = navController,
                     siswaId = siswaId,
                     preferencesHelper = preferencesHelper
                 )
             }
-            composable(
-                route = Destinations.TAMBAH_JADWAL,
-                arguments = listOf(
-                    navArgument("kelasId") { type = NavType.StringType },
-                    navArgument("jadwalId") { type = NavType.StringType; nullable = true }
-                )
-            ) { backStackEntry ->
-                val kelasId = backStackEntry.arguments?.getString("kelasId")?.toIntOrNull() ?: 1
-                val jadwalId = backStackEntry.arguments?.getString("jadwalId")?.toIntOrNull()
+            composable(Destinations.TAMBAH_JADWAL) { backStackEntry ->
+                val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+                val jadwalIdString = backStackEntry.arguments?.getString("jadwalId")
+                val kelasId = kelasIdString?.toIntOrNull() ?: 1
+                val jadwalId = jadwalIdString?.toIntOrNull()
                 TambahJadwalScreen(
                     navController = navController,
                     preferencesHelper = preferencesHelper,
@@ -242,11 +236,9 @@ fun AppNavGraph(
                     jadwalId = jadwalId
                 )
             }
-            composable(
-                route = Destinations.DAFTAR_JADWAL,
-                arguments = listOf(navArgument("kelasId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val kelasId = backStackEntry.arguments?.getString("kelasId")?.toIntOrNull() ?: 1
+            composable(Destinations.DAFTAR_JADWAL) { backStackEntry ->
+                val kelasIdString = backStackEntry.arguments?.getString("kelasId")
+                val kelasId = kelasIdString?.toIntOrNull() ?: 1
                 DaftarJadwalScreen(
                     navController = navController,
                     kelasId = kelasId,
@@ -280,6 +272,15 @@ fun AppNavGraph(
                     kelasId = kelasId,
                     preferencesHelper = preferencesHelper
                 )
+            }
+
+            composable(Destinations.PROFILE_GURU) {
+                ProfileScreenGuru(navController, preferencesHelper)
+            }
+
+
+            composable(Destinations.PROFILE_ORANGTUA) {
+                ProfileScreenOrangTua(navController, preferencesHelper)
             }
         }
     }

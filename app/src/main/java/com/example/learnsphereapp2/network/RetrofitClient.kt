@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http:/192.168.1.10:8000/" // Untuk emulator; ganti dengan IP server jika menggunakan perangkat fisik
+    private const val BASE_URL = "http:/192.168.1.10:8004/" // Untuk emulator; ganti dengan IP server jika menggunakan perangkat fisik
 
     // Base URL untuk Calendarific API
     private const val CALENDARIFIC_BASE_URL = "https://calendarific.com/api/v2/"

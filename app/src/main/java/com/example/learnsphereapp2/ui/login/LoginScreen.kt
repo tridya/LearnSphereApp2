@@ -110,8 +110,8 @@ fun LoginScreen(
                     label = { Text("Nama Pengguna") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 56.dp) // Consistent minimum height
-                        .padding(vertical = 4.dp), // Slight vertical padding for spacing
+                        .heightIn(min = 56.dp)
+                        .padding(vertical = 4.dp),
                     textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                     isError = usernameError != null,
                     supportingText = {
@@ -123,7 +123,7 @@ fun LoginScreen(
                             )
                         }
                     },
-                    singleLine = true, // Ensures single line input
+                    singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1976D2),
                         unfocusedBorderColor = Color(0xFF90CAF9),
@@ -136,7 +136,7 @@ fun LoginScreen(
                     )
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(4.dp)) // Reduced from 10.dp to 4.dp
 
                 // Password field
                 OutlinedTextField(
@@ -146,8 +146,8 @@ fun LoginScreen(
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 56.dp) // Consistent minimum height
-                        .padding(vertical = 4.dp), // Slight vertical padding for spacing
+                        .heightIn(min = 36.dp)
+                        .padding(vertical = 4.dp),
                     textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
                     isError = passwordError != null,
                     supportingText = {
@@ -159,7 +159,7 @@ fun LoginScreen(
                             )
                         }
                     },
-                    singleLine = true, // Ensures single line input
+                    singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1976D2),
                         unfocusedBorderColor = Color(0xFF90CAF9),

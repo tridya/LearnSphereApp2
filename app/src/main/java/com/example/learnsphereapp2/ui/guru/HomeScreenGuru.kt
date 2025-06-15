@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
+import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.DarkText
 import com.example.learnsphereapp2.ui.theme.GrayText
 import com.example.learnsphereapp2.ui.theme.VibrantBlue
@@ -40,180 +42,146 @@ fun HomeScreenGuru(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        // Header: Judul dan ikon notifikasi/profil
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp), // Padding atas untuk header
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.weight(1f) // Berikan weight agar konten mengisi layar
         ) {
-            // Judul "HomeScreen Guru" rata kiri
-            Text(
-                text = "HomeScreen Guru",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.weight(1f)
+            CommonTitleBar(
+                title = "Beranda Guru",
+                showBackButton = false, // No back button for home screen
+                onProfileClick = { navController.navigate(Destinations.PROFILE_GURU) }
             )
 
-            // Ikon notifikasi dan profil
-            Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Teks sambutan
+            Column {
+                Text(
+                    text = "Good day $username,",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = DarkText
+                )
+                Text(
+                    text = "Here some of the ways you can find help to grow in your studies",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GrayText
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Card Absensi
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate(Destinations.ABSENSI_HARIAN_GURU) },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = VibrantPurple)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
+                Row(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .clickable { /* TODO: Aksi notifikasi */ },
-                    tint = Color.Black
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Absensi",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = DarkText
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Monitoring kehadiran siswa",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GrayText
+                        )
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_absenn),
+                        contentDescription = "Ilustrasi Absensi",
+                        modifier = Modifier.size(80.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Card Nilai
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate(Destinations.REKAPAN_SISWA_GURU) },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = VibrantOrange)
+            ) {
+                Row(
                     modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFD1D5DB))
-                        .clickable { navController.navigate(Destinations.PROFILE_GURU) },
-                    tint = Color.Black
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Teks sambutan
-        Column {
-            Text(
-                text = "Good day $username,",
-                style = MaterialTheme.typography.headlineLarge,
-                color = DarkText
-            )
-            Text(
-                text = "Here some of the ways you can find help to grow in your studies",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrayText
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Card Absensi
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { navController.navigate(Destinations.ABSENSI_HARIAN_GURU) },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = VibrantPurple)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Absensi",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = DarkText
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Monitoring kehadiran siswa",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = GrayText
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Nilai",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = DarkText
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Monitoring nilai siswa",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GrayText
+                        )
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_nilaii),
+                        contentDescription = "Ilustrasi Nilai",
+                        modifier = Modifier.size(80.dp)
                     )
                 }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_absenn),
-                    contentDescription = "Ilustrasi Absensi",
-                    modifier = Modifier.size(80.dp)
-                )
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Card Nilai
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { navController.navigate(Destinations.REKAPAN_SISWA_GURU) },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = VibrantOrange)
-        ) {
-            Row(
+            // Card Jadwal
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = VibrantBlue)
             ) {
-                Column {
-                    Text(
-                        text = "Nilai",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = DarkText
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Monitoring nilai siswa",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = GrayText
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Jadwal",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = DarkText
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Daftar jadwal mata pelajaran\nsiswa",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = GrayText
+                        )
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_jadwall),
+                        contentDescription = "Ilustrasi Jadwal",
+                        modifier = Modifier.size(80.dp)
                     )
                 }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_nilaii),
-                    contentDescription = "Ilustrasi Nilai",
-                    modifier = Modifier.size(80.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Card Jadwal
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { navController.navigate(Destinations.JADWAL_KEGIATAN) },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = VibrantBlue)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Jadwal",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = DarkText
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Daftar jadwal mata pelajaran\nsiswa",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = GrayText
-                    )
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.ic_jadwall),
-                    contentDescription = "Ilustrasi Jadwal",
-                    modifier = Modifier.size(80.dp)
-                )
             }
         }
     }

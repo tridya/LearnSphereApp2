@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.ui.theme.*
 import com.example.learnsphereapp2.util.PreferencesHelper
 
@@ -39,54 +40,19 @@ fun HomeScreenOrangTua(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .background(BackgroundWhite)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
-        // Header: Judul dan ikon notifikasi/profil
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Judul "HomeScreen Orang Tua" rata kiri
-            Text(
-                text = "HomeScreen Orang Tua",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.weight(1f)
-            )
+        CommonTitleBar(
+            title = "Beranda Orang Tua",
+            navController = navController,
+            showBackButton = false,
+            showNotificationIcon = true,
+            showProfileIcon = true,
+            onProfileClick = { navController.navigate(Destinations.PROFILE_ORANGTUA) }
+        )
 
-            // Ikon notifikasi dan profil
-            Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifikasi",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .clickable { /* TODO: Aksi notifikasi */ },
-                    tint = Color.Black
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profil",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFD1D5DB))
-                        .clickable { navController.navigate(Destinations.PROFILE_ORANGTUA) },
-                    tint = Color.Black
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Teks sambutan
         Column {
@@ -124,9 +90,15 @@ fun HomeScreenOrangTua(
         FeatureCard(
             title = "Perkembangan Nilai",
             description = "Pantau perkembangan akademik $username",
-            iconRes = R.drawable.ic_nilai,
+            iconRes = R.drawable.ic_nilai_ilustration,
             color = VibrantOrange,
-            onClick = { navController.navigate(Destinations.REKAPAN_SISWA_ORANGTUA) }
+            onClick = {
+                navController.navigate(Destinations.REKAPAN_SISWA_ORANGTUA) {
+                    popUpTo(Destinations.HOME_ORANGTUA) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -135,7 +107,7 @@ fun HomeScreenOrangTua(
         FeatureCard(
             title = "Jadwal Pelajaran",
             description = "Lihat jadwal pelajaran $username",
-            iconRes = R.drawable.ic_jadwal,
+            iconRes = R.drawable.ic_jadwal_ilustration,
             color = VibrantBlue,
             onClick = { navController.navigate(Destinations.JADWAL_ORANGTUA) }
         )

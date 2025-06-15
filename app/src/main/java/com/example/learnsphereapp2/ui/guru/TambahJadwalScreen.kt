@@ -113,24 +113,7 @@ fun TambahJadwalScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifikasi",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { },
-                        tint = Color.Black
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profil",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { },
-                        tint = Color.Black
-                    )
+
                 }
             }
 

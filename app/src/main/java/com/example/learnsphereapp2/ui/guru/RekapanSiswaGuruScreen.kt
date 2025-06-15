@@ -29,6 +29,7 @@ import com.example.learnsphereapp2.data.model.MataPelajaranResponse
 import com.example.learnsphereapp2.data.model.RekapanSiswaCreate
 import com.example.learnsphereapp2.data.model.StatusRekapanSiswa
 import com.example.learnsphereapp2.network.RetrofitClient
+import com.example.learnsphereapp2.ui.components.CommonTitleBar
 import com.example.learnsphereapp2.util.PreferencesHelper
 import kotlinx.coroutines.launch
 
@@ -121,16 +122,16 @@ fun RekapanSiswaGuruScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Daftar Nilai") },
-                actions = {
-                    TextButton(onClick = {
-                        preferencesHelper.clear()
-                        navController.navigate("login") {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        }
-                    }) {
-                        Text("Logout")
+            CommonTitleBar(
+                title = "Daftar Nilai",
+                navController = navController,
+                showBackButton = true,
+                showProfileIcon = true,
+                onBackClick = { navController.popBackStack() },
+                onProfileClick = {
+                    preferencesHelper.clear()
+                    navController.navigate("login") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     }
                 }
             )
@@ -385,7 +386,7 @@ fun RekapanSiswaGuruScreen(
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                                         modifier = Modifier
                                             .padding(start = 8.dp)
-                                            .size(70.dp, 30.dp), // Ukuran diperbesar agar teks tidak terpotong
+                                            .size(70.dp, 30.dp),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
                                         Text(

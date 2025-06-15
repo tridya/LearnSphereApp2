@@ -1,13 +1,17 @@
 package com.example.learnsphereapp2.ui.orangtua
 
-import android.util.Log
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -15,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.learnsphereapp2.R
 import com.example.learnsphereapp2.ui.Destinations
+import com.example.learnsphereapp2.ui.theme.BackgroundWhite
 import com.example.learnsphereapp2.ui.theme.BlueCard
 import com.example.learnsphereapp2.ui.theme.GrayText
 
@@ -24,11 +29,11 @@ fun BottomNavigationOrangTua(
     currentRoute: String?
 ) {
     NavigationBar(
-        modifier = Modifier.height(64.dp),
-        containerColor = Color.White,
-        contentColor = GrayText
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = BackgroundWhite, // White background from Color.kt
+        contentColor = GrayText // Unselected icon and text color
     ) {
-        // Daftar item navbar untuk orang tua (hanya route spesifik orang tua)
+        // Daftar item navbar untuk orang tua
         val menuItems = listOf(
             NavItemOrangTua(
                 iconRes = R.drawable.ic_home,
@@ -54,14 +59,25 @@ fun BottomNavigationOrangTua(
 
         // Menampilkan setiap item navbar
         menuItems.forEach { menuItem ->
-            val isSelected = currentRoute == menuItem.route
+            val isSelected = currentRoute?.startsWith(menuItem.route) == true
             NavigationBarItem(
                 icon = {
-                    Icon(
-                        painter = painterResource(id = menuItem.iconRes),
-                        contentDescription = menuItem.label,
-                        tint = if (isSelected) BlueCard else GrayText
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp) // Size of the circular background
+                            .background(
+                                color = if (isSelected) BlueCard else Color.Transparent,
+                                shape = CircleShape // Circular background for selected item
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = menuItem.iconRes),
+                            contentDescription = menuItem.label,
+                            modifier = Modifier.size(24.dp),
+                            tint = if (isSelected) Color.White else GrayText // White for selected, gray for unselected
+                        )
+                    }
                 },
                 label = {
                     Text(
@@ -72,7 +88,6 @@ fun BottomNavigationOrangTua(
                 selected = isSelected,
                 onClick = {
                     if (!isSelected) {
-                        Log.d("BottomNavigationOrangTua", "Navigating to: ${menuItem.route}")
                         // Navigasi ke route yang dipilih
                         navController.navigate(menuItem.route) {
                             // Bersihkan back stack sampai ke Beranda
@@ -87,9 +102,11 @@ fun BottomNavigationOrangTua(
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = BlueCard,
-                    unselectedIconColor = GrayText,
-                    indicatorColor = Color.Transparent
+                    selectedIconColor = Color.White, // White icon for selected
+                    unselectedIconColor = GrayText, // Gray for unselected
+                    selectedTextColor = BlueCard, // Blue text for selected label
+                    unselectedTextColor = GrayText, // Gray for unselected label
+                    indicatorColor = Color.Transparent // Remove the default indicator
                 )
             )
         }

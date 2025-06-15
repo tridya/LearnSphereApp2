@@ -64,7 +64,7 @@ fun ProfileScreenOrangTua(
                     nama = user.nama
                     profilePicture = user.profilePicture
                     preferencesHelper.saveUserData(
-                        userId = user.id.toString(),
+                        userId = user.id.toInt(),
                         username = user.username,
                         nama = user.nama,
                         role = user.role,

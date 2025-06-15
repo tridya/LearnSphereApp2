@@ -143,24 +143,7 @@ fun DaftarJadwalScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifikasi",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { navController.navigate("notifications") },
-                        tint = DarkText
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profil",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .clickable { navController.navigate("profile") },
-                        tint = DarkText
-                    )
+
                 }
             }
 
